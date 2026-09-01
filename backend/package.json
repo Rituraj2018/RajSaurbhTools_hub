@@ -1,0 +1,37 @@
+{
+  "name": "vikas-tool-hub-pro-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Vikas Tool Hub Pro - All-in-One Document, Photo and PDF Processing Platform",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "rimraf dist && tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "vikas-tool-hub-pro",
+    "express",
+    "typescript",
+    "mongodb",
+    "document-processing",
+    "pdf-processing",
+    "photo-processing"
+  ],
+  "author": "Vikas Tool Hub Pro Team",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.10",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

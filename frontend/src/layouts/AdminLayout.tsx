@@ -50,7 +50,7 @@ export const AdminLayout: React.FC = () => {
                 SECURED
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium">RajSaurbh Control Center</p>
+            <p className="text-[10px] text-slate-400 font-medium">RajSaurbh Tools_Hub Admin</p>
           </div>
         </div>
         <button

@@ -25,6 +25,27 @@ export const config = {
       );
     },
   },
+  // Google OAuth configuration
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID || '',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    callbackUrl:
+      process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
+    get isConfigured(): boolean {
+      return Boolean(process.env.GOOGLE_CLIENT_ID);
+    },
+  },
+  // Email / SMTP configuration
+  email: {
+    host: process.env.SMTP_HOST || '',
+    port: Number(process.env.SMTP_PORT) || 587,
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.EMAIL_FROM || '"RajSaurbh Tools_Hub" <no-reply@rajsaurbh.tools>',
+    get isConfigured(): boolean {
+      return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    },
+  },
 };
 
 /**

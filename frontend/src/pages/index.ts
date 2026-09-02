@@ -12,6 +12,8 @@ export * from './FavoritesPage';
 export * from './NotFoundPage';
 export * from './LoginPage';
 export * from './RegisterPage';
+export * from './ForgotPasswordPage';
+export * from './ResetPasswordPage';
 // Admin pages
 export * from './AdminDashboardPage';
 export * from './AdminUsersPage';

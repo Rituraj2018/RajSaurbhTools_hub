@@ -54,6 +54,61 @@ export const loginUser = createAsyncThunk<
 });
 
 /**
+ * Async Thunk: Google Login
+ */
+export const loginWithGoogle = createAsyncThunk<
+  { token: string; user: AuthUser; message: string },
+  string,
+  { rejectValue: { message: string } }
+>('auth/loginWithGoogle', async (credential, { rejectWithValue }) => {
+  try {
+    return await authService.googleLogin(credential);
+  } catch (error: any) {
+    const message =
+      error?.message ||
+      (typeof error === 'string' ? error : 'Google authentication failed. Please try again.');
+    return rejectWithValue({ message });
+  }
+});
+
+/**
+ * Async Thunk: Request Password Reset Link
+ */
+export const requestPasswordReset = createAsyncThunk<
+  { message: string },
+  string,
+  { rejectValue: { message: string } }
+>('auth/requestPasswordReset', async (email, { rejectWithValue }) => {
+  try {
+    return await authService.forgotPassword(email);
+  } catch (error: any) {
+    const message =
+      error?.message ||
+      (typeof error === 'string' ? error : 'Failed to send password reset link. Please try again.');
+    return rejectWithValue({ message });
+  }
+});
+
+/**
+ * Async Thunk: Perform Password Reset
+ */
+export const performPasswordReset = createAsyncThunk<
+  { message: string },
+  { token: string; password: string },
+  { rejectValue: { message: string; errors?: string[] } }
+>('auth/performPasswordReset', async ({ token, password }, { rejectWithValue }) => {
+  try {
+    return await authService.resetPassword(token, password);
+  } catch (error: any) {
+    const message =
+      error?.message ||
+      (typeof error === 'string' ? error : 'Password reset failed. The link may have expired.');
+    const errors = Array.isArray(error?.errors) ? error.errors : undefined;
+    return rejectWithValue({ message, errors });
+  }
+});
+
+/**
  * Async Thunk: Fetch Current User Profile
  */
 export const fetchUserProfile = createAsyncThunk<
@@ -141,6 +196,67 @@ export const authSlice = createSlice({
         state.token = null;
         state.user = null;
         state.error = action.payload?.message || 'Login failed';
+        state.validationErrors = action.payload?.errors;
+      })
+
+      // Google Login
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.validationErrors = undefined;
+        state.successMessage = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.error = null;
+        state.validationErrors = undefined;
+        state.successMessage = action.payload.message;
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.token = null;
+        state.user = null;
+        state.error = action.payload?.message || 'Google authentication failed';
+      })
+
+      // Request Password Reset (Forgot Password)
+      .addCase(requestPasswordReset.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.validationErrors = undefined;
+        state.successMessage = null;
+      })
+      .addCase(requestPasswordReset.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.validationErrors = undefined;
+        state.successMessage = action.payload.message;
+      })
+      .addCase(requestPasswordReset.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to send password reset link';
+      })
+
+      // Perform Password Reset (Reset Password)
+      .addCase(performPasswordReset.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.validationErrors = undefined;
+        state.successMessage = null;
+      })
+      .addCase(performPasswordReset.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.validationErrors = undefined;
+        state.successMessage = action.payload.message;
+      })
+      .addCase(performPasswordReset.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Password reset failed';
         state.validationErrors = action.payload?.errors;
       })
 

@@ -12,11 +12,14 @@ export interface IUser {
   name: string;
   email: string;
   password?: string;
+  googleId?: string;
   role: UserRole;
   profileImage?: string;
   isEmailVerified: boolean;
   isBlocked: boolean;
   favoriteTools?: string[];
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,9 +62,21 @@ const userSchema = new Schema<IUserDocument>(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: [
+        function (this: IUserDocument) {
+          // Password is required for manual email/password registration, but optional for Google OAuth
+          return !this.googleId;
+        },
+        'Password is required',
+      ],
       minlength: [8, 'Password must be at least 8 characters long'],
       select: false, // Exclude password from query results by default
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
     },
     role: {
       type: String,
@@ -89,12 +104,22 @@ const userSchema = new Schema<IUserDocument>(
       type: [String],
       default: [],
     },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt
     toJSON: {
       transform: (_doc, ret: Record<string, any>) => {
         delete ret.password;
+        delete ret.resetPasswordToken;
+        delete ret.resetPasswordExpires;
         delete ret.__v;
         return ret;
       },
@@ -102,6 +127,8 @@ const userSchema = new Schema<IUserDocument>(
     toObject: {
       transform: (_doc, ret: Record<string, any>) => {
         delete ret.password;
+        delete ret.resetPasswordToken;
+        delete ret.resetPasswordExpires;
         delete ret.__v;
         return ret;
       },

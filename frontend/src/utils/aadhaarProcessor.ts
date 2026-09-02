@@ -481,7 +481,7 @@ export function generateAadhaarA4SheetCanvas(
   // Footer Note
   ctx.fillStyle = '#94A3B8';
   ctx.font = '20px Arial, sans-serif';
-  ctx.fillText('Processed 100% locally via RajSaurbh Tool Hub Pro • Print at 100% Scale / Actual Size', 90, a4Canvas.height - 50);
+  ctx.fillText('Processed 100% locally via RajSaurbh Tools_Hub • Print at 100% Scale / Actual Size', 90, a4Canvas.height - 50);
 
   return a4Canvas;
 }

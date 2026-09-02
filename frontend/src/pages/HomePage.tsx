@@ -81,7 +81,7 @@ export const HomePage: React.FC = () => {
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Welcome to <span className="text-white font-semibold">RajSaurbh Tool Hub Pro</span>. A modern,
+            Welcome to <span className="text-white font-semibold">RajSaurbh Tools_Hub</span>. A modern,
             high-throughput processing platform built with clean MERN architecture, dark glassmorphic styling, and scalable TypeScript.
           </p>
 

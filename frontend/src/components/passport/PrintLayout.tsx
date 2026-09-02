@@ -5,19 +5,61 @@ import {
   Scissors,
   Square,
   LayoutGrid,
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  Crosshair,
+  RotateCcw,
+  Move,
 } from 'lucide-react';
 import {
   PaperSize,
   PhotoCopies,
   SheetOptions,
+  calculatePrintGrid,
 } from '../../utils/passportProcessor';
 
 export interface PrintLayoutProps {
   options: SheetOptions;
   onChange: (options: SheetOptions) => void;
+  photoPosition: { x: number; y: number };
+  onPhotoPositionChange: (pos: { x: number; y: number }) => void;
 }
 
-export const PrintLayout: React.FC<PrintLayoutProps> = ({ options, onChange }) => {
+export const PrintLayout: React.FC<PrintLayoutProps> = ({
+  options,
+  onChange,
+  photoPosition,
+  onPhotoPositionChange,
+}) => {
+  // --- Photo Group Step Size (px at 300 DPI: ~10mm per click) ---
+  const STEP = Math.round(11.811 * 10); // ≈118px = 10mm
+
+  // Compute boundary limits from the current grid so we never move outside the sheet
+  const getClampedPosition = (dx: number, dy: number): { x: number; y: number } => {
+    const grid = calculatePrintGrid(options.paperSize, options.copies, options.landscape);
+    const totalGridWidth = grid.cols * grid.photoWidthPx + (grid.cols - 1) * grid.gapXPx;
+    const totalGridHeight = grid.rows * grid.photoHeightPx + (grid.rows - 1) * grid.gapYPx;
+
+    const minX = -grid.startX;
+    const maxX = grid.sheetWidthPx - grid.startX - totalGridWidth;
+    const minY = -grid.startY;
+    const maxY = grid.sheetHeightPx - grid.startY - totalGridHeight;
+
+    return {
+      x: Math.round(Math.min(maxX, Math.max(minX, photoPosition.x + dx))),
+      y: Math.round(Math.min(maxY, Math.max(minY, photoPosition.y + dy))),
+    };
+  };
+
+  const moveUp    = () => onPhotoPositionChange(getClampedPosition(0, -STEP));
+  const moveDown  = () => onPhotoPositionChange(getClampedPosition(0, +STEP));
+  const moveLeft  = () => onPhotoPositionChange(getClampedPosition(-STEP, 0));
+  const moveRight = () => onPhotoPositionChange(getClampedPosition(+STEP, 0));
+  const moveCenter = () => onPhotoPositionChange({ x: 0, y: 0 });
+  const resetPosition = () => onPhotoPositionChange({ x: 0, y: 0 });
+
   const handlePaperSizeChange = (paperSize: PaperSize) => {
     onChange({
       ...options,
@@ -197,6 +239,92 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ options, onChange }) =
             }`}
           />
         </button>
+      </div>
+
+      {/* 4. Photo Position Controls */}
+      <div className="space-y-3 pt-2 border-t border-slate-800/60">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <Move className="w-4 h-4" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-white tracking-tight">Photo Position</h4>
+            <p className="text-[11px] text-slate-400">Move the photo group on the A4 page</p>
+          </div>
+        </div>
+
+        {/* D-Pad Grid */}
+        <div className="flex flex-col items-center gap-1.5">
+          {/* Up */}
+          <button
+            type="button"
+            onClick={moveUp}
+            title="Move Up"
+            className="flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 hover:border-amber-500/50 hover:text-amber-300 transition-all active:scale-95"
+          >
+            <ArrowUp className="w-3.5 h-3.5" />
+            UP
+          </button>
+
+          {/* Middle row: LEFT · CENTER · RIGHT */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={moveLeft}
+              title="Move Left"
+              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 hover:border-amber-500/50 hover:text-amber-300 transition-all active:scale-95"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              LEFT
+            </button>
+
+            <button
+              type="button"
+              onClick={moveCenter}
+              title="Center the photo group"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-500/10 border border-amber-500/40 text-amber-300 hover:bg-amber-500/20 transition-all active:scale-95"
+            >
+              <Crosshair className="w-3.5 h-3.5" />
+              CENTER
+            </button>
+
+            <button
+              type="button"
+              onClick={moveRight}
+              title="Move Right"
+              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 hover:border-amber-500/50 hover:text-amber-300 transition-all active:scale-95"
+            >
+              RIGHT
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Down */}
+          <button
+            type="button"
+            onClick={moveDown}
+            title="Move Down"
+            className="flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 hover:border-amber-500/50 hover:text-amber-300 transition-all active:scale-95"
+          >
+            DOWN
+            <ArrowDown className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Position display + Reset */}
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-[10px] font-mono text-slate-500">
+            Offset: x={photoPosition.x}px, y={photoPosition.y}px
+          </span>
+          <button
+            type="button"
+            onClick={resetPosition}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white transition-all active:scale-95"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Reset Position
+          </button>
+        </div>
       </div>
     </div>
   );

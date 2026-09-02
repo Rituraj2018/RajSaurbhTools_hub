@@ -1,7 +1,7 @@
 import { Tool, ITool } from '../models/Tool';
 
 /**
- * Initial 7 static tool definitions for RajSaurbh Tool Hub Pro
+ * Initial 7 static tool definitions for RajSaurbh Tools_Hub
  */
 export const INITIAL_STATIC_TOOLS: Omit<ITool, 'createdAt' | 'updatedAt'>[] = [
   {

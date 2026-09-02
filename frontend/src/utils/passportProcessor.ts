@@ -45,6 +45,8 @@ export interface SheetOptions {
   showBorder: boolean;
   borderColor?: string;
   landscape?: boolean;
+  /** Pixel offset from the default centered position. {x:0, y:0} = centered (default). */
+  photoPosition?: { x: number; y: number };
 }
 
 // 300 DPI Standard Dimensions
@@ -515,7 +517,7 @@ export function generatePrintSheetCanvas(
   passportPhotoCanvas: HTMLCanvasElement,
   options: SheetOptions
 ): HTMLCanvasElement {
-  const { paperSize, copies, showCuttingGuides, showBorder, landscape } = options;
+  const { paperSize, copies, showCuttingGuides, showBorder, landscape, photoPosition } = options;
   const grid = calculatePrintGrid(paperSize, copies, landscape);
 
   const sheetCanvas = document.createElement('canvas');
@@ -528,12 +530,31 @@ export function generatePrintSheetCanvas(
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, sheetCanvas.width, sheetCanvas.height);
 
+  // --- Photo Group Position Offset ---
+  // photoPosition is a pixel delta from the default centered position.
+  // Clamp so the entire group always stays inside the sheet.
+  const totalGridWidth =
+    grid.cols * grid.photoWidthPx + (grid.cols - 1) * grid.gapXPx;
+  const totalGridHeight =
+    grid.rows * grid.photoHeightPx + (grid.rows - 1) * grid.gapYPx;
+
+  const maxOffsetX = grid.sheetWidthPx - grid.startX - totalGridWidth;  // room to the right
+  const minOffsetX = -grid.startX;                                       // room to the left
+  const maxOffsetY = grid.sheetHeightPx - grid.startY - totalGridHeight; // room downward
+  const minOffsetY = -grid.startY;                                       // room upward
+
+  const rawOffsetX = photoPosition?.x ?? 0;
+  const rawOffsetY = photoPosition?.y ?? 0;
+
+  const offsetX = Math.round(Math.min(maxOffsetX, Math.max(minOffsetX, rawOffsetX)));
+  const offsetY = Math.round(Math.min(maxOffsetY, Math.max(minOffsetY, rawOffsetY)));
+
   let renderedCopies = 0;
 
   for (let r = 0; r < grid.rows && renderedCopies < copies; r++) {
     for (let c = 0; c < grid.cols && renderedCopies < copies; c++) {
-      const x = grid.startX + c * (grid.photoWidthPx + grid.gapXPx);
-      const y = grid.startY + r * (grid.photoHeightPx + grid.gapYPx);
+      const x = grid.startX + offsetX + c * (grid.photoWidthPx + grid.gapXPx);
+      const y = grid.startY + offsetY + r * (grid.photoHeightPx + grid.gapYPx);
 
       // Draw passport photo copy
       ctx.drawImage(
@@ -603,7 +624,7 @@ export function generatePrintSheetCanvas(
   ctx.font = '18px sans-serif';
   const paperName = PAPER_SPECS[paperSize].name;
   const footerText = `Passport Studio Pro • 35x45mm • ${copies} Copies • ${paperName} (300 DPI)`;
-  ctx.fillText(footerText, grid.startX, sheetCanvas.height - 24);
+  ctx.fillText(footerText, grid.startX + offsetX, sheetCanvas.height - 24);
 
   return sheetCanvas;
 }

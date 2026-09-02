@@ -75,6 +75,9 @@ export const PassportPhotoStudioPage: React.FC = () => {
     landscape: false,
   });
 
+  // 5b. Photo Group Position Offset (pixel delta from centered default)
+  const [photoPosition, setPhotoPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
   // 6. Active Workspace Tab
   const [activeStep, setActiveStep] = useState<'crop' | 'enhance' | 'background' | 'print'>(
     'crop'
@@ -133,10 +136,10 @@ export const PassportPhotoStudioPage: React.FC = () => {
     const finalPassport = applyBackgroundColor(enhanced, backgroundSettings);
     setSinglePassportCanvas(finalPassport);
 
-    // 4. Generate Print Sheet
-    const sheet = generatePrintSheetCanvas(finalPassport, sheetOptions);
+    // 4. Generate Print Sheet (inject current photoPosition so export matches preview)
+    const sheet = generatePrintSheetCanvas(finalPassport, { ...sheetOptions, photoPosition });
     setPrintSheetCanvas(sheet);
-  }, [sourceImage, cropArea, rotation, flipHorizontal, adjustments, backgroundSettings, sheetOptions]);
+  }, [sourceImage, cropArea, rotation, flipHorizontal, adjustments, backgroundSettings, sheetOptions, photoPosition]);
 
   useEffect(() => {
     updateProcessingPipeline();
@@ -394,7 +397,12 @@ export const PassportPhotoStudioPage: React.FC = () => {
 
               {activeStep === 'print' && (
                 <div className="space-y-6">
-                  <PrintLayout options={sheetOptions} onChange={setSheetOptions} />
+                  <PrintLayout
+                    options={sheetOptions}
+                    onChange={setSheetOptions}
+                    photoPosition={photoPosition}
+                    onPhotoPositionChange={setPhotoPosition}
+                  />
                 </div>
               )}
             </div>
@@ -418,6 +426,9 @@ export const PassportPhotoStudioPage: React.FC = () => {
                   sheetCanvas={printSheetCanvas}
                   paperSize={sheetOptions.paperSize}
                   copies={sheetOptions.copies}
+                  photoPosition={photoPosition}
+                  onPhotoPositionChange={setPhotoPosition}
+                  sheetOptions={sheetOptions}
                 />
               </div>
             </div>

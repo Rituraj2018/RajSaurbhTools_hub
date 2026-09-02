@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
                 <Layers className="w-4 h-4 text-white" />
               </div>
               <span className="text-base font-bold text-white tracking-tight">
-                RajSaurbh Tool Hub Pro
+                RajSaurbh Tools_Hub
               </span>
             </div>
             <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-slate-800/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} RajSaurbh Tool Hub Pro. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} RajSaurbh Tools_Hub. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Engineered with <Heart className="w-3 h-3 text-purple-500 fill-purple-500" /> for high performance
           </p>

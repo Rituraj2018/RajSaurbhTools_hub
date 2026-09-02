@@ -65,20 +65,20 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
               <Layers className="w-4 h-4 text-white" />
             </div>
             <span className="text-sm font-extrabold text-white tracking-tight">
-              RajSaurbh
+              RajSaurbh Tools_Hub
             </span>
           </Link>
 
           {/* Desktop Tagline / Greeting */}
           <div className="hidden lg:block">
             <h1 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>Platform Dashboard</span>
+              <span>RajSaurbh Tools_Hub</span>
               <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 Live & Operational
               </span>
             </h1>
             <p className="text-[11px] text-slate-400">
-              Welcome back to your high-performance tool workspace.
+              Welcome to RajSaurbh Tools_Hub workspace.
             </p>
           </div>
         </div>
@@ -263,7 +263,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
 
           <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
             <span>Tip: Press ESC to close</span>
-            <span className="text-blue-400 font-medium">RajSaurbh Tool Hub Pro</span>
+            <span className="text-blue-400 font-medium">RajSaurbh Tools_Hub</span>
           </div>
         </div>
       </Modal>

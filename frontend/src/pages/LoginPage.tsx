@@ -14,7 +14,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../features/store';
-import { loginUser, clearAuthError, clearAuthSuccess } from '../features/auth';
+import { loginUser, loginWithGoogle, clearAuthError, clearAuthSuccess } from '../features/auth';
+import { GoogleLogin } from '@react-oauth/google';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 
@@ -94,14 +95,11 @@ export const LoginPage: React.FC = () => {
               <Layers className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              RajSaurbh Tool Hub
-            </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400 border border-blue-500/30">
-              PRO
+              RajSaurbh Tools_Hub
             </span>
           </Link>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Welcome back
+            Welcome to RajSaurbh Tools_Hub
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
             Sign in to access your high-speed PDF, Photo and Document processing suite.
@@ -190,6 +188,16 @@ export const LoginPage: React.FC = () => {
               />
             </div>
 
+            {/* Forgot Password Link */}
+            <div className="flex justify-end">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             {/* Submit Button */}
             <div className="pt-2">
               <Button
@@ -204,6 +212,37 @@ export const LoginPage: React.FC = () => {
               </Button>
             </div>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-800" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-slate-900/90 px-3 text-slate-500 font-medium tracking-wider">
+                Or
+              </span>
+            </div>
+          </div>
+
+          {/* Google Sign In */}
+          <div className="flex justify-center w-full min-h-[44px]">
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                if (credentialResponse.credential) {
+                  dispatch(loginWithGoogle(credentialResponse.credential));
+                }
+              }}
+              onError={() => {
+                // Handled gracefully without crash
+              }}
+              theme="filled_black"
+              shape="pill"
+              size="large"
+              text="continue_with"
+              width="100%"
+            />
+          </div>
 
           {/* Footer Note & Registration Link */}
           <div className="mt-6 pt-5 border-t border-slate-800/80 text-center">

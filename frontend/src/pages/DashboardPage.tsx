@@ -101,10 +101,10 @@ export const DashboardPage: React.FC = () => {
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[11px] font-bold text-blue-400">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Workspace Dashboard • Ready</span>
+              <span>RajSaurbh Tools_Hub • Active</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Process, Convert & Enhance Any File
+              Welcome to RajSaurbh Tools_Hub
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Batch process PDFs, remove photo backgrounds with AI, extract text with OCR, or manage your stored processed files.

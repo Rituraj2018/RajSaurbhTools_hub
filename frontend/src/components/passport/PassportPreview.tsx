@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   Download,
   Printer,
@@ -8,12 +8,15 @@ import {
   Layers,
   ZoomIn,
   ZoomOut,
+  GripHorizontal,
 } from 'lucide-react';
 import {
   PaperSize,
+  SheetOptions,
   downloadCanvasImage,
   PASSPORT_WIDTH_MM,
   PASSPORT_HEIGHT_MM,
+  calculatePrintGrid,
 } from '../../utils/passportProcessor';
 import { generatePDFSheet } from '../../utils/pdfGenerator';
 import { Button } from '../common/Button';
@@ -23,6 +26,11 @@ export interface PassportPreviewProps {
   sheetCanvas: HTMLCanvasElement | null;
   paperSize: PaperSize;
   copies: number;
+  /** Current photo group offset (px in canvas space). */
+  photoPosition: { x: number; y: number };
+  onPhotoPositionChange: (pos: { x: number; y: number }) => void;
+  /** Needed to compute boundary limits during drag. */
+  sheetOptions: SheetOptions;
 }
 
 export const PassportPreview: React.FC<PassportPreviewProps> = ({
@@ -30,10 +38,74 @@ export const PassportPreview: React.FC<PassportPreviewProps> = ({
   sheetCanvas,
   paperSize,
   copies,
+  photoPosition,
+  onPhotoPositionChange,
+  sheetOptions,
 }) => {
   const [activeTab, setActiveTab] = useState<'single' | 'sheet'>('sheet');
   const [sheetZoom, setSheetZoom] = useState<number>(1);
   const [isExportingPDF, setIsExportingPDF] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  // Refs for drag tracking (avoid stale closure issues)
+  const dragStartPtr  = useRef<{ x: number; y: number } | null>(null);
+  const dragStartPos  = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const sheetImgRef   = useRef<HTMLImageElement | null>(null);
+
+  // Compute clamped position using current grid boundaries
+  const clampPosition = useCallback(
+    (rawX: number, rawY: number): { x: number; y: number } => {
+      const grid = calculatePrintGrid(
+        sheetOptions.paperSize,
+        sheetOptions.copies,
+        sheetOptions.landscape
+      );
+      const totalGridW = grid.cols * grid.photoWidthPx + (grid.cols - 1) * grid.gapXPx;
+      const totalGridH = grid.rows * grid.photoHeightPx + (grid.rows - 1) * grid.gapYPx;
+      const minX = -grid.startX;
+      const maxX = grid.sheetWidthPx - grid.startX - totalGridW;
+      const minY = -grid.startY;
+      const maxY = grid.sheetHeightPx - grid.startY - totalGridH;
+      return {
+        x: Math.round(Math.min(maxX, Math.max(minX, rawX))),
+        y: Math.round(Math.min(maxY, Math.max(minY, rawY))),
+      };
+    },
+    [sheetOptions]
+  );
+
+  // --- Pointer-event drag handlers ---
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!sheetCanvas) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragStartPtr.current = { x: e.clientX, y: e.clientY };
+    dragStartPos.current = { x: photoPosition.x, y: photoPosition.y };
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartPtr.current || !sheetCanvas) return;
+
+    // Scale ratio: CSS display width / canvas actual width
+    const displayedWidth = sheetImgRef.current?.getBoundingClientRect().width ?? sheetCanvas.width;
+    const scaleRatio = displayedWidth / sheetCanvas.width;
+
+    const deltaPxCanvas = {
+      x: (e.clientX - dragStartPtr.current.x) / scaleRatio,
+      y: (e.clientY - dragStartPtr.current.y) / scaleRatio,
+    };
+
+    const newPos = clampPosition(
+      dragStartPos.current.x + deltaPxCanvas.x,
+      dragStartPos.current.y + deltaPxCanvas.y
+    );
+    onPhotoPositionChange(newPos);
+  };
+
+  const handlePointerUp = () => {
+    dragStartPtr.current = null;
+    setIsDragging(false);
+  };
 
   // Single Photo Downloads
   const handleDownloadSingleJpg = () => {
@@ -233,11 +305,32 @@ export const PassportPreview: React.FC<PassportPreviewProps> = ({
                 style={{ transform: `scale(${sheetZoom})`, transition: 'transform 0.15s ease-out' }}
                 className="rounded-lg shadow-2xl overflow-hidden border border-slate-700 bg-white"
               >
-                <img
-                  src={sheetCanvas.toDataURL('image/jpeg', 0.9)}
-                  alt="Print Sheet Preview"
-                  className="max-h-[500px] w-auto block object-contain"
-                />
+                {/* Draggable wrapper */}
+                <div
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                  style={{ cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+                  title="Drag to reposition photo group"
+                >
+                  <img
+                    ref={sheetImgRef}
+                    src={sheetCanvas.toDataURL('image/jpeg', 0.9)}
+                    alt="Print Sheet Preview"
+                    className="max-h-[500px] w-auto block object-contain select-none"
+                    draggable={false}
+                  />
+                  {/* Drag hint badge */}
+                  <div
+                    className={`absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-black/60 text-amber-300 backdrop-blur-sm transition-opacity duration-300 pointer-events-none ${
+                      isDragging ? 'opacity-0' : 'opacity-100'
+                    }`}
+                  >
+                    <GripHorizontal className="w-3 h-3" />
+                    Drag to move photos
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="w-72 h-96 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 text-xs">

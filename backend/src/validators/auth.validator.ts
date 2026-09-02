@@ -97,3 +97,68 @@ export const validateLogin = (
 
   next();
 };
+
+/**
+ * Middleware validator for Google authentication requests
+ */
+export const validateGoogleAuth = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
+  const credential = req.body.credential || req.body.token || req.body.idToken;
+
+  if (!credential || typeof credential !== 'string' || !credential.trim()) {
+    throw new ApiError(400, 'Google authentication credential is required');
+  }
+
+  next();
+};
+
+/**
+ * Middleware validator for forgot password requests
+ */
+export const validateForgotPassword = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
+  const { email } = req.body;
+
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw new ApiError(400, 'Email is required');
+  }
+
+  if (!EMAIL_REGEX.test(email.trim().toLowerCase())) {
+    throw new ApiError(400, 'Please provide a valid email address');
+  }
+
+  next();
+};
+
+/**
+ * Middleware validator for reset password requests
+ */
+export const validateResetPassword = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
+  const token = req.params.token || req.body.token;
+  const password = req.body.password || req.body.newPassword;
+
+  if (!token || typeof token !== 'string' || !token.trim()) {
+    throw new ApiError(400, 'Reset password token is required');
+  }
+
+  if (!password || typeof password !== 'string') {
+    throw new ApiError(400, 'New password is required');
+  }
+
+  const pwErrors = validatePasswordStrength(password);
+  if (pwErrors.length > 0) {
+    throw new ApiError(400, pwErrors[0], pwErrors);
+  }
+
+  next();
+};

@@ -12,7 +12,7 @@ export const NotFoundPage: React.FC = () => {
       <div className="space-y-2">
         <h1 className="text-3xl font-extrabold text-white">404 - Page Not Found</h1>
         <p className="text-sm text-slate-400">
-          The tool or page route you are looking for does not exist in RajSaurbh Tool Hub Pro.
+          The tool or page route you are looking for does not exist in RajSaurbh Tools_Hub.
         </p>
       </div>
       <div className="flex items-center justify-center gap-3 pt-2">

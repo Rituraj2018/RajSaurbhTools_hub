@@ -1,231 +1,303 @@
 # RajSaurbh Tool Hub Pro 🚀
 
-> **All-in-One Document, Photo, and PDF Processing Platform**  
-> Engineered with a production-ready, clean, and scalable MERN Stack architecture using end-to-end TypeScript and modern glassmorphic UI.
+> **Enterprise-Grade All-in-One Document, Photo & PDF Processing Platform**  
+> Engineered with a modern, high-performance MERN stack with complete end-to-end TypeScript, client-side zero-latency processing engines, and a sleek modern UI.
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3-61dafb.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6.1-646CFF.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC.svg)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.21-lightgrey.svg)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas_Ready-brightgreen.svg)](https://www.mongodb.com/)
+[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
 
 ---
 
 ## 📖 Table of Contents
 
-- [Project Overview](#-project-overview)
-- [Technology Stack](#-technology-stack)
-- [Project Architecture & Directory Structure](#-project-architecture--directory-structure)
-- [Prerequisites](#-prerequisites)
-- [Installation Steps](#-installation-steps)
-- [Environment Variables Setup](#-environment-variables-setup)
-- [Running the Project](#-running-the-project)
-  - [Run Backend](#1-run-backend)
-  - [Run Frontend](#2-run-frontend)
-- [API Endpoints](#-api-endpoints)
-- [Future Roadmap](#-future-roadmap)
+- [🌟 Features Overview](#-features-overview)
+- [🛠 Technology Stack](#-technology-stack)
+- [📂 Project Architecture & Directory Structure](#-project-architecture--directory-structure)
+- [⚡ Quick Start Guide (Local Setup)](#-quick-start-guide-local-setup)
+- [⚙️ Environment Variables](#️-environment-variables)
+- [🏗 Production Build](#-production-build)
+- [🚀 Deployment Recommendations](#-deployment-recommendations)
+- [📡 API Endpoints Reference](#-api-endpoints-reference)
+- [📚 Documentation Directory](#-documentation-directory)
+- [🔒 Security & Privacy](#-security--privacy)
+- [📄 License](#-license)
 
 ---
 
-## 🌟 Project Overview
+## 🌟 Features Overview
 
-**Vikas Tool Hub Pro** is an enterprise-grade document, photo, and PDF processing platform designed to provide high-speed, secure, and privacy-preserving client-side & server-side processing utilities.
+### 1. 📷 Photo & Document Studios (Client-Side & Server-Side)
+- **Passport Photo Studio**:
+  - Global preset standards (India 3.5×4.5cm, US 2×2", UK, Canada, Schengen, Custom).
+  - Print sheet generator: Single, 4x6" (6 / 8 copies), A4 (8 / 16 / 32 / 36 copies).
+  - Real-time controls: Brightness, Contrast, Saturation, Crop, and Border styling.
+  - One-click instant high-resolution PNG & PDF downloads.
+- **Aadhaar Print Studio**:
+  - Smart Card & standard print layouts for Aadhaar identity cards.
+  - Auto-formatting, border configuration, and multi-copy printing.
+- **Ayushman Bharat Print Studio**:
+  - Pre-configured PM-JAY PVC card and paper print layout templates.
 
-### Core Processing Suites (Upcoming Phase 2):
-1. **PDF Processing Suite**: Merge, Split, Compress, Convert, Sign, and Protect PDFs.
-2. **Photo & Image Studio**: AI Background Removal, Smart Resizing, WebP/PNG Compression, and Filters.
-3. **Document & OCR Lab**: DOCX to PDF, Optical Character Recognition (OCR), Text Extraction, and Metadata Scrubber.
+### 2. 📄 PDF & Conversion Suite
+- **Image to PDF Converter**:
+  - Batch upload images (JPEG, PNG, WEBP).
+  - Drag-and-drop reordering, page orientation (Portrait/Landscape), margin controls, and auto-scaling.
+  - Lightning-fast client-side generation using `jsPDF`.
+- **PDF Merge Studio**:
+  - Multi-file PDF concatenation in user-defined order.
+  - Powered by `pdf-lib` for zero-server data transfer overhead.
+
+### 3. 👤 User Workspace & Activity
+- **Authentication & Profiles**: JWT-based session security, profile management, and password hashing (`bcryptjs`).
+- **Processing History**: Complete log of actions, processed tools, timestamp audits, and status tracking.
+- **Favorites System**: Bookmark frequently used tools for one-click access.
+- **Cloud & Local Storage**: Dual storage pipeline supporting **Cloudinary** and local disk storage fallback.
+- **Interactive Notification Center**: In-app notifications and activity alerts.
+
+### 4. 🛡️ Admin Management & Analytics
+- **System Overview Dashboard**: User registration metrics, tool invocation rates, and storage consumption.
+- **User Management**: Search, filter, inspect, ban/unban, and cascading delete user accounts.
+- **Tool Management**: Dynamic tool catalog CRUD, slug resolution, and category tagging.
+- **File Audit Center**: System-wide file audit with uploader identity and file storage sizes.
 
 ---
 
 ## 🛠 Technology Stack
 
 ### **Frontend**
-- **Framework / Runtime**: React 18
-- **Build Tool**: Vite
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS (with PostCSS & Autoprefixer)
-- **Routing**: React Router DOM (v7)
+- **Framework**: React 18 (TypeScript)
+- **Bundler & Tooling**: Vite 6, PostCSS, Autoprefixer
+- **Styling**: Tailwind CSS (with custom glassmorphism and modern dark/light themes)
+- **Routing**: React Router DOM (v7) with Guest, Protected, and Admin Route guards
 - **State Management**: Redux Toolkit & React-Redux
-- **HTTP Client**: Axios (with custom interceptors)
+- **Client Processing**: `pdf-lib`, `jspdf`, HTML5 Canvas API
 - **Icons**: Lucide React
+- **HTTP Client**: Axios with centralized request/response interceptors
 
 ### **Backend**
-- **Runtime**: Node.js
-- **Web Framework**: Express.js
-- **Language**: TypeScript
-- **Database ODM**: Mongoose (MongoDB)
-- **Security & Utilities**: CORS, Dotenv, Async Handler, Custom Error Response Layer
-- **Execution & Hot Reloading**: TSX (TypeScript Execute & Watch)
+- **Runtime**: Node.js (v18+)
+- **Framework**: Express.js (TypeScript)
+- **Database**: MongoDB via Mongoose ODM
+- **Authentication**: JSON Web Tokens (`jsonwebtoken`) & `bcryptjs`
+- **File Upload**: Multer with strict MIME validation & Cloudinary SDK
+- **Security**: Helmet, CORS origin validation, `express-mongo-sanitize`, `hpp`, `express-rate-limit`
+- **Compiler**: TypeScript Compiler (`tsc`) & TSX runner
 
 ---
 
 ## 📂 Project Architecture & Directory Structure
 
 ```
-vikas-tool-hub-pro/
+RajTools/
+├── docs/                             # Full Project Documentation
+│   ├── ARCHITECTURE.md               # System & Data Flow Design
+│   ├── API_DOCUMENTATION.md          # REST API Specification
+│   └── DEPLOYMENT.md                 # Vercel, Render, Atlas Guide
 │
-├── frontend/                     # React + Vite + TypeScript Client
+├── frontend/                         # React 18 + Vite SPA
 │   ├── src/
-│   │   ├── api/                  # Axios HTTP client instance and API endpoint services
-│   │   ├── assets/               # Static illustrations, logos, and icons
-│   │   ├── components/
-│   │   │   ├── common/           # Reusable UI elements (Navbar, Footer, Buttons, Badges)
-│   │   │   ├── dashboard/        # Future tool dashboards and statistics widgets
-│   │   │   └── tools/            # Future tool viewers and processing panels
-│   │   ├── features/             # Redux Toolkit global store and system slices
-│   │   ├── layouts/              # RootLayout with persistent navigation and footer
-│   │   ├── pages/                # Route views (HomePage with live Health Monitor, NotFound)
-│   │   ├── routes/               # React Router DOM route hierarchy definitions
-│   │   ├── services/             # Client-side domain processing services
-│   │   ├── types/                # Shared TypeScript interfaces & types
-│   │   ├── utils/                # Utility helpers (formatters, parsers)
-│   │   ├── App.tsx               # Root component wrapping Redux & Router
-│   │   ├── main.tsx              # Application DOM entry point
-│   │   └── index.css             # Tailwind directives and custom scrollbar theme
-│   ├── .env.example              # Frontend environment variables template
-│   ├── .env                      # Local frontend environment variables
-│   ├── index.html                # HTML template with typography and SEO metadata
-│   ├── package.json              # Frontend dependencies and scripts
-│   ├── postcss.config.js         # PostCSS configuration
-│   ├── tailwind.config.js        # Tailwind CSS theme extension
-│   ├── tsconfig.json             # Frontend TypeScript configuration
-│   ├── tsconfig.node.json        # Vite TypeScript build config
-│   └── vite.config.ts            # Vite bundler configuration & path aliases
+│   │   ├── api/                      # Axios client & API connectors
+│   │   ├── assets/                   # Static assets & graphics
+│   │   ├── components/               # Common, layout, and studio UI components
+│   │   ├── features/                 # Redux slices (auth, tools, admin, notifications)
+│   │   ├── layouts/                  # MainLayout, DashboardLayout, AdminLayout
+│   │   ├── pages/                    # 20+ Application pages & studios
+│   │   ├── routes/                   # AppRoutes, ProtectedRoute, AdminRoute, GuestRoute
+│   │   ├── services/                 # Tool processing service wrappers
+│   │   ├── types/                    # Shared TypeScript interfaces
+│   │   ├── utils/                    # Helper functions & formatting utilities
+│   │   ├── App.tsx                   # Main React component
+│   │   ├── main.tsx                  # Client entry point
+│   │   └── index.css                 # Tailwind directives & theme styles
+│   ├── .env.example                  # Frontend environment template
+│   ├── package.json                  # Frontend dependencies
+│   ├── tailwind.config.js            # Tailwind styling config
+│   ├── tsconfig.json                 # Frontend TypeScript config
+│   ├── vercel.json                   # Vercel SPA routing rewrite config
+│   └── vite.config.ts                # Vite bundler configuration
 │
-├── backend/                      # Node.js + Express + TypeScript API Server
+├── backend/                          # Express.js + TypeScript API
 │   ├── src/
-│   │   ├── config/               # Environment variable parser and MongoDB connection
-│   │   ├── controllers/          # Request handlers (e.g. HealthController)
-│   │   ├── middlewares/          # Centralized error handler and 404 router
-│   │   ├── models/               # Mongoose database models and schemas
-│   │   ├── routes/               # API routes (Health check & route aggregator)
-│   │   ├── services/             # Business logic layer
-│   │   ├── utils/                # ApiError, ApiResponse, and asyncHandler
-│   │   ├── validators/           # Request input validation schemas
-│   │   ├── app.ts                # Express application configuration & CORS setup
-│   │   └── server.ts             # Server bootstrap & graceful shutdown handler
-│   ├── .env.example              # Backend environment variables template
-│   ├── .env                      # Local backend environment variables
-│   ├── package.json              # Backend dependencies and scripts
-│   └── tsconfig.json             # Backend TypeScript compilation configuration
+│   │   ├── config/                   # Database (MongoDB) & Environment parsers
+│   │   ├── controllers/              # Business controllers (Auth, Tools, Files, Admin, etc.)
+│   │   ├── middlewares/              # Auth, Admin, Upload, RateLimit, Error handling
+│   │   ├── models/                   # Mongoose schemas (User, Tool, File, History, Notification)
+│   │   ├── routes/                   # Route declarations & router mounting
+│   │   ├── services/                 # Cloudinary & cloud storage services
+│   │   ├── types/                    # Backend TypeScript definitions
+│   │   ├── utils/                    # ApiError, ApiResponse, seeders
+│   │   ├── validators/               # Input validation rules
+│   │   ├── app.ts                    # Express app initialization & security middlewares
+│   │   └── server.ts                 # Server entry point & graceful shutdown
+│   ├── .env.example                  # Backend environment template
+│   ├── package.json                  # Backend dependencies
+│   ├── tsconfig.json                 # Backend TypeScript config
+│   └── uploads/                      # Local file storage fallback
 │
-└── README.md                     # Project documentation
+├── .env.example                      # Root environment reference
+├── .gitignore                        # Git exclusion rules
+└── README.md                         # Project documentation
 ```
 
 ---
 
-## ⚡ Prerequisites
+## ⚡ Quick Start Guide (Local Setup)
 
-Make sure you have the following installed on your machine:
-- **Node.js**: `v18.0.0` or higher (v20+ recommended)
+### Prerequisites
+- **Node.js**: `v18.0.0` or higher
 - **npm**: `v9.0.0` or higher
-- **MongoDB** (Optional for Phase 1, the backend automatically handles offline mode gracefully)
+- **MongoDB**: Local MongoDB instance or free MongoDB Atlas URI
 
----
-
-## 📥 Installation Steps
-
-Clone or navigate into the project workspace:
+### 1. Clone & Install Dependencies
 
 ```bash
-# Navigate to workspace root
-cd vikas-tool-hub-pro
-```
+# Clone the repository
+git clone https://github.com/Rituraj2018/RajSaurbhTools_hub.git
+cd RajSaurbhTools_hub
 
-### 1. Install Backend Dependencies
-```bash
+# Install Backend dependencies
 cd backend
 npm install
-```
 
-### 2. Install Frontend Dependencies
-```bash
+# Install Frontend dependencies
 cd ../frontend
 npm install
 ```
 
----
+### 2. Configure Environment Files
 
-## ⚙️ Environment Variables Setup
+Create `.env` in `backend/`:
+```bash
+cp .env.example .env
+```
+*(Fill in `MONGODB_URI` and `JWT_SECRET`)*
 
-Both frontend and backend include ready-to-use `.env.example` templates.
-
-### Backend (`backend/.env`)
-```env
-MONGODB_URI=mongodb://localhost:27017/rajsaurbh_tool_hub_pro
-PORT=5000
-NODE_ENV=development
-CLIENT_URL=http://localhost:5173
+Create `.env` in `frontend/`:
+```bash
+cp .env.example .env
 ```
 
-### Frontend (`frontend/.env`)
-```env
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_APP_ENV=development
-```
+### 3. Start Development Servers
 
----
-
-## 🚀 Running the Project
-
-Frontend and Backend can run completely independently in separate terminal windows.
-
-### 1. Run Backend
-
-From the `backend` folder:
+In terminal 1 (Backend):
 ```bash
 cd backend
-
-# Start development server with live reload:
 npm run dev
-
-# Or build for production:
-npm run build
-npm start
-
-# Or perform TypeScript type-checking:
-npm run typecheck
+# Running at http://localhost:5000 (Health Check: http://localhost:5000/api/health)
 ```
 
-The backend server will start at:  
-👉 **`http://localhost:5000`**
-
----
-
-### 2. Run Frontend
-
-From the `frontend` folder:
+In terminal 2 (Frontend):
 ```bash
 cd frontend
-
-# Start Vite development server:
 npm run dev
-
-# Or build for production:
-npm run build
-
-# Or perform TypeScript type-checking:
-npm run typecheck
+# Running at http://localhost:5173
 ```
 
-The frontend application will start at:  
-👉 **`http://localhost:5173`**
+---
+
+## ⚙️ Environment Variables
+
+### Backend (`backend/.env`)
+| Variable | Required | Default | Description |
+| :--- | :---: | :--- | :--- |
+| `PORT` | No | `5000` | Port for the Express server |
+| `NODE_ENV` | Yes | `development` | Environment mode (`development` or `production`) |
+| `MONGODB_URI` | Yes | `mongodb://localhost:27017/...` | MongoDB Atlas or local connection string |
+| `JWT_SECRET` | Yes | *(Random hex in prod)* | JWT token signing key |
+| `JWT_EXPIRES_IN` | No | `7d` | JWT lifespan duration |
+| `CLIENT_URL` | Yes (in prod) | `http://localhost:5173` | Allowed CORS origin for frontend |
+| `CLOUDINARY_CLOUD_NAME` | No | `""` | Cloudinary cloud account name |
+| `CLOUDINARY_API_KEY` | No | `""` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | No | `""` | Cloudinary API secret |
+
+### Frontend (`frontend/.env`)
+| Variable | Required | Default | Description |
+| :--- | :---: | :--- | :--- |
+| `VITE_API_BASE_URL` | Yes | `http://localhost:5000/api` | Backend API URL |
+| `VITE_APP_ENV` | No | `development` | App mode |
 
 ---
 
-## 📡 API Endpoints
+## 🏗 Production Build
 
-| Method | Endpoint | Description | Response Example |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/health` | Health check & MongoDB status | `{"success": true, "message": "Server is running", "database": "connected"}` |
+To verify and produce optimized production bundles:
+
+```bash
+# Test & build backend
+cd backend
+npm run build
+# Compiled JavaScript output placed in backend/dist/
+
+# Test & build frontend
+cd ../frontend
+npm run build
+# Optimized production SPA bundle placed in frontend/dist/
+```
 
 ---
 
-## 🔮 Future Roadmap (Upcoming Phases)
+## 🚀 Deployment Recommendations
 
-- **Phase 2**: Authentication & User Profile Management (JWT, Sessions, OAuth).
-- **Phase 3**: Client-side & Worker-based PDF Tools (pdf-lib, pdfjs).
-- **Phase 4**: Photo Editing & Processing Engine (Sharp, Canvas API, WebAssembly).
-- **Phase 5**: OCR & Document Conversion Engine (Tesseract.js, Pandoc integrations).
-- **Phase 6**: Cloud Storage (AWS S3 / Cloudinary) & Job Queues (BullMQ / Redis).
+- **Frontend**: [Vercel](https://vercel.com) (zero-config Vite SPA support with `vercel.json` rewrite).
+- **Backend API**: [Render](https://render.com) or [Railway](https://railway.app) (Node.js runtime with `npm run build && npm start`).
+- **Database**: [MongoDB Atlas](https://www.mongodb.com/atlas) (Managed cloud database).
+- **Media Storage**: [Cloudinary](https://cloudinary.com) for cloud asset delivery.
+
+👉 For detailed step-by-step deployment instructions, please refer to [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+---
+
+## 📡 API Endpoints Reference
+
+| Method | Endpoint | Description | Auth Level |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/health` | Service & DB Health Check | Public |
+| `POST` | `/api/auth/register` | User Account Registration | Public |
+| `POST` | `/api/auth/login` | User Login & JWT Generation | Public |
+| `GET` | `/api/auth/profile` | Current Authenticated Profile | Authenticated |
+| `GET` | `/api/tools` | List Tools Catalog | Public |
+| `GET` | `/api/tools/:slug` | Retrieve Tool by Slug | Public |
+| `POST` | `/api/files/upload` | Upload Document or Image | Authenticated |
+| `GET` | `/api/files` | Get User's Uploaded Files | Authenticated |
+| `DELETE` | `/api/files/:id` | Delete File Record & Asset | Authenticated |
+| `GET` | `/api/history` | Retrieve User Activity History | Authenticated |
+| `POST` | `/api/history` | Log Processing History | Authenticated |
+| `GET` | `/api/users/favorites` | Get User Favorite Tools | Authenticated |
+| `POST` | `/api/users/favorites/:toolId`| Add Tool to Favorites | Authenticated |
+| `GET` | `/api/notifications` | User Inbox & Notifications | Authenticated |
+| `GET` | `/api/admin/stats` | Admin Aggregated Statistics | Admin Only |
+| `GET` | `/api/admin/users` | Admin User Directory | Admin Only |
+| `PATCH` | `/api/admin/users/:id/block`| Block User Account | Admin Only |
+| `GET` | `/api/admin/files` | Admin System Files Audit | Admin Only |
+
+👉 For full parameters, schemas, and error responses, see [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md).
+
+---
+
+## 📚 Documentation Directory
+
+- 🏛️ [System Architecture & Design Document](docs/ARCHITECTURE.md)
+- 📡 [Complete REST API Reference](docs/API_DOCUMENTATION.md)
+- 🚀 [Production Deployment Step-by-Step Guide](docs/DEPLOYMENT.md)
+
+---
+
+## 🔒 Security & Privacy
+
+- **Data Privacy**: Client-side document and image generation runs locally in the browser memory whenever possible to protect sensitive personal records.
+- **Input Sanitization**: Express request bodies, parameters, and query strings are sanitized with `express-mongo-sanitize` and `hpp` to block NoSQL injection and parameter pollution.
+- **Security Headers**: Standardized HTTP security headers enforced via `helmet`.
+- **Rate Limiting**: Tiered rate limiters protect auth and upload endpoints against brute-force and DDoS attacks.
+- **Authentication**: Password hashes are secured with 10 salt rounds of `bcryptjs` and stateless JWTs.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the ISC License.
+This project is licensed under the **ISC License**.

@@ -62,3 +62,6 @@ export interface StorageCategory {
   color: string;
   percentage: number;
 }
+
+export * from './file.types';
+export * from './history.types';

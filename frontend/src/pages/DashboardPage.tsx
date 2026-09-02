@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   UploadCloud,
   Sparkles,
@@ -10,6 +10,8 @@ import {
   CheckCircle,
   Wrench,
 } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../features/store';
+import { fetchTools, fetchFavoriteTools, toggleFavoriteTool } from '../features/tools';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { ToolCard } from '../components/tools/ToolCard';
 import { Button, Modal } from '../components/common';
@@ -22,18 +24,68 @@ import {
 import { ToolItem, RecentActivity } from '../types';
 
 export const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [toolsList, setToolsList] = useState<ToolItem[]>(mockTools);
   const [activities] = useState<RecentActivity[]>(mockRecentActivities);
 
+  const { favoriteToolIds } = useAppSelector((state) => state.tools);
+
+  React.useEffect(() => {
+    dispatch(fetchTools());
+    dispatch(fetchFavoriteTools());
+  }, [dispatch]);
+
   const handleToggleFavorite = (toolId: string) => {
+    dispatch(toggleFavoriteTool(toolId));
     setToolsList((prev) =>
       prev.map((t) => (t.id === toolId ? { ...t, isFavorite: !t.isFavorite } : t))
     );
   };
 
   const handleLaunchTool = (tool: ToolItem) => {
+    if (
+      tool.id === 'passport-photo-studio' ||
+      tool.id === 'photo-bg-remove' ||
+      tool.title.toLowerCase().includes('passport')
+    ) {
+      navigate('/tools/passport-photo-studio');
+      return;
+    }
+    if (
+      tool.id === 'image-to-pdf' ||
+      tool.id === 'photo-converter' ||
+      tool.title.toLowerCase().includes('image to pdf')
+    ) {
+      navigate('/tools/image-to-pdf');
+      return;
+    }
+    if (
+      tool.id === 'pdf-merge' ||
+      tool.title.toLowerCase().includes('merge pdf') ||
+      tool.title.toLowerCase().includes('combine')
+    ) {
+      navigate('/tools/pdf-merge');
+      return;
+    }
+    if (
+      tool.id === 'aadhaar-print-studio' ||
+      tool.title.toLowerCase().includes('aadhaar')
+    ) {
+      navigate('/tools/aadhaar-print-studio');
+      return;
+    }
+    if (
+      tool.id === 'ayushman-print-tool' ||
+      tool.title.toLowerCase().includes('ayushman') ||
+      tool.title.toLowerCase().includes('pmjay') ||
+      tool.title.toLowerCase().includes('health card')
+    ) {
+      navigate('/tools/ayushman-print-tool');
+      return;
+    }
     setSelectedTool(tool);
   };
 
@@ -121,6 +173,7 @@ export const DashboardPage: React.FC = () => {
               tool={tool}
               onLaunch={handleLaunchTool}
               onToggleFavorite={handleToggleFavorite}
+              isFavorite={favoriteToolIds.includes(tool.id) || !!tool.isFavorite}
             />
           ))}
         </div>

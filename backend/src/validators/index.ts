@@ -1,2 +1,2 @@
-// Validators index - export future request validators here
-export {};
+export * from './auth.validator';
+export * from './tool.validator';

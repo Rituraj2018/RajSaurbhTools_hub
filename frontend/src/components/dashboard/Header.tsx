@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Menu,
   Search,
-  Bell,
   User,
   Layers,
   Sliders,
@@ -15,37 +14,29 @@ import {
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { mockTools } from '../../utils/mockData';
+import { useAppDispatch, useAppSelector } from '../../features/store';
+import { logoutUser } from '../../features/auth';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 export interface HeaderProps {
   onMobileMenuToggle: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
 
-  const notifications = [
-    {
-      id: 1,
-      title: 'Batch PDF Compression finished',
-      time: '5m ago',
-      unread: true,
-    },
-    {
-      id: 2,
-      title: 'New AI Background Remover model active',
-      time: '1h ago',
-      unread: true,
-    },
-    {
-      id: 3,
-      title: 'System storage backup completed',
-      time: '1d ago',
-      unread: false,
-    },
-  ];
+  const handleLogout = async () => {
+    setIsUserMenuOpen(false);
+    await dispatch(logoutUser());
+    navigate('/login');
+  };
 
   const filteredTools = searchQuery.trim()
     ? mockTools.filter(
@@ -110,49 +101,15 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
             </kbd>
           </button>
 
-          {/* Notifications Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setIsNotifMenuOpen(!isNotifMenuOpen);
-                setIsUserMenuOpen(false);
-              }}
-              className="p-2.5 rounded-xl text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors relative"
-              aria-label="View notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-slate-950 animate-pulse" />
-            </button>
-
-            {isNotifMenuOpen && (
-              <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-3 z-50 animate-scaleUp">
-                <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-800/80 mb-2">
-                  <span className="text-xs font-bold text-white">Notifications</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-semibold">
-                    2 new
-                  </span>
-                </div>
-                <div className="space-y-1.5">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className="p-2.5 rounded-xl hover:bg-slate-800/60 transition-colors text-xs space-y-1 cursor-pointer"
-                    >
-                      <div className="flex items-center justify-between text-slate-200 font-semibold">
-                        <span className="truncate">{notif.title}</span>
-                        {notif.unread && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0 ml-2" />
-                        )}
-                      </div>
-                      <span className="text-[10px] text-slate-500 font-medium">
-                        {notif.time}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Notifications Bell */}
+          <NotificationBell
+            isOpen={isNotifMenuOpen}
+            onToggle={() => {
+              setIsNotifMenuOpen((prev) => !prev);
+              setIsUserMenuOpen(false);
+            }}
+            onClose={() => setIsNotifMenuOpen(false)}
+          />
 
           {/* User Placeholder & Profile Dropdown */}
           <div className="relative">
@@ -164,12 +121,18 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
               className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 transition-all text-xs"
             >
               <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold shadow-sm shadow-blue-500/30">
-                <User className="w-4 h-4" />
+                {user?.name ? (
+                  <span className="text-xs font-extrabold">{user.name.charAt(0).toUpperCase()}</span>
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
               </div>
               <div className="text-left hidden sm:block">
-                <div className="font-bold text-slate-200 leading-tight">Admin User</div>
-                <div className="text-[10px] text-purple-400 font-medium leading-none">
-                  Pro Plan
+                <div className="font-bold text-slate-200 leading-tight truncate max-w-[120px]">
+                  {user?.name || 'My Account'}
+                </div>
+                <div className="text-[10px] text-purple-400 font-medium leading-none capitalize">
+                  {user?.role ? `${user.role} Plan` : 'Free Tier'}
                 </div>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
@@ -178,8 +141,10 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-2 z-50 animate-scaleUp">
                 <div className="px-3 py-2 border-b border-slate-800 mb-1">
-                  <p className="text-xs font-bold text-white">Administrator</p>
-                  <p className="text-[11px] text-slate-400 truncate">admin@rajsaurbh.hub</p>
+                  <p className="text-xs font-bold text-white truncate">{user?.name || 'User'}</p>
+                  <p className="text-[11px] text-slate-400 truncate">
+                    {user?.email || 'user@example.com'}
+                  </p>
                 </div>
 
                 <Link
@@ -193,11 +158,11 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
 
                 <div className="pt-1 mt-1 border-t border-slate-800">
                   <button
-                    onClick={() => setIsUserMenuOpen(false)}
+                    onClick={handleLogout}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors"
                   >
                     <LogOut className="w-4 h-4 text-rose-400" />
-                    <span>Sign Out (Demo)</span>
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>

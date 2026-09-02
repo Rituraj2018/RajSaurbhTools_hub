@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Layers, Activity, LayoutDashboard, Github } from 'lucide-react';
+import { Layers, Activity, LayoutDashboard, Github, LogIn, UserPlus, User } from 'lucide-react';
 import { useAppSelector } from '../../features/store';
 import { Button } from './Button';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
-  const { health, loading } = useAppSelector((state) => state.system);
+  const { health, loading: systemLoading } = useAppSelector((state) => state.system);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   const navLinks = [
     { label: 'Overview', path: '/' },
@@ -61,12 +62,12 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Action Area */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             {/* Backend Health Badge */}
             <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
               <Activity
                 className={`w-3.5 h-3.5 ${
-                  loading
+                  systemLoading
                     ? 'text-amber-400 animate-spin'
                     : health?.status === 'healthy'
                     ? 'text-emerald-400 animate-pulse'
@@ -76,27 +77,63 @@ export const Navbar: React.FC = () => {
               <span className="text-slate-400 font-medium">API:</span>
               <span
                 className={`font-semibold capitalize ${
-                  loading
+                  systemLoading
                     ? 'text-amber-400'
                     : health?.status === 'healthy'
                     ? 'text-emerald-400'
                     : 'text-rose-400'
                 }`}
               >
-                {loading ? 'Checking...' : health?.status || 'Offline'}
+                {systemLoading ? 'Checking...' : health?.status || 'Offline'}
               </span>
             </div>
 
-            {/* Launch Dashboard CTA */}
-            <Link to="/dashboard">
-              <Button
-                variant="gradient"
-                size="sm"
-                leftIcon={<LayoutDashboard className="w-3.5 h-3.5" />}
-              >
-                <span>Dashboard</span>
-              </Button>
-            </Link>
+            {/* Auth Dependent Navigation Buttons */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/dashboard"
+                  className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition-colors"
+                >
+                  <div className="w-5 h-5 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-[10px] font-bold text-blue-400">
+                    {user?.name?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
+                  </div>
+                  <span className="font-medium max-w-[100px] truncate">{user?.name}</span>
+                </Link>
+
+                <Link to="/dashboard">
+                  <Button
+                    variant="gradient"
+                    size="sm"
+                    leftIcon={<LayoutDashboard className="w-3.5 h-3.5" />}
+                  >
+                    <span>Dashboard</span>
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link to="/login">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<LogIn className="w-3.5 h-3.5" />}
+                  >
+                    <span>Sign In</span>
+                  </Button>
+                </Link>
+
+                <Link to="/register">
+                  <Button
+                    variant="gradient"
+                    size="sm"
+                    leftIcon={<UserPlus className="w-3.5 h-3.5" />}
+                  >
+                    <span>Get Started</span>
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             <a
               href="https://github.com"

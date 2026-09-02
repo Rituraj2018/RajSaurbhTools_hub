@@ -1,4 +1,4 @@
-# Logs
+# ─── Logs ───────────────────────────────────────────────────
 logs
 *.log
 npm-debug.log*
@@ -7,17 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Node modules
+# ─── Node Modules & Build ───────────────────────────────────
 node_modules
 dist
 dist-ssr
 *.local
 
-# Environment variables
+# ─── Environment Variables (NEVER commit these) ─────────────
 .env
-.env.production
+.env.*
+!.env.example
+!.env.template
 
-# Editor directories and files
+# ─── Secrets & Credentials ──────────────────────────────────
+*.pem
+*.key
+*.cert
+*.p12
+.secrets/
+secrets/
+
+# ─── Uploads (user files – keep out of VCS) ─────────────────
+backend/uploads/
+uploads/
+
+# ─── Editor Directories ─────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -27,3 +41,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ─── OS Files ───────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini

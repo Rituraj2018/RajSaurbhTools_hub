@@ -1,11 +1,16 @@
 import mongoose from 'mongoose';
 import app from './app';
-import { config } from './config/env';
+import { config, validateEnv } from './config/env';
 import { connectDB } from './config/database';
+import { seedInitialTools } from './utils/seedTools';
+
+// Validate environment variables before anything else
+validateEnv();
 
 const startServer = async (): Promise<void> => {
   // Connect to MongoDB before starting the HTTP server
   await connectDB();
+  await seedInitialTools();
 
   const server = app.listen(config.port, () => {
     console.log('====================================================');

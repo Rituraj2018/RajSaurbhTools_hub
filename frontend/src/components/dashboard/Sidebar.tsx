@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAppSelector } from '../../features/store';
 import {
   LayoutDashboard,
   Wrench,
@@ -14,6 +15,7 @@ import {
   X,
   HardDrive,
   ExternalLink,
+  ShieldCheck,
 } from 'lucide-react';
 
 export interface SidebarProps {
@@ -23,6 +25,7 @@ export interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose }) => {
   const location = useLocation();
+  const { user } = useAppSelector((state) => state.auth);
 
   const mainNavigation = [
     {
@@ -223,7 +226,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
       </div>
 
       {/* Storage Utilization Card in Sidebar Footer */}
-      <div className="p-4 border-t border-slate-800/80 bg-slate-950/60">
+      <div className="p-4 border-t border-slate-800/80 bg-slate-950/60 space-y-3">
+        {/* Admin Panel Link (admin role only) */}
+        {user?.role === 'admin' && (
+          <NavLink
+            to="/admin"
+            onClick={onMobileClose}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600/20 to-orange-600/10 border border-rose-500/30 text-xs font-bold text-rose-400 hover:from-rose-600/30 hover:to-orange-600/20 transition-all group"
+          >
+            <ShieldCheck className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            <span>Admin Panel</span>
+            <ExternalLink className="w-3 h-3 ml-auto opacity-60" />
+          </NavLink>
+        )}
         <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-300 font-semibold flex items-center gap-1.5">

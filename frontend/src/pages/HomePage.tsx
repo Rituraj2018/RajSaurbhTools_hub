@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   FileText,
   Image as ImageIcon,
@@ -20,6 +20,7 @@ import { mockTools } from '../utils/mockData';
 import { ToolCard } from '../components/tools';
 
 export const HomePage: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { health, loading, error, lastChecked } = useAppSelector((state) => state.system);
 
@@ -29,6 +30,31 @@ export const HomePage: React.FC = () => {
 
   const handleRefreshHealth = () => {
     dispatch(fetchSystemHealth());
+  };
+
+  const handleLaunchTool = (tool: any) => {
+    const id = tool.slug || tool.id || '';
+    if (id === 'passport-photo-studio' || id === 'photo-bg-remove' || tool.title?.toLowerCase().includes('passport')) {
+      navigate('/tools/passport-photo-studio');
+      return;
+    }
+    if (id === 'image-to-pdf' || id === 'photo-converter' || tool.title?.toLowerCase().includes('image to pdf')) {
+      navigate('/tools/image-to-pdf');
+      return;
+    }
+    if (id === 'pdf-merge' || tool.title?.toLowerCase().includes('merge pdf') || tool.title?.toLowerCase().includes('combine')) {
+      navigate('/tools/pdf-merge');
+      return;
+    }
+    if (id === 'aadhaar-print-studio' || tool.title?.toLowerCase().includes('aadhaar')) {
+      navigate('/tools/aadhaar-print-studio');
+      return;
+    }
+    if (id === 'ayushman-print-tool' || tool.title?.toLowerCase().includes('ayushman') || tool.title?.toLowerCase().includes('pmjay') || tool.title?.toLowerCase().includes('health card')) {
+      navigate('/tools/ayushman-print-tool');
+      return;
+    }
+    navigate('/tools');
   };
 
   const featuredTools = mockTools.filter((t) => t.popular).slice(0, 6);
@@ -193,7 +219,7 @@ export const HomePage: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredTools.map((tool) => (
-            <ToolCard key={tool.id} tool={tool} />
+            <ToolCard key={tool.id} tool={tool} onLaunch={handleLaunchTool} />
           ))}
         </div>
       </section>

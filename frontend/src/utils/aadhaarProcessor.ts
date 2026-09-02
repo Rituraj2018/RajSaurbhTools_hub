@@ -568,3 +568,21 @@ export function generateAadhaarPDF(sheetCanvas: HTMLCanvasElement, filename: str
   pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
   pdf.save(cleanName);
 }
+
+/**
+ * Generates a PDF at true CR80 / PAN Card dimensions (85.6 × 54 mm) for actual-size card printing.
+ * The PDF page is exactly 85.6 × 54 mm — print at 100% scale / actual size.
+ */
+export function generateAadhaarCardPDF(cardCanvas: HTMLCanvasElement, filename: string): void {
+  const cleanName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+  const pdf = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: [85.6, 54],
+  });
+
+  const imgData = cardCanvas.toDataURL('image/jpeg', 0.98);
+  // Fill the entire 85.6 × 54 mm page with the card image
+  pdf.addImage(imgData, 'JPEG', 0, 0, 85.6, 54);
+  pdf.save(cleanName);
+}

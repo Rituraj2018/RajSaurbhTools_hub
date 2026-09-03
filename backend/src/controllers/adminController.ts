@@ -199,6 +199,14 @@ export const deleteAdminUser = asyncHandler(
       throw new ApiError(404, 'User not found');
     }
 
+    // Prevent deleting the last administrator
+    if (user.role === 'admin') {
+      const adminCount = await User.countDocuments({ role: 'admin' });
+      if (adminCount <= 1) {
+        throw new ApiError(400, 'Cannot delete the last administrator.');
+      }
+    }
+
     // Cascade delete associated files and history
     await Promise.all([
       FileRecord.deleteMany({ user: id }),
@@ -210,6 +218,85 @@ export const deleteAdminUser = asyncHandler(
       success: true,
       message: `User "${user.name}" and all associated data deleted successfully`,
       data: { id, name: user.name, email: user.email },
+    });
+  }
+);
+
+/**
+ * @desc    Change a user's role (promote to admin or demote to user)
+ * @route   PATCH /api/admin/users/:id/role
+ * @access  Private (Admin)
+ */
+export const changeUserRole = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    // 1. Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new ApiError(400, 'Invalid user ID');
+    }
+
+    // 2. Validate role strictly to 'user' | 'admin'
+    if (!role || (role !== 'user' && role !== 'admin')) {
+      throw new ApiError(
+        400,
+        'Invalid role. Valid roles are strictly "user" or "admin"'
+      );
+    }
+
+    // 3. Prevent self-role modification
+    if (req.user && req.user._id.toString() === id) {
+      throw new ApiError(
+        400,
+        'You cannot modify your own administrative role'
+      );
+    }
+
+    // 4. Find target user
+    const user = await User.findById(id);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    // 5. Check if user already has the requested role
+    if (user.role === role) {
+      throw new ApiError(400, `User is already assigned the "${role}" role`);
+    }
+
+    // 6. Last admin protection: prevent demoting the last remaining admin
+    if (user.role === 'admin' && role === 'user') {
+      const adminCount = await User.countDocuments({ role: 'admin' });
+      if (adminCount <= 1) {
+        throw new ApiError(400, 'Cannot remove the last administrator.');
+      }
+    }
+
+    const oldRole = user.role;
+    user.role = role;
+    await user.save();
+
+    // 7. Security audit log
+    console.info(
+      `[ADMIN AUDIT] Role changed: adminUserId=${req.user?._id}, targetUserId=${user._id}, oldRole=${oldRole}, newRole=${role}, timestamp=${new Date().toISOString()}`
+    );
+
+    // 8. Return updated safe user information (never password or sensitive tokens)
+    res.status(200).json({
+      success: true,
+      message: `User "${user.name}" role successfully updated to "${role}"`,
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isBlocked: user.isBlocked,
+          isEmailVerified: user.isEmailVerified,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+      },
     });
   }
 );

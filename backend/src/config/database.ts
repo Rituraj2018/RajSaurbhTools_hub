@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
+import dns from 'node:dns';
 import { config } from './env';
+// Fix DNS SRV lookup issues on some Windows/ISP networks
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 
 /**
  * Sanitizes MongoDB connection URI to mask username and password from logs

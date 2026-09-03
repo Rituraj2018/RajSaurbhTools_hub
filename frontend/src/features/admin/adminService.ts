@@ -90,6 +90,18 @@ export const adminService = {
   },
 
   /**
+   * Update user role (promote to admin or demote to user)
+   */
+  async updateUserRole(userId: string, role: 'user' | 'admin'): Promise<AdminUser> {
+    const response = await axiosClient.patch<ApiResponse<{ user: AdminUser }>>(
+      `/admin/users/${userId}/role`,
+      { role }
+    );
+    if (!response.data.data?.user) throw new Error('Failed to update user role');
+    return response.data.data.user;
+  },
+
+  /**
    * Fetch all files (admin view with user info)
    */
   async getFiles(

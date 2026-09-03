@@ -287,6 +287,52 @@ Standard Error Envelope:
 - **Query Params**: `search`, `role`, `status`, `page`, `limit`
 - **Description**: User directory with ban/unban status and account metrics.
 
+### `PATCH /api/admin/users/:id/role`
+- **Access**: Private (Requires Admin)
+- **Headers**: `Authorization: Bearer <admin_token>`
+- **Description**: Promotes a user to `admin` or demotes an administrator to `user`. Protected against self-demotion and removal of the final administrator.
+- **Request Body**:
+```json
+{
+  "role": "admin"
+}
+```
+*or*
+```json
+{
+  "role": "user"
+}
+```
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "message": "User \"Rahul Sharma\" role successfully updated to \"admin\"",
+      "data": {
+        "user": {
+          "_id": "66d66e850b1f3c3a44d82b01",
+          "name": "Rahul Sharma",
+          "email": "rahul@example.com",
+          "role": "admin",
+          "isBlocked": false,
+          "isEmailVerified": true,
+          "createdAt": "2026-09-01T10:00:00.000Z",
+          "updatedAt": "2026-09-03T02:40:00.000Z"
+        }
+      }
+    }
+    ```
+  - `400 Bad Request`:
+    - Invalid role: `{"success": false, "message": "Invalid role. Valid roles are strictly \"user\" or \"admin\""}`
+    - Invalid ObjectId: `{"success": false, "message": "Invalid user ID"}`
+    - Self-demotion: `{"success": false, "message": "You cannot modify your own administrative role"}`
+    - Last administrator demotion: `{"success": false, "message": "Cannot remove the last administrator."}`
+    - Already assigned role: `{"success": false, "message": "User is already assigned the \"admin\" role"}`
+  - `401 Unauthorized`: Missing, invalid, or expired JWT token.
+  - `403 Forbidden`: Authenticated user does not have `admin` privileges.
+  - `404 Not Found`: Target user ID does not exist in database.
+
 ### `PATCH /api/admin/users/:id/block`
 - **Description**: Suspends a user account.
 
@@ -294,7 +340,8 @@ Standard Error Envelope:
 - **Description**: Restores access to a suspended account.
 
 ### `DELETE /api/admin/users/:id`
-- **Description**: Cascading deletion of user account, associated files, and history.
+- **Description**: Cascading deletion of user account, associated files, and history. Protected against deletion of the last administrator.
 
 ### `GET /api/admin/files`
 - **Description**: System-wide file audit with uploader identity and file storage sizes.
+

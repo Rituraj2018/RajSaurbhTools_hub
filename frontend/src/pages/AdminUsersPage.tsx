@@ -10,6 +10,8 @@ import {
   ChevronRight,
   RefreshCw,
   AlertTriangle,
+  UserCheck,
+  UserMinus,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../features/store';
 import {
@@ -17,6 +19,7 @@ import {
   blockAdminUser,
   unblockAdminUser,
   deleteAdminUser,
+  updateAdminUserRole,
   clearMutationStatus,
   AdminUser,
 } from '../features/admin';
@@ -37,8 +40,14 @@ const ConfirmModal: React.FC<{
       <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={onCancel} />
       <div className="relative z-10 w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center">
-            <AlertTriangle className="w-5 h-5 text-rose-400" />
+          <div
+            className={`w-10 h-10 rounded-xl ${
+              isDanger
+                ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+            } border flex items-center justify-center`}
+          >
+            <AlertTriangle className="w-5 h-5" />
           </div>
           <h3 className="text-base font-bold text-white">{title}</h3>
         </div>
@@ -58,6 +67,7 @@ const ConfirmModal: React.FC<{
 
 export const AdminUsersPage: React.FC = () => {
   const dispatch = useAppDispatch();
+  const currentAuthUser = useAppSelector((state) => state.auth.user);
   const { users, usersTotal, usersPage, usersPages, usersLoading, mutationLoading, mutationSuccess, mutationError } =
     useAppSelector((state) => state.admin);
 
@@ -65,9 +75,23 @@ export const AdminUsersPage: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
-    type: 'block' | 'unblock' | 'delete';
+    type: 'block' | 'unblock' | 'delete' | 'role';
+    targetRole?: 'user' | 'admin';
     user: AdminUser | null;
-  }>({ open: false, type: 'delete', user: null });
+    title: string;
+    message: string;
+    confirmLabel: string;
+    isDanger: boolean;
+  }>({
+    open: false,
+    type: 'delete',
+    user: null,
+    title: '',
+    message: '',
+    confirmLabel: '',
+    isDanger: false,
+  });
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
 
   const loadUsers = useCallback(
     (page = 1) => {
@@ -96,14 +120,81 @@ export const AdminUsersPage: React.FC = () => {
   const handleConfirm = async () => {
     if (!confirmModal.user) return;
     const id = confirmModal.user._id;
-    if (confirmModal.type === 'block') await dispatch(blockAdminUser(id));
-    else if (confirmModal.type === 'unblock') await dispatch(unblockAdminUser(id));
-    else await dispatch(deleteAdminUser(id));
-    setConfirmModal({ open: false, type: 'delete', user: null });
+    setUpdatingUserId(id);
+    if (confirmModal.type === 'block') {
+      await dispatch(blockAdminUser(id));
+    } else if (confirmModal.type === 'unblock') {
+      await dispatch(unblockAdminUser(id));
+    } else if (confirmModal.type === 'delete') {
+      await dispatch(deleteAdminUser(id));
+    } else if (confirmModal.type === 'role' && confirmModal.targetRole) {
+      await dispatch(updateAdminUserRole({ userId: id, role: confirmModal.targetRole }));
+    }
+    setUpdatingUserId(null);
+    setConfirmModal((prev) => ({ ...prev, open: false, user: null }));
   };
 
-  const openConfirm = (type: 'block' | 'unblock' | 'delete', user: AdminUser) =>
-    setConfirmModal({ open: true, type, user });
+  const openConfirm = (type: 'block' | 'unblock' | 'delete', user: AdminUser) => {
+    if (type === 'block') {
+      setConfirmModal({
+        open: true,
+        type: 'block',
+        user,
+        title: 'Block User Account',
+        message: `Are you sure you want to suspend "${user.name}"? They will no longer be able to log in or use tools.`,
+        confirmLabel: 'Block User',
+        isDanger: true,
+      });
+    } else if (type === 'unblock') {
+      setConfirmModal({
+        open: true,
+        type: 'unblock',
+        user,
+        title: 'Unblock User Account',
+        message: `Are you sure you want to restore access for "${user.name}"?`,
+        confirmLabel: 'Unblock User',
+        isDanger: false,
+      });
+    } else {
+      setConfirmModal({
+        open: true,
+        type: 'delete',
+        user,
+        title: 'Delete User Account',
+        message: `Are you sure you want to permanently delete "${user.name}" and all their associated files and history? This action cannot be undone.`,
+        confirmLabel: 'Delete User',
+        isDanger: true,
+      });
+    }
+  };
+
+  const openRoleModal = (user: AdminUser, targetRole: 'user' | 'admin') => {
+    if (targetRole === 'admin') {
+      setConfirmModal({
+        open: true,
+        type: 'role',
+        targetRole: 'admin',
+        user,
+        title: 'Promote to Administrator',
+        message:
+          'Make this user an administrator? This will give the user access to the Admin Panel and administrative features.',
+        confirmLabel: 'Make Admin',
+        isDanger: false,
+      });
+    } else {
+      setConfirmModal({
+        open: true,
+        type: 'role',
+        targetRole: 'user',
+        user,
+        title: 'Demote Administrator',
+        message:
+          'Remove administrator privileges from this user? They will no longer be able to access the Admin Panel.',
+        confirmLabel: 'Remove Admin',
+        isDanger: true,
+      });
+    }
+  };
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -189,7 +280,7 @@ export const AdminUsersPage: React.FC = () => {
             <thead className="bg-slate-900/80 border-b border-slate-800">
               <tr>
                 <th className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">User</th>
-                <th className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 hidden md:table-cell">Role</th>
+                <th className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Role</th>
                 <th className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 hidden lg:table-cell">Joined</th>
                 <th className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Status</th>
                 <th className="text-right px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Actions</th>
@@ -213,81 +304,121 @@ export const AdminUsersPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                users.map((u) => (
-                  <tr key={u._id} className="bg-slate-950/40 hover:bg-slate-900/60 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                          {u.name?.charAt(0).toUpperCase()}
+                users.map((u) => {
+                  const isCurrentUser = Boolean(
+                    currentAuthUser &&
+                      (currentAuthUser.id === u._id ||
+                        (currentAuthUser as any)._id === u._id)
+                  );
+                  return (
+                    <tr key={u._id} className="bg-slate-950/40 hover:bg-slate-900/60 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                            {u.name?.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-white truncate">{u.name}</p>
+                            <p className="text-[11px] text-slate-400 truncate">{u.email}</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-white truncate">{u.name}</p>
-                          <p className="text-[11px] text-slate-400 truncate">{u.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                          u.role === 'admin'
-                            ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                            : 'bg-slate-800 text-slate-400 border-slate-700'
-                        }`}
-                      >
-                        {u.role}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell text-[11px] text-slate-400">
-                      {formatDate(u.createdAt)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                          u.isBlocked
-                            ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                            : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                        }`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${u.isBlocked ? 'bg-rose-400' : 'bg-emerald-400 animate-pulse'}`} />
-                        {u.isBlocked ? 'Blocked' : 'Active'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        {u.isBlocked ? (
-                          <button
-                            id={`unblock-user-${u._id}`}
-                            onClick={() => openConfirm('unblock', u)}
-                            disabled={mutationLoading}
-                            title="Unblock user"
-                            className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
-                          >
-                            <ShieldCheck className="w-3.5 h-3.5" />
-                          </button>
-                        ) : (
-                          <button
-                            id={`block-user-${u._id}`}
-                            onClick={() => openConfirm('block', u)}
-                            disabled={mutationLoading}
-                            title="Block user"
-                            className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-colors disabled:opacity-50"
-                          >
-                            <ShieldOff className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                        <button
-                          id={`delete-user-${u._id}`}
-                          onClick={() => openConfirm('delete', u)}
-                          disabled={mutationLoading}
-                          title="Delete user"
-                          className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-colors disabled:opacity-50"
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider border ${
+                            u.role === 'admin'
+                              ? 'bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-sm shadow-rose-500/10'
+                              : 'bg-slate-800 text-slate-300 border-slate-700'
+                          }`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <span className={`w-1.5 h-1.5 rounded-full ${u.role === 'admin' ? 'bg-rose-400' : 'bg-slate-400'}`} />
+                          {u.role.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell text-[11px] text-slate-400">
+                        {formatDate(u.createdAt)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                            u.isBlocked
+                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${u.isBlocked ? 'bg-rose-400' : 'bg-emerald-400 animate-pulse'}`} />
+                          {u.isBlocked ? 'Blocked' : 'Active'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Role Action: Make Admin or Remove Admin */}
+                          {u.role === 'admin' ? (
+                            <button
+                              id={`remove-admin-btn-${u._id}`}
+                              onClick={() => openRoleModal(u, 'user')}
+                              disabled={mutationLoading || isCurrentUser}
+                              title={
+                                isCurrentUser
+                                  ? 'You cannot modify your own administrative role'
+                                  : 'Remove administrator privileges from this user'
+                              }
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500/10 border border-rose-500/30 text-rose-300 hover:bg-rose-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <UserMinus className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                              <span>{updatingUserId === u._id ? 'Updating...' : 'Remove Admin'}</span>
+                            </button>
+                          ) : (
+                            <button
+                              id={`make-admin-btn-${u._id}`}
+                              onClick={() => openRoleModal(u, 'admin')}
+                              disabled={mutationLoading}
+                              title="Promote user to administrator"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <UserCheck className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                              <span>{updatingUserId === u._id ? 'Updating...' : 'Make Admin'}</span>
+                            </button>
+                          )}
+
+                          {/* Existing Block / Unblock Button */}
+                          {u.isBlocked ? (
+                            <button
+                              id={`unblock-user-${u._id}`}
+                              onClick={() => openConfirm('unblock', u)}
+                              disabled={mutationLoading}
+                              title="Unblock user"
+                              className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <button
+                              id={`block-user-${u._id}`}
+                              onClick={() => openConfirm('block', u)}
+                              disabled={mutationLoading || isCurrentUser}
+                              title={isCurrentUser ? 'You cannot block your own account' : 'Block user'}
+                              className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <ShieldOff className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+
+                          {/* Existing Delete Button */}
+                          <button
+                            id={`delete-user-${u._id}`}
+                            onClick={() => openConfirm('delete', u)}
+                            disabled={mutationLoading || isCurrentUser}
+                            title={isCurrentUser ? 'You cannot delete your own account' : 'Delete user'}
+                            className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -322,26 +453,22 @@ export const AdminUsersPage: React.FC = () => {
       {/* Confirm Modal */}
       <ConfirmModal
         isOpen={confirmModal.open}
-        title={
-          confirmModal.type === 'delete'
-            ? 'Delete User'
-            : confirmModal.type === 'block'
-            ? 'Block User'
-            : 'Unblock User'
-        }
-        message={
-          confirmModal.type === 'delete'
-            ? `Delete "${confirmModal.user?.name}"? This will permanently remove their account, all files, and history.`
-            : confirmModal.type === 'block'
-            ? `Block "${confirmModal.user?.name}"? They will no longer be able to access their account.`
-            : `Unblock "${confirmModal.user?.name}"? They will regain access to their account.`
-        }
-        confirmLabel={
-          confirmModal.type === 'delete' ? 'Delete' : confirmModal.type === 'block' ? 'Block' : 'Unblock'
-        }
-        isDanger={confirmModal.type !== 'unblock'}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmLabel={confirmModal.confirmLabel}
+        isDanger={confirmModal.isDanger}
         onConfirm={handleConfirm}
-        onCancel={() => setConfirmModal({ open: false, type: 'delete', user: null })}
+        onCancel={() =>
+          setConfirmModal({
+            open: false,
+            type: 'delete',
+            user: null,
+            title: '',
+            message: '',
+            confirmLabel: '',
+            isDanger: false,
+          })
+        }
       />
     </div>
   );

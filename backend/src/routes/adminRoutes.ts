@@ -5,6 +5,7 @@ import {
   blockUser,
   unblockUser,
   deleteAdminUser,
+  changeUserRole,
   getAdminFiles,
 } from '../controllers/adminController';
 import { authenticate } from '../middlewares/authMiddleware';
@@ -26,6 +27,12 @@ router.get('/stats', getAdminStats);
  * @desc    List all users with search & pagination
  */
 router.get('/users', getAdminUsers);
+
+/**
+ * @route   PATCH /api/admin/users/:id/role
+ * @desc    Change user role (promote/demote)
+ */
+router.patch('/users/:id/role', changeUserRole);
 
 /**
  * @route   PATCH /api/admin/users/:id/block

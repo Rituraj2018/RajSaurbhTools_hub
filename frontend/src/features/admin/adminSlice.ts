@@ -93,6 +93,20 @@ export const deleteAdminUser = createAsyncThunk<string, string, { rejectValue: s
   }
 );
 
+export const updateAdminUserRole = createAsyncThunk<
+  AdminUser,
+  { userId: string; role: 'user' | 'admin' },
+  { rejectValue: string }
+>('admin/updateUserRole', async ({ userId, role }, { rejectWithValue }) => {
+  try {
+    return await adminService.updateUserRole(userId, role);
+  } catch (e: any) {
+    return rejectWithValue(
+      e?.response?.data?.message || e?.message || 'Failed to update user role'
+    );
+  }
+});
+
 /* ─── Tools ─── */
 
 export const fetchAdminTools = createAsyncThunk<Tool[], void, { rejectValue: string }>(
@@ -243,6 +257,22 @@ export const adminSlice = createSlice({
       .addCase(deleteAdminUser.rejected, (state, action) => {
         state.mutationLoading = false;
         state.mutationError = action.payload || 'Failed to delete user';
+      });
+
+    builder
+      .addCase(updateAdminUserRole.pending, (state) => {
+        state.mutationLoading = true;
+        state.mutationError = null;
+      })
+      .addCase(updateAdminUserRole.fulfilled, (state, action) => {
+        state.mutationLoading = false;
+        state.mutationSuccess = `User "${action.payload.name}" role updated to ${action.payload.role.toUpperCase()} successfully`;
+        const idx = state.users.findIndex((u) => u._id === action.payload._id);
+        if (idx !== -1) state.users[idx] = action.payload;
+      })
+      .addCase(updateAdminUserRole.rejected, (state, action) => {
+        state.mutationLoading = false;
+        state.mutationError = action.payload || 'Failed to update user role';
       });
 
     /* Tools */

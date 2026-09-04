@@ -54,6 +54,10 @@ export const HomePage: React.FC = () => {
       navigate('/tools/ayushman-print-tool');
       return;
     }
+    if (id === 'photo-compress' || id === 'image-compressor' || tool.title?.toLowerCase().includes('image compress')) {
+      navigate('/tools/image-compressor');
+      return;
+    }
     navigate('/tools');
   };
 

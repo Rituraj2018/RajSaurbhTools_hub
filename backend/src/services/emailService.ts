@@ -5,44 +5,44 @@ import { config } from '../config/env';
  * Creates and configures the Nodemailer transporter
  */
 const createTransporter = () => {
-  if (config.email.isConfigured) {
-    return nodemailer.createTransport({
-      host: config.email.host,
-      port: config.email.port,
-      secure: config.email.port === 465,
-      auth: {
-        user: config.email.user,
-        pass: config.email.pass,
-      },
-    });
-  }
+    if (config.email.isConfigured) {
+        return nodemailer.createTransport({
+            host: config.email.host,
+            port: config.email.port,
+            secure: config.email.port === 465,
+            auth: {
+                user: config.email.user,
+                pass: config.email.pass,
+            },
+        });
+    }
 
-  // Development fallback: If SMTP is not configured, create a mock transporter that logs dispatch
-  return {
-    sendMail: async (options: nodemailer.SendMailOptions) => {
-      console.log('────────────────────────────────────────────────────────────');
-      console.log('[EmailService DEV MOCK] Outgoing Email Dispatched:');
-      console.log(`To: ${options.to}`);
-      console.log(`Subject: ${options.subject}`);
-      console.log('────────────────────────────────────────────────────────────');
-      return { messageId: 'dev-mock-id' };
-    },
-  } as unknown as nodemailer.Transporter;
+    // Development fallback: If SMTP is not configured, create a mock transporter that logs dispatch
+    return {
+        sendMail: async (options: nodemailer.SendMailOptions) => {
+            console.log('────────────────────────────────────────────────────────────');
+            console.log('[EmailService DEV MOCK] Outgoing Email Dispatched:');
+            console.log(`To: ${options.to}`);
+            console.log(`Subject: ${options.subject}`);
+            console.log('────────────────────────────────────────────────────────────');
+            return { messageId: 'dev-mock-id' };
+        },
+    } as unknown as nodemailer.Transporter;
 };
 
 export const emailService = {
-  /**
-   * Sends a password reset instruction email with a secure reset link
-   */
-  async sendPasswordResetEmail(
-    toEmail: string,
-    userName: string,
-    resetUrl: string
-  ): Promise<boolean> {
-    try {
-      const transporter = createTransporter();
+    /**
+     * Sends a password reset instruction email with a secure reset link
+     */
+    async sendPasswordResetEmail(
+        toEmail: string,
+        userName: string,
+        resetUrl: string
+    ): Promise<boolean> {
+        try {
+            const transporter = createTransporter();
 
-      const htmlContent = `
+            const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,18 +153,18 @@ export const emailService = {
 </html>
       `;
 
-      await transporter.sendMail({
-        from: config.email.from,
-        to: toEmail,
-        subject: 'Password Reset Request — RajSaurbh Tools_Hub',
-        text: `Hello ${userName || 'there'},\n\nWe received a request to reset your password. Use the following link to reset your password:\n\n${resetUrl}\n\nThis link will expire in 15 minutes.\n\nIf you did not request this, please ignore this email.\n`,
-        html: htmlContent,
-      });
+            await transporter.sendMail({
+                from: config.email.from,
+                to: toEmail,
+                subject: 'Password Reset Request — RajSaurbh Tools_Hub',
+                text: `Hello ${userName || 'there'},\n\nWe received a request to reset your password. Use the following link to reset your password:\n\n${resetUrl}\n\nThis link will expire in 15 minutes.\n\nIf you did not request this, please ignore this email.\n`,
+                html: htmlContent,
+            });
 
-      return true;
-    } catch (error) {
-      console.error('[EmailService Error] Failed to dispatch password reset email:', error);
-      return false;
-    }
-  },
+            return true;
+        } catch (error) {
+            console.error('[EmailService Error] Failed to dispatch password reset email:', error);
+            return false;
+        }
+    },
 };

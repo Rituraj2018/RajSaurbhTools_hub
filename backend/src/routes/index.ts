@@ -7,6 +7,7 @@ import historyRouter from './historyRoutes';
 import userRouter from './userRoutes';
 import adminRouter from './adminRoutes';
 import notificationRouter from './notificationRoutes';
+import googleDriveRouter from './googleDriveRoutes';
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.use('/history', historyRouter);
 router.use('/users', userRouter);
 router.use('/admin', adminRouter);
 router.use('/notifications', notificationRouter);
+router.use('/drive', googleDriveRouter);
 
 export default router;
 

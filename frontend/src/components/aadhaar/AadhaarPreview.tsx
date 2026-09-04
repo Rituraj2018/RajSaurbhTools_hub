@@ -16,6 +16,7 @@ import {
   extractCardCanvas,
 } from '../../utils/aadhaarProcessor';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
 
 export interface AadhaarPreviewProps {
   documents: AadhaarDocItem[];
@@ -417,6 +418,29 @@ export const AadhaarPreview: React.FC<AadhaarPreviewProps> = ({
             >
               Print A4 Sheet
             </Button>
+
+            {/* ── Save to Google Drive ── */}
+            <GoogleDriveButton
+              variant="secondary"
+              size="md"
+              label="Save to Google Drive"
+              className="w-full justify-center"
+              disabled={!sheetCanvas}
+              onGetFile={async () => {
+                if (!sheetCanvas) return null;
+                return new Promise((resolve) => {
+                  sheetCanvas.toBlob((blob) => {
+                    if (!blob) return;
+                    resolve({
+                      blob,
+                      fileName: `Aadhaar_A4_Print_Sheet_${Date.now()}.png`,
+                      mimeType: 'image/png',
+                      category: 'Documents',
+                    });
+                  }, 'image/png');
+                });
+              }}
+            />
 
             {/* ── Print hint ── */}
             {sheetCanvas && (

@@ -20,6 +20,7 @@ import {
 } from '../../utils/passportProcessor';
 import { generatePDFSheet } from '../../utils/pdfGenerator';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
 
 export interface PassportPreviewProps {
   passportCanvas: HTMLCanvasElement | null;
@@ -351,15 +352,38 @@ export const PassportPreview: React.FC<PassportPreviewProps> = ({
             </p>
           </div>
 
-          {/* Quick Print CTA */}
-          <Button
-            variant="gradient"
-            size="md"
-            onClick={handleBrowserPrint}
-            leftIcon={<Printer className="w-4 h-4" />}
-          >
-            <span>Print Sheet Directly</span>
-          </Button>
+          {/* Actions: Print & Google Drive */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="gradient"
+              size="md"
+              onClick={handleBrowserPrint}
+              leftIcon={<Printer className="w-4 h-4" />}
+            >
+              <span>Print Sheet Directly</span>
+            </Button>
+            <GoogleDriveButton
+              variant="secondary"
+              size="md"
+              label="Save to Google Drive"
+              onGetFile={async () => {
+                const canvasToSave = activeTab === 'single' ? passportCanvas : sheetCanvas;
+                if (!canvasToSave) return null;
+                return new Promise((resolve) => {
+                  canvasToSave.toBlob((blob) => {
+                    if (!blob) return;
+                    const suffix = activeTab === 'single' ? 'Single_35x45mm' : `Sheet_${paperSize}_${copies}Copies`;
+                    resolve({
+                      blob,
+                      fileName: `Passport_${suffix}_${Date.now()}.png`,
+                      mimeType: 'image/png',
+                      category: 'Images',
+                    });
+                  }, 'image/png');
+                });
+              }}
+            />
+          </div>
         </div>
 
         {/* Download Buttons Row */}

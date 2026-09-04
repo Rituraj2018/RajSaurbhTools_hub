@@ -57,7 +57,23 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
   const moveDown  = () => onPhotoPositionChange(getClampedPosition(0, +STEP));
   const moveLeft  = () => onPhotoPositionChange(getClampedPosition(-STEP, 0));
   const moveRight = () => onPhotoPositionChange(getClampedPosition(+STEP, 0));
-  const moveCenter = () => onPhotoPositionChange({ x: 0, y: 0 });
+
+  // CENTER: move photo group to the visual center of the sheet
+  const moveCenter = () => {
+    const grid = calculatePrintGrid(options.paperSize, options.copies, options.landscape);
+    const totalGridWidth = grid.cols * grid.photoWidthPx + (grid.cols - 1) * grid.gapXPx;
+    const totalGridHeight = grid.rows * grid.photoHeightPx + (grid.rows - 1) * grid.gapYPx;
+    // The centered startX/Y that would place the grid in the middle of the sheet
+    const centeredStartX = Math.round((grid.sheetWidthPx - totalGridWidth) / 2);
+    const centeredStartY = Math.round((grid.sheetHeightPx - totalGridHeight) / 2);
+    // Offset from the current grid.startX/Y to the centered position
+    onPhotoPositionChange({
+      x: centeredStartX - grid.startX,
+      y: centeredStartY - grid.startY,
+    });
+  };
+
+  // RESET: restore the default top-left position (offset = 0)
   const resetPosition = () => onPhotoPositionChange({ x: 0, y: 0 });
 
   const handlePaperSizeChange = (paperSize: PaperSize) => {

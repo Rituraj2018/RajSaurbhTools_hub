@@ -1,14 +1,20 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
-// Load environment variables from .env file
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+// Load environment variables from .env file (supports running from repo root or backend dir)
+const envPath = fs.existsSync(path.resolve(process.cwd(), '.env'))
+  ? path.resolve(process.cwd(), '.env')
+  : path.resolve(__dirname, '../../.env');
+
+dotenv.config({ path: envPath });
 
 export const config = {
   port: Number(process.env.PORT) || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
-  mongoUri: process.env.MONGODB_URI || 'mongodb+srv://singhrituraj8077_db_user:316yAA4NxQo1JaE6@rajtools.vwdgutc.mongodb.net/?appName=RajTools',
+  mongoUri: process.env.MONGODB_URI || process.env.MONGODB_URL || '',
+  mongodbUri: process.env.MONGODB_URI || process.env.MONGODB_URL || '',
   isProduction: process.env.NODE_ENV === 'production',
   jwtSecret: process.env.JWT_SECRET || 'default_jwt_secret_dev_key_only',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',

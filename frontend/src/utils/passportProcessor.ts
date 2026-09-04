@@ -493,8 +493,17 @@ export function calculatePrintGrid(
   const totalGridWidth = cols * photoWidthPx + (cols - 1) * gapXPx;
   const totalGridHeight = rows * photoHeightPx + (rows - 1) * gapYPx;
 
-  const startX = Math.max(0, Math.round((sheetWidthPx - totalGridWidth) / 2));
-  const startY = Math.max(0, Math.round((sheetHeightPx - totalGridHeight) / 2));
+  // A4: default position is top-left with a ~10 mm page margin
+  // 4x6: keep centred (small paper — photos should be centered)
+  const PAGE_MARGIN_PX = Math.round(11.811 * 10); // 10 mm ≈ 118 px @ 300 DPI
+  const startX =
+    paperSize === 'A4'
+      ? Math.max(0, PAGE_MARGIN_PX)
+      : Math.max(0, Math.round((sheetWidthPx - totalGridWidth) / 2));
+  const startY =
+    paperSize === 'A4'
+      ? Math.max(0, PAGE_MARGIN_PX)
+      : Math.max(0, Math.round((sheetHeightPx - totalGridHeight) / 2));
 
   return {
     cols,

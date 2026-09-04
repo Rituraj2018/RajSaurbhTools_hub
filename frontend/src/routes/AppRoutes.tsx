@@ -10,6 +10,7 @@ import {
   PdfMergePage,
   AadhaarPrintStudioPage,
   AyushmanPrintStudioPage,
+  ImageCompressorPage,
   MyFilesPage,
   HistoryPage,
   FavoritesPage,
@@ -44,6 +45,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="/aadhaar-print-studio" element={<AadhaarPrintStudioPage />} />
         <Route path="/tools/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
         <Route path="/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
+        <Route path="/tools/image-compressor" element={<ImageCompressorPage />} />
+        <Route path="/image-compressor" element={<ImageCompressorPage />} />
       </Route>
 
       {/* Guest / Auth Routes (Redirects authenticated users to /dashboard) */}
@@ -77,6 +80,9 @@ export const AppRoutes: React.FC = () => {
           <Route path="/tools/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
           <Route path="/tools/photo/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
           <Route path="/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
+          <Route path="/tools/image-compressor" element={<ImageCompressorPage />} />
+          <Route path="/tools/photo/image-compressor" element={<ImageCompressorPage />} />
+          <Route path="/image-compressor" element={<ImageCompressorPage />} />
           <Route path="/tools/:category" element={<ToolsPage />} />
           <Route path="/files" element={<MyFilesPage />} />
           <Route path="/history" element={<HistoryPage />} />

@@ -15,6 +15,7 @@ import {
   downloadPdfBlob,
 } from '../../utils/imageToPdfProcessor';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
 
 export interface PdfLivePreviewProps {
   images: ImageFileItem[];
@@ -238,6 +239,25 @@ export const PdfLivePreview: React.FC<PdfLivePreviewProps> = ({ images, settings
             Save as PDF
           </Button>
         </div>
+
+        {/* Save to Google Drive */}
+        <GoogleDriveButton
+          variant="secondary"
+          size="md"
+          label="Save to Google Drive"
+          className="w-full justify-center"
+          disabled={isGenerating || images.length === 0}
+          onGetFile={async () => {
+            if (images.length === 0) return null;
+            const blob = await convertImagesToPDF(images, settings);
+            return {
+              blob,
+              fileName: `${settings.filename || 'Converted_Document'}.pdf`,
+              mimeType: 'application/pdf',
+              category: 'PDFs',
+            };
+          }}
+        />
       </div>
     </div>
   );

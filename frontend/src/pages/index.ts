@@ -6,6 +6,7 @@ export * from './ImageToPdfPage';
 export * from './PdfMergePage';
 export * from './AadhaarPrintStudioPage';
 export * from './AyushmanPrintStudioPage';
+export * from './ImageCompressorPage';
 export * from './MyFilesPage';
 export * from './HistoryPage';
 export * from './FavoritesPage';

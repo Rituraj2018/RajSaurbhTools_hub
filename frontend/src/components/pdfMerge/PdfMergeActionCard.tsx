@@ -14,6 +14,7 @@ import {
   downloadMergedPdf,
 } from '../../utils/pdfMergeProcessor';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
 
 export interface PdfMergeActionCardProps {
   files: PdfFileItem[];
@@ -235,6 +236,29 @@ export const PdfMergeActionCard: React.FC<PdfMergeActionCardProps> = ({ files })
             </Button>
           </div>
         )}
+
+        {/* Save to Google Drive */}
+        <GoogleDriveButton
+          variant="secondary"
+          size="md"
+          label="Save to Google Drive"
+          className="w-full justify-center"
+          disabled={isMerging || validFiles.length < 2}
+          onGetFile={async () => {
+            let bytes = mergedBytes;
+            if (!bytes) {
+              bytes = await mergePdfDocuments(validFiles);
+              setMergedBytes(bytes);
+            }
+            const blob = new Blob([bytes.buffer as ArrayBuffer], { type: 'application/pdf' });
+            return {
+              blob,
+              fileName: `${filename || 'Merged_Document'}.pdf`,
+              mimeType: 'application/pdf',
+              category: 'PDFs',
+            };
+          }}
+        />
       </div>
     </div>
   );

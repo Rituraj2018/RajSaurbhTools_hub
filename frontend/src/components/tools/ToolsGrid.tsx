@@ -73,16 +73,20 @@ export const ToolsGrid: React.FC<ToolsGridProps> = ({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {tools.map((tool) => {
-        const id = tool.id || tool._id || tool.slug;
-        const isFav = Boolean(
-          favoriteIds.includes(id) ||
-          (tool.slug && favoriteIds.includes(tool.slug)) ||
-          (tool._id && favoriteIds.includes(tool._id))
-        );
+        const toolObjectId = tool._id ? String(tool._id) : '';
+        const toolId = tool.id ? String(tool.id) : '';
+        const isFav = favoriteIds.some((favId) => {
+          const idStr = String(favId);
+          return (
+            (toolObjectId && idStr === toolObjectId) ||
+            (toolId && idStr === toolId) ||
+            (tool.slug && idStr === tool.slug)
+          );
+        });
 
         return (
           <ToolCard
-            key={id}
+            key={tool._id || tool.id || tool.slug}
             tool={tool}
             onLaunch={onLaunchTool}
             onToggleFavorite={onToggleFavorite}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  Star,
+  Heart,
   Search,
   X,
   ArrowRight,
@@ -62,11 +62,16 @@ export const FavoritesPage: React.FC = () => {
   // Filter tools that are in the user's favorites array
   const favoriteTools = useMemo(() => {
     return tools.filter((tool) => {
-      const id = tool.id || tool._id || tool.slug;
-      const isFav =
-        favoriteToolIds.includes(id) ||
-        favoriteToolIds.includes(tool.slug) ||
-        (tool._id ? favoriteToolIds.includes(tool._id) : false);
+      const toolObjectId = tool._id ? String(tool._id) : '';
+      const toolId = tool.id ? String(tool.id) : '';
+      const isFav = favoriteToolIds.some((favId) => {
+        const idStr = String(favId);
+        return (
+          (toolObjectId && idStr === toolObjectId) ||
+          (toolId && idStr === toolId) ||
+          (tool.slug && idStr === tool.slug)
+        );
+      });
 
       if (!isFav) return false;
 
@@ -94,8 +99,8 @@ export const FavoritesPage: React.FC = () => {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
-            <Star className="w-5 h-5 fill-white" />
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
+            <Heart className="w-5 h-5 fill-white" />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -125,7 +130,7 @@ export const FavoritesPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search your favorite tools..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:border-amber-500 outline-none"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:border-rose-500 outline-none"
             />
             {searchQuery && (
               <button
@@ -147,7 +152,7 @@ export const FavoritesPage: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
                   selectedCategory === cat
-                    ? 'bg-amber-500 border-amber-400 text-slate-950 font-bold shadow-md shadow-amber-500/20'
+                    ? 'bg-rose-500 border-rose-400 text-white font-bold shadow-md shadow-rose-500/20'
                     : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                 }`}
               >
@@ -168,13 +173,13 @@ export const FavoritesPage: React.FC = () => {
       ) : favoriteToolIds.length === 0 ? (
         /* Empty State: No tools favorited yet */
         <div className="p-16 rounded-3xl bg-slate-900/40 border border-slate-800/80 text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
-            <Star className="w-8 h-8 fill-amber-400/30" />
+          <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center mx-auto">
+            <Heart className="w-8 h-8 fill-rose-500/30 text-rose-500" />
           </div>
           <div className="space-y-1">
             <h3 className="text-lg font-bold text-white">No Favorite Tools Yet</h3>
             <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-              Click the star icon in the top-right corner of any tool card in the catalog to bookmark it here for instant 1-click access.
+              Click the heart icon in the top-right corner of any tool card in the catalog to bookmark it here for instant 1-click access.
             </p>
           </div>
           <Link to="/tools">

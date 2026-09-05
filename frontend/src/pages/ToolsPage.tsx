@@ -191,15 +191,28 @@ export const ToolsPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredTools.slice(0, 3).map((tool) => (
-              <ToolCard
-                key={tool.id || tool._id || tool.slug}
-                tool={tool}
-                onLaunch={(t) => handleLaunchTool(t)}
-                onToggleFavorite={handleToggleFavorite}
-                isFavorite={favoriteToolIds.includes(tool.id || tool._id || tool.slug)}
-              />
-            ))}
+            {featuredTools.slice(0, 3).map((tool) => {
+              const toolObjectId = tool._id ? String(tool._id) : '';
+              const toolId = tool.id ? String(tool.id) : '';
+              const isFav = favoriteToolIds.some((favId) => {
+                const idStr = String(favId);
+                return (
+                  (toolObjectId && idStr === toolObjectId) ||
+                  (toolId && idStr === toolId) ||
+                  (tool.slug && idStr === tool.slug)
+                );
+              });
+
+              return (
+                <ToolCard
+                  key={tool._id || tool.id || tool.slug}
+                  tool={tool}
+                  onLaunch={(t) => handleLaunchTool(t)}
+                  onToggleFavorite={handleToggleFavorite}
+                  isFavorite={isFav}
+                />
+              );
+            })}
           </div>
         </div>
       )}

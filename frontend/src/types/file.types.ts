@@ -8,6 +8,10 @@ export interface UserFileItem {
   mimeType: string;
   fileSize: number;
   fileUrl: string;
+  /** Where the file is physically stored */
+  storageProvider?: 'local' | 'cloudinary' | 'google_drive' | 'onedrive';
+  /** Cloud provider file ID (Google Drive / OneDrive) */
+  cloudFileId?: string;
   createdAt: string;
   updatedAt?: string;
 }

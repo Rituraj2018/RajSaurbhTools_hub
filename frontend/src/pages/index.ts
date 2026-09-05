@@ -21,5 +21,7 @@ export * from './AdminUsersPage';
 export * from './AdminToolsPage';
 export * from './AdminFilesPage';
 export * from './AdminAnalyticsPage';
+// Cloud OAuth callback
+export * from './CloudCallbackPage';
 
 

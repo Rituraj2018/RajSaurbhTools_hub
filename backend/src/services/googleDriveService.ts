@@ -10,7 +10,7 @@ export class GoogleDriveService {
    * Check if Google Drive integration has an active OAuth Client ID configured.
    */
   public static isConfigured(): boolean {
-    return Boolean(config.google.clientId && config.google.clientId.trim().length > 0);
+    return Boolean(config.googleDrive.clientId && config.googleDrive.clientId.trim().length > 0);
   }
 
   /**
@@ -19,7 +19,7 @@ export class GoogleDriveService {
    */
   public static getPublicConfig(): { clientId: string; isConfigured: boolean } {
     return {
-      clientId: config.google.clientId || '',
+      clientId: config.googleDrive.clientId || '',
       isConfigured: this.isConfigured(),
     };
   }

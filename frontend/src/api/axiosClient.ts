@@ -34,6 +34,14 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError<any>) => {
+    if (error.response?.status === 401) {
+      try {
+        localStorage.removeItem('rajsaurbh_auth_token');
+        localStorage.removeItem('rajsaurbh_auth_user');
+      } catch {
+        // ignore
+      }
+    }
     // If backend returns a structured ApiError response
     if (error.response?.data) {
       return Promise.reject(error.response.data);

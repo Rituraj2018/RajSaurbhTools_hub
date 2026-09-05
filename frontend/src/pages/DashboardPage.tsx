@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   UploadCloud,
@@ -22,16 +22,16 @@ import {
   mockStorageBreakdown,
 } from '../utils/mockData';
 import { ToolItem, RecentActivity } from '../types';
+import { CloudStorageSettings } from '../components/cloud/CloudStorageSettings';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [toolsList, setToolsList] = useState<ToolItem[]>(mockTools);
   const [activities] = useState<RecentActivity[]>(mockRecentActivities);
 
-  const { favoriteToolIds } = useAppSelector((state) => state.tools);
+  const { tools, favoriteToolIds } = useAppSelector((state) => state.tools);
 
   React.useEffect(() => {
     dispatch(fetchTools());
@@ -40,48 +40,48 @@ export const DashboardPage: React.FC = () => {
 
   const handleToggleFavorite = (toolId: string) => {
     dispatch(toggleFavoriteTool(toolId));
-    setToolsList((prev) =>
-      prev.map((t) => (t.id === toolId ? { ...t, isFavorite: !t.isFavorite } : t))
-    );
   };
 
-  const handleLaunchTool = (tool: ToolItem) => {
+  const handleLaunchTool = (tool: any) => {
+    const slug = tool.slug || tool.id || '';
+    const name = (tool.name || tool.title || '').toLowerCase();
+
     if (
-      tool.id === 'passport-photo-studio' ||
-      tool.id === 'photo-bg-remove' ||
-      tool.title.toLowerCase().includes('passport')
+      slug === 'passport-photo-studio' ||
+      slug === 'photo-bg-remove' ||
+      name.includes('passport')
     ) {
       navigate('/tools/passport-photo-studio');
       return;
     }
     if (
-      tool.id === 'image-to-pdf' ||
-      tool.id === 'photo-converter' ||
-      tool.title.toLowerCase().includes('image to pdf')
+      slug === 'image-to-pdf' ||
+      slug === 'photo-converter' ||
+      name.includes('image to pdf')
     ) {
       navigate('/tools/image-to-pdf');
       return;
     }
     if (
-      tool.id === 'pdf-merge' ||
-      tool.title.toLowerCase().includes('merge pdf') ||
-      tool.title.toLowerCase().includes('combine')
+      slug === 'pdf-merge' ||
+      name.includes('merge pdf') ||
+      name.includes('combine')
     ) {
       navigate('/tools/pdf-merge');
       return;
     }
     if (
-      tool.id === 'aadhaar-print-studio' ||
-      tool.title.toLowerCase().includes('aadhaar')
+      slug === 'aadhaar-print-studio' ||
+      name.includes('aadhaar')
     ) {
       navigate('/tools/aadhaar-print-studio');
       return;
     }
     if (
-      tool.id === 'ayushman-print-tool' ||
-      tool.title.toLowerCase().includes('ayushman') ||
-      tool.title.toLowerCase().includes('pmjay') ||
-      tool.title.toLowerCase().includes('health card')
+      slug === 'ayushman-print-tool' ||
+      name.includes('ayushman') ||
+      name.includes('pmjay') ||
+      name.includes('health card')
     ) {
       navigate('/tools/ayushman-print-tool');
       return;
@@ -89,7 +89,26 @@ export const DashboardPage: React.FC = () => {
     setSelectedTool(tool);
   };
 
-  const favoriteTools = toolsList.filter((t) => t.isFavorite).slice(0, 4);
+  const displayTools = useMemo(() => {
+    const sourceList = tools.length > 0 ? tools : mockTools;
+    const isFav = (t: any) => {
+      const toolObjectId = (t as any)._id ? String((t as any)._id) : '';
+      const toolId = t.id ? String(t.id) : '';
+      const slug = (t as any).slug ? String((t as any).slug) : '';
+      return favoriteToolIds.some((favId) => {
+        const idStr = String(favId);
+        return (
+          (toolObjectId && idStr === toolObjectId) ||
+          (toolId && idStr === toolId) ||
+          (slug && idStr === slug)
+        );
+      });
+    };
+
+    const userFavs = sourceList.filter(isFav);
+    const otherTools = sourceList.filter((t) => !isFav(t));
+    return [...userFavs, ...otherTools].slice(0, 4);
+  }, [tools, favoriteToolIds]);
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -167,15 +186,28 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {favoriteTools.map((tool) => (
-            <ToolCard
-              key={tool.id}
-              tool={tool}
-              onLaunch={handleLaunchTool}
-              onToggleFavorite={handleToggleFavorite}
-              isFavorite={favoriteToolIds.includes(tool.id) || !!tool.isFavorite}
-            />
-          ))}
+          {displayTools.map((tool: any) => {
+            const toolObjectId = tool._id ? String(tool._id) : '';
+            const toolId = tool.id ? String(tool.id) : '';
+            const isFav = favoriteToolIds.some((favId) => {
+              const idStr = String(favId);
+              return (
+                (toolObjectId && idStr === toolObjectId) ||
+                (toolId && idStr === toolId) ||
+                (tool.slug && idStr === tool.slug)
+              );
+            });
+
+            return (
+              <ToolCard
+                key={tool._id || tool.id || tool.slug}
+                tool={tool}
+                onLaunch={handleLaunchTool}
+                onToggleFavorite={handleToggleFavorite}
+                isFavorite={isFav}
+              />
+            );
+          })}
         </div>
       </section>
 
@@ -292,6 +324,9 @@ export const DashboardPage: React.FC = () => {
               Clean Temporary Cache
             </Button>
           </div>
+
+          {/* Personal Cloud Storage Connection */}
+          <CloudStorageSettings />
         </div>
       </div>
 

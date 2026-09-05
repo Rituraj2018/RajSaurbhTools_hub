@@ -71,9 +71,28 @@ export const toolsService = {
     const response = await axiosClient.get<
       ApiResponse<{ favorites: Tool[]; favoriteIds: string[]; totalFavorites: number }>
     >('/users/favorites');
+    const rawIds = response.data.data?.favoriteIds || [];
+    const favorites = response.data.data?.favorites || [];
     return {
-      favorites: response.data.data?.favorites || [],
-      favoriteIds: response.data.data?.favoriteIds || [],
+      favorites,
+      favoriteIds: rawIds.map((id: any) => String(id)),
+    };
+  },
+
+  /**
+   * Toggle a tool in authenticated user's favorites
+   */
+  async toggleFavorite(
+    toolId: string
+  ): Promise<{ favoriteTools: string[]; toolId: string; isFavorite: boolean }> {
+    const response = await axiosClient.post<
+      ApiResponse<{ favoriteTools: string[]; toolId: string; isFavorite: boolean }>
+    >(`/users/favorites/${toolId}`);
+    const raw = response.data.data?.favoriteTools || [];
+    return {
+      favoriteTools: raw.map((id: any) => String(id)),
+      toolId: response.data.data?.toolId || toolId,
+      isFavorite: !!response.data.data?.isFavorite,
     };
   },
 
@@ -81,10 +100,8 @@ export const toolsService = {
    * Add a tool to authenticated user's favorites
    */
   async addFavorite(toolId: string): Promise<string[]> {
-    const response = await axiosClient.post<
-      ApiResponse<{ favoriteTools: string[]; toolId: string }>
-    >(`/users/favorites/${toolId}`);
-    return response.data.data?.favoriteTools || [];
+    const res = await this.toggleFavorite(toolId);
+    return res.favoriteTools;
   },
 
   /**
@@ -94,6 +111,7 @@ export const toolsService = {
     const response = await axiosClient.delete<
       ApiResponse<{ favoriteTools: string[]; toolId: string }>
     >(`/users/favorites/${toolId}`);
-    return response.data.data?.favoriteTools || [];
+    const raw = response.data.data?.favoriteTools || [];
+    return raw.map((id: any) => String(id));
   },
 };

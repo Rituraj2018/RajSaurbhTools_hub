@@ -13,8 +13,10 @@ export interface IFile {
   fileUrl: string;
   /** Cloudinary public_id — populated when storageProvider is 'cloudinary' */
   cloudinaryPublicId?: string;
+  /** Cloud file ID — populated when storageProvider is 'google_drive' or 'onedrive' */
+  cloudFileId?: string;
   /** Where the file is physically stored */
-  storageProvider: 'local' | 'cloudinary';
+  storageProvider: 'local' | 'cloudinary' | 'google_drive' | 'onedrive';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,7 +26,8 @@ export interface IFile {
  */
 export interface IFileDocument extends Document, Omit<IFile, 'createdAt' | 'updatedAt'> {
   cloudinaryPublicId?: string;
-  storageProvider: 'local' | 'cloudinary';
+  cloudFileId?: string;
+  storageProvider: 'local' | 'cloudinary' | 'google_drive' | 'onedrive';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,9 +81,14 @@ const fileSchema = new Schema<IFileDocument>(
       trim: true,
       default: null,
     },
+    cloudFileId: {
+      type: String,
+      trim: true,
+      default: null,
+    },
     storageProvider: {
       type: String,
-      enum: ['local', 'cloudinary'],
+      enum: ['local', 'cloudinary', 'google_drive', 'onedrive'],
       default: 'local',
       index: true,
     },

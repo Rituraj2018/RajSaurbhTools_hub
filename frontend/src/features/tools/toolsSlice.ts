@@ -43,41 +43,40 @@ export const fetchToolBySlug = createAsyncThunk<Tool, string, { rejectValue: str
 );
 
 /**
- * Async Thunk: Fetch user's favorite tool IDs
+ * Async Thunk: Fetch user's favorite tool IDs and populated tools
  */
-export const fetchFavoriteTools = createAsyncThunk<string[], void, { rejectValue: string }>(
-  'tools/fetchFavoriteTools',
-  async (_, { rejectWithValue }) => {
-    try {
-      const data = await toolsService.getFavorites();
-      return data.favoriteIds;
-    } catch (error: any) {
-      const message = error?.message || 'Failed to fetch favorite tools';
-      return rejectWithValue(message);
-    }
+export const fetchFavoriteTools = createAsyncThunk<
+  { favoriteIds: string[]; favorites: Tool[] },
+  void,
+  { rejectValue: string }
+>('tools/fetchFavoriteTools', async (_, { rejectWithValue }) => {
+  try {
+    const data = await toolsService.getFavorites();
+    return {
+      favoriteIds: (data.favoriteIds || []).map(String),
+      favorites: data.favorites || [],
+    };
+  } catch (error: any) {
+    const message = error?.message || 'Failed to fetch favorite tools';
+    return rejectWithValue(message);
   }
-);
+});
 
 /**
  * Async Thunk: Toggle a tool in favorites (add or remove)
  */
 export const toggleFavoriteTool = createAsyncThunk<
-  { toolId: string; favoriteIds: string[] },
+  { toolId: string; favoriteIds: string[]; isFavorite: boolean },
   string,
-  { state: { tools: ToolsState }; rejectValue: string }
->('tools/toggleFavoriteTool', async (toolId, { getState, rejectWithValue }) => {
+  { rejectValue: string }
+>('tools/toggleFavoriteTool', async (toolId, { rejectWithValue }) => {
   try {
-    const { favoriteToolIds } = getState().tools;
-    const isCurrentlyFav = favoriteToolIds.includes(toolId);
-
-    let updatedIds: string[];
-    if (isCurrentlyFav) {
-      updatedIds = await toolsService.removeFavorite(toolId);
-    } else {
-      updatedIds = await toolsService.addFavorite(toolId);
-    }
-
-    return { toolId, favoriteIds: updatedIds };
+    const data = await toolsService.toggleFavorite(toolId);
+    return {
+      toolId: data.toolId || toolId,
+      favoriteIds: (data.favoriteTools || []).map(String),
+      isFavorite: data.isFavorite,
+    };
   } catch (error: any) {
     const message = error?.message || 'Failed to update favorite tool';
     return rejectWithValue(message);
@@ -101,7 +100,7 @@ export const toolsSlice = createSlice({
       state.selectedTool = null;
     },
     setFavoriteToolIds: (state, action: PayloadAction<string[]>) => {
-      state.favoriteToolIds = action.payload;
+      state.favoriteToolIds = action.payload.map(String);
     },
   },
   extraReducers: (builder) => {
@@ -136,30 +135,78 @@ export const toolsSlice = createSlice({
 
       // Fetch Favorite Tools
       .addCase(fetchFavoriteTools.fulfilled, (state, action) => {
-        state.favoriteToolIds = action.payload;
+        state.favoriteToolIds = Array.from(new Set(action.payload.favoriteIds.map(String)));
+        if (action.payload.favorites && action.payload.favorites.length > 0) {
+          for (const favTool of action.payload.favorites) {
+            const exists = state.tools.some(
+              (t) => String(t._id || t.id) === String(favTool._id || favTool.id)
+            );
+            if (!exists) {
+              state.tools.push(favTool);
+            }
+          }
+        }
       })
 
       // Toggle Favorite Tool (Optimistic & fulfilled)
       .addCase(toggleFavoriteTool.pending, (state, action) => {
-        const toolId = action.meta.arg;
-        if (state.favoriteToolIds.includes(toolId)) {
-          state.favoriteToolIds = state.favoriteToolIds.filter((id) => id !== toolId);
+        const toolId = String(action.meta.arg);
+        const targetTool = state.tools.find(
+          (t) =>
+            String(t._id || t.id) === toolId ||
+            t.slug === toolId
+        );
+        const canonicalId = String(targetTool?._id || targetTool?.id || toolId);
+
+        const isFav = state.favoriteToolIds.some(
+          (id) =>
+            String(id) === canonicalId ||
+            (targetTool?._id && String(id) === String(targetTool._id)) ||
+            (targetTool?.id && String(id) === String(targetTool.id))
+        );
+
+        if (isFav) {
+          state.favoriteToolIds = state.favoriteToolIds.filter(
+            (id) =>
+              String(id) !== canonicalId &&
+              (!targetTool?._id || String(id) !== String(targetTool._id)) &&
+              (!targetTool?.id || String(id) !== String(targetTool.id))
+          );
         } else {
-          state.favoriteToolIds.push(toolId);
+          state.favoriteToolIds = Array.from(new Set([...state.favoriteToolIds, canonicalId]));
         }
       })
       .addCase(toggleFavoriteTool.fulfilled, (state, action) => {
-        state.favoriteToolIds = action.payload.favoriteIds;
+        state.favoriteToolIds = Array.from(new Set(action.payload.favoriteIds.map(String)));
       })
       .addCase(toggleFavoriteTool.rejected, (state, action) => {
-        // Rollback on rejection if needed
-        const toolId = action.meta.arg;
-        if (state.favoriteToolIds.includes(toolId)) {
-          state.favoriteToolIds = state.favoriteToolIds.filter((id) => id !== toolId);
+        // Roll back optimistic toggle on failure
+        const toolId = String(action.meta.arg);
+        const targetTool = state.tools.find(
+          (t) =>
+            String(t._id || t.id) === toolId ||
+            t.slug === toolId
+        );
+        const canonicalId = String(targetTool?._id || targetTool?.id || toolId);
+
+        // If it was optimistically added, remove it; if removed, add back
+        const wasAdded = state.favoriteToolIds.includes(canonicalId);
+        if (wasAdded) {
+          state.favoriteToolIds = state.favoriteToolIds.filter((id) => String(id) !== canonicalId);
         } else {
-          state.favoriteToolIds.push(toolId);
+          state.favoriteToolIds = Array.from(new Set([...state.favoriteToolIds, canonicalId]));
         }
-      });
+        state.error = action.payload || 'Failed to update favorite';
+      })
+      // Clear favorites on user logout
+      .addMatcher(
+        (action) =>
+          action.type === 'auth/logout' ||
+          action.type === 'auth/logoutUser/fulfilled',
+        (state) => {
+          state.favoriteToolIds = [];
+        }
+      );
   },
 });
 

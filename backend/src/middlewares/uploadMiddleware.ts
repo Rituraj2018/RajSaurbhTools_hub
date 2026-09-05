@@ -54,21 +54,12 @@ const fileFilter = (
 
 /**
  * Storage strategy:
- * - Cloudinary configured → memoryStorage (buffer sent directly to Cloudinary)
- * - Cloudinary not configured → diskStorage (local uploads/ fallback)
+ * Always use memoryStorage so that req.file.buffer is available for both:
+ * - Cloud storage upload (Google Drive / OneDrive via fileController)
+ * - Cloudinary upload (via cloudinaryService)
+ * File binary is never persisted to server disk.
  */
-const storage: StorageEngine = config.cloudinary.isConfigured
-  ? multer.memoryStorage()
-  : multer.diskStorage({
-      destination: (_req, _file, cb) => {
-        cb(null, UPLOADS_DIR);
-      },
-      filename: (_req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}`;
-        cb(null, `${uniqueSuffix}${ext}`);
-      },
-    });
+const storage: StorageEngine = multer.memoryStorage();
 
 const multerUpload = multer({
   storage,

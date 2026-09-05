@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Download,
@@ -9,10 +9,13 @@ import {
   FileImage,
   FileSpreadsheet,
   ExternalLink,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 import { UserFileItem } from '../../types/file.types';
 import { Button } from '../common/Button';
 import { axiosClient } from '../../api/axiosClient';
+import { filesApi } from '../../api/filesApi';
 
 export interface FilePreviewModalProps {
   file: UserFileItem | null;
@@ -25,6 +28,69 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
   onClose,
   onDownload,
 }) => {
+  const [previewSrc, setPreviewSrc] = useState<string>('');
+  const [isLoadingImage, setIsLoadingImage] = useState<boolean>(false);
+  const [hasImageError, setHasImageError] = useState<boolean>(false);
+
+  useEffect(() => {
+    let active = true;
+    let blobUrl: string | null = null;
+
+    if (!file || file.fileType !== 'image') {
+      setPreviewSrc('');
+      setIsLoadingImage(false);
+      setHasImageError(false);
+      return;
+    }
+
+    const fileId = file.id || file._id || '';
+
+    const loadImage = async () => {
+      setIsLoadingImage(true);
+      setHasImageError(false);
+
+      // Cloud-stored files (Google Drive / OneDrive) require authenticated stream proxy
+      if (file.storageProvider === 'google_drive' || file.storageProvider === 'onedrive') {
+        try {
+          const url = await filesApi.getFileBlobUrl(fileId);
+          if (active) {
+            blobUrl = url;
+            setPreviewSrc(url);
+            setIsLoadingImage(false);
+          } else {
+            URL.revokeObjectURL(url);
+          }
+        } catch (err) {
+          console.error('[FilePreviewModal] Failed to load cloud image stream:', err);
+          if (active) {
+            setHasImageError(true);
+            setIsLoadingImage(false);
+          }
+        }
+        return;
+      }
+
+      // Cloudinary or Local uploads: use direct URL
+      const fullUrl = file.fileUrl.startsWith('http')
+        ? file.fileUrl
+        : `${axiosClient.defaults.baseURL?.replace('/api', '') || ''}${file.fileUrl}`;
+
+      if (active) {
+        setPreviewSrc(fullUrl);
+        setIsLoadingImage(false);
+      }
+    };
+
+    loadImage();
+
+    return () => {
+      active = false;
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [file]);
+
   if (!file) return null;
 
   const formatBytes = (bytes: number): string => {
@@ -55,6 +121,25 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
   };
 
   const fullUrl = getFullFileUrl(file.fileUrl);
+
+  const handleImageError = async () => {
+    // Fallback: try fetching as blob if direct URL failed
+    const fileId = file.id || file._id || '';
+    if (fileId && !previewSrc.startsWith('blob:')) {
+      try {
+        setIsLoadingImage(true);
+        const url = await filesApi.getFileBlobUrl(fileId);
+        setPreviewSrc(url);
+        setIsLoadingImage(false);
+        setHasImageError(false);
+        return;
+      } catch (err) {
+        console.error('[FilePreviewModal] Fallback blob fetch also failed:', err);
+      }
+    }
+    setHasImageError(true);
+    setIsLoadingImage(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
@@ -106,11 +191,29 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
           {/* Main Visual Preview Area (8 cols) */}
           <div className="lg:col-span-8 rounded-2xl bg-slate-950 border border-slate-800 p-4 flex items-center justify-center min-h-[340px] overflow-hidden">
             {file.fileType === 'image' ? (
-              <img
-                src={fullUrl}
-                alt={file.originalName}
-                className="max-h-[460px] w-auto h-auto max-w-full rounded-lg object-contain shadow-md"
-              />
+              isLoadingImage ? (
+                <div className="flex flex-col items-center justify-center space-y-3 p-8 text-center">
+                  <RefreshCw className="w-8 h-8 text-blue-400 animate-spin" />
+                  <p className="text-xs text-slate-400 font-mono">Loading image preview...</p>
+                </div>
+              ) : hasImageError ? (
+                <div className="flex flex-col items-center justify-center space-y-3 p-8 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                    <AlertCircle className="w-7 h-7" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-white">Preview Unavailable</p>
+                    <p className="text-xs text-slate-400">Could not load preview. You can still download the file.</p>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={previewSrc || fullUrl}
+                  alt={file.originalName}
+                  onError={handleImageError}
+                  className="max-h-[460px] w-auto h-auto max-w-full rounded-lg object-contain shadow-md"
+                />
+              )
             ) : file.fileType === 'pdf' ? (
               <div className="w-full h-full flex flex-col items-center justify-center space-y-4 text-center p-6">
                 <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">

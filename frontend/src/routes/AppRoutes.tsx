@@ -24,6 +24,7 @@ import {
   AdminToolsPage,
   AdminFilesPage,
   AdminAnalyticsPage,
+  CloudCallbackPage,
 } from '../pages';
 import { ProtectedRoute } from './ProtectedRoute';
 import { GuestRoute } from './GuestRoute';
@@ -47,6 +48,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
         <Route path="/tools/image-compressor" element={<ImageCompressorPage />} />
         <Route path="/image-compressor" element={<ImageCompressorPage />} />
+        {/* Cloud OAuth callback — public route used inside OAuth popup */}
+        <Route path="/cloud/callback" element={<CloudCallbackPage />} />
       </Route>
 
       {/* Guest / Auth Routes (Redirects authenticated users to /dashboard) */}

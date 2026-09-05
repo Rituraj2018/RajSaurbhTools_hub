@@ -9,7 +9,7 @@ import {
   Sparkles,
   Wrench,
   ArrowRight,
-  Star,
+  Heart,
 } from 'lucide-react';
 import { Tool } from '../../features/tools';
 import { ToolItem } from '../../types';
@@ -127,19 +127,22 @@ export const ToolCard: React.FC<ToolCardProps> = ({
             {onToggleFavorite && (
               <button
                 type="button"
+                id={`fav-btn-${toolSlug}`}
+                aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
-                  const targetId = toolSlug || (tool as any)._id || (tool as any).id;
-                  onToggleFavorite(targetId);
+                  const targetId = (tool as any)._id || (tool as any).id || (tool as Tool).slug || toolSlug;
+                  onToggleFavorite(String(targetId));
                 }}
                 className={`p-1.5 rounded-lg border transition-colors ${
                   isFavorite
-                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-500 hover:text-slate-300'
+                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-500'
+                    : 'bg-slate-950/60 border-slate-800 text-slate-500 hover:text-rose-400'
                 }`}
                 title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               >
-                <Star className={`w-3.5 h-3.5 ${isFavorite ? 'fill-amber-400' : ''}`} />
+                <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
               </button>
             )}
           </div>

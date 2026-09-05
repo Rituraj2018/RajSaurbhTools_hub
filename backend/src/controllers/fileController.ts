@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -9,6 +10,11 @@ import {
   deleteFromCloudinary,
   isCloudinaryReady,
 } from '../services/cloudinaryService';
+import { getUserCloudContext, getValidAccessToken } from '../controllers/cloudController';
+import { CloudProvider } from '../models/CloudConnection';
+import { ICloudStorageProvider } from '../services/cloudStorageProvider';
+import { googleDriveProvider } from '../services/googleDriveProvider';
+import { oneDriveProvider } from '../services/oneDriveProvider';
 
 /**
  * Helper to determine file classification type
@@ -24,7 +30,30 @@ const classifyFileType = (mimeType: string): 'image' | 'pdf' | 'document' => {
 };
 
 /**
- * @desc    Upload a single file — Cloudinary when configured, local disk fallback
+ * Get the provider instance by name.
+ */
+const getProviderInstance = (provider: string): ICloudStorageProvider => {
+  switch (provider) {
+    case 'google_drive':
+      return googleDriveProvider;
+    case 'onedrive':
+      return oneDriveProvider;
+    default:
+      throw new ApiError(400, `Unsupported cloud provider: ${provider}`);
+  }
+};
+
+/**
+ * Determine upload category from MIME type.
+ */
+const getUploadCategory = (mimeType: string): 'Images' | 'PDFs' | 'Documents' => {
+  if (mimeType.startsWith('image/')) return 'Images';
+  if (mimeType === 'application/pdf') return 'PDFs';
+  return 'Documents';
+};
+
+/**
+ * @desc    Upload a single file — routes to connected cloud storage, Cloudinary, or local disk
  * @route   POST /api/files/upload
  * @access  Private (Requires Authentication)
  */
@@ -39,34 +68,75 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response): Prom
 
   const { originalname, mimetype, size } = req.file;
   const fileType = classifyFileType(mimetype);
+  const userId = req.user._id.toString();
 
-  let fileUrl: string;
-  let fileName: string;
-  let cloudinaryPublicId: string | undefined;
-  let storageProvider: 'cloudinary' | 'local';
+  // 1. Check if user has connected personal cloud storage (Google Drive / OneDrive)
+  const cloudContext = await getUserCloudContext(userId);
 
-  if (isCloudinaryReady() && req.file.buffer) {
-    /* ── Cloudinary Path ── */
-    const userId = req.user._id.toString();
-    const cloudResult = await uploadToCloudinary(req.file.buffer, mimetype, `user_${userId}`);
+  let fileUrl = '';
+  let fileName = '';
+  let cloudFileId: string | null = null;
+  let cloudinaryPublicId: string | null = null;
+  let storageProvider: 'local' | 'cloudinary' | 'google_drive' | 'onedrive';
 
-    fileUrl = cloudResult.secureUrl;
-    cloudinaryPublicId = cloudResult.publicId;
-    // Use the publicId's last segment as the stored fileName for reference
-    fileName = cloudResult.publicId.split('/').pop() || `cloudinary_${Date.now()}`;
+  if (cloudContext) {
+    // Upload to user's connected personal cloud storage
+    const { provider, accessToken, providerInstance } = cloudContext;
+    const category = getUploadCategory(mimetype);
+
+    try {
+      const uploadResult = await providerInstance.uploadFile(
+        accessToken,
+        req.file.buffer,
+        originalname,
+        mimetype,
+        category
+      );
+
+      fileUrl = uploadResult.fileUrl || uploadResult.webViewLink || '';
+      fileName = uploadResult.fileName;
+      cloudFileId = uploadResult.cloudFileId;
+      storageProvider = provider;
+    } catch (uploadErr: any) {
+      console.error(`[FileController] Cloud upload failed (${provider}):`, uploadErr);
+
+      if (uploadErr?.message?.includes('expired') || uploadErr?.message?.includes('revoked')) {
+        throw new ApiError(
+          401,
+          'Your cloud storage session has expired. Please reconnect your cloud storage.'
+        );
+      }
+      throw new ApiError(
+        500,
+        `Failed to upload file to your ${provider === 'google_drive' ? 'Google Drive' : 'OneDrive'}. Please try again.`
+      );
+    }
+  } else if (isCloudinaryReady()) {
+    // 2. Upload to Cloudinary (if configured)
+    const result = await uploadToCloudinary(req.file.buffer, mimetype, `user_${userId}`);
+    fileUrl = result.secureUrl;
+    cloudinaryPublicId = result.publicId;
+    fileName = `${result.publicId}.${result.format || 'jpg'}`;
     storageProvider = 'cloudinary';
   } else {
-    /* ── Local Disk Fallback ── */
-    if (!req.file.filename) {
-      throw new ApiError(500, 'Local storage filename missing — check multer configuration');
+    // 3. Local disk storage fallback
+    const ext = path.extname(originalname).toLowerCase();
+    const baseName = path.basename(originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+    const uniqueFileName = `${baseName}-${uniqueSuffix}${ext}`;
+    const uploadsDir = path.resolve(process.cwd(), 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
     }
-    fileName = req.file.filename;
-    fileUrl = `/uploads/${fileName}`;
-    cloudinaryPublicId = undefined;
+    const filePath = path.join(uploadsDir, uniqueFileName);
+    await fs.promises.writeFile(filePath, req.file.buffer);
+
+    fileUrl = `/uploads/${uniqueFileName}`;
+    fileName = uniqueFileName;
     storageProvider = 'local';
   }
 
-  // Persist record to MongoDB
+  // Persist metadata record to MongoDB
   const fileDoc = await FileRecord.create({
     user: req.user._id,
     originalName: originalname,
@@ -75,7 +145,8 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response): Prom
     mimeType: mimetype,
     fileSize: size,
     fileUrl,
-    cloudinaryPublicId: cloudinaryPublicId ?? null,
+    cloudinaryPublicId,
+    cloudFileId,
     storageProvider,
   });
 
@@ -92,7 +163,7 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response): Prom
         mimeType: fileDoc.mimeType,
         fileSize: fileDoc.fileSize,
         fileUrl: fileDoc.fileUrl,
-        cloudinaryPublicId: fileDoc.cloudinaryPublicId ?? null,
+        cloudFileId: fileDoc.cloudFileId ?? null,
         storageProvider: fileDoc.storageProvider,
         createdAt: fileDoc.createdAt,
       },
@@ -211,18 +282,61 @@ export const getFileById = asyncHandler(async (req: Request, res: Response): Pro
     throw new ApiError(404, 'File not found or unauthorized access');
   }
 
-  // If download query is requested, handle per storage provider
-  if (req.query.download === 'true') {
+  const isDownload = req.query.download === 'true';
+  const isView = req.query.view === 'true';
+
+  // If download or view/stream query is requested, handle per storage provider
+  if (isDownload || isView) {
+    if (fileDoc.storageProvider === 'google_drive' || fileDoc.storageProvider === 'onedrive') {
+      // Cloud-stored files: download via provider and stream to client
+      if (!fileDoc.cloudFileId) {
+        throw new ApiError(500, 'Cloud file reference is missing');
+      }
+
+      try {
+        const accessToken = await getValidAccessToken(
+          req.user._id.toString(),
+          fileDoc.storageProvider as CloudProvider
+        );
+        const providerInstance = getProviderInstance(fileDoc.storageProvider);
+        const { buffer, mimeType, fileName } = await providerInstance.downloadFile(
+          accessToken,
+          fileDoc.cloudFileId
+        );
+
+        const disposition = isView ? 'inline' : 'attachment';
+        res.setHeader(
+          'Content-Disposition',
+          `${disposition}; filename="${encodeURIComponent(fileDoc.originalName)}"`
+        );
+        res.setHeader('Content-Type', mimeType || fileDoc.mimeType);
+        res.setHeader('Content-Length', buffer.length.toString());
+        res.send(buffer);
+        return;
+      } catch (err: any) {
+        console.error(`[FileController] Cloud stream failed:`, err);
+        throw new ApiError(
+          500,
+          'Failed to retrieve file from your cloud storage. Please check your connection.'
+        );
+      }
+    }
+
     if (fileDoc.storageProvider === 'cloudinary') {
       // Cloudinary files have a public secure URL — redirect
       res.redirect(fileDoc.fileUrl);
       return;
     }
 
-    // Local disk: stream the file as an attachment
-    const filePath = path.join(__dirname, '../../uploads', fileDoc.fileName);
+    // Local disk: stream or download the file
+    const filePath = path.resolve(process.cwd(), 'uploads', fileDoc.fileName);
     if (fs.existsSync(filePath)) {
-      res.download(filePath, fileDoc.originalName);
+      if (isView) {
+        res.setHeader('Content-Type', fileDoc.mimeType);
+        res.sendFile(filePath);
+      } else {
+        res.download(filePath, fileDoc.originalName);
+      }
       return;
     }
   }
@@ -237,7 +351,7 @@ export const getFileById = asyncHandler(async (req: Request, res: Response): Pro
 });
 
 /**
- * @desc    Delete a file record — removes from Cloudinary or local disk + MongoDB
+ * @desc    Delete a file record — removes from cloud storage, Cloudinary, or local disk + MongoDB
  * @route   DELETE /api/files/:id
  * @access  Private (Requires Authentication)
  */
@@ -255,12 +369,28 @@ export const deleteFile = asyncHandler(async (req: Request, res: Response): Prom
     throw new ApiError(404, 'File not found or you do not have permission to delete it');
   }
 
-  if (fileDoc.storageProvider === 'cloudinary' && fileDoc.cloudinaryPublicId) {
+  if (
+    (fileDoc.storageProvider === 'google_drive' || fileDoc.storageProvider === 'onedrive') &&
+    fileDoc.cloudFileId
+  ) {
+    /* ── Delete from user's cloud storage ── */
+    try {
+      const accessToken = await getValidAccessToken(
+        req.user._id.toString(),
+        fileDoc.storageProvider as CloudProvider
+      );
+      const providerInstance = getProviderInstance(fileDoc.storageProvider);
+      await providerInstance.deleteFile(accessToken, fileDoc.cloudFileId);
+    } catch (err: any) {
+      console.error(`[FileController] Cloud delete failed (${fileDoc.storageProvider}):`, err);
+      // Non-fatal: still remove MongoDB record even if cloud delete fails
+    }
+  } else if (fileDoc.storageProvider === 'cloudinary' && fileDoc.cloudinaryPublicId) {
     /* ── Delete from Cloudinary ── */
     await deleteFromCloudinary(fileDoc.cloudinaryPublicId, fileDoc.mimeType);
   } else {
     /* ── Delete from local disk ── */
-    const filePath = path.join(__dirname, '../../uploads', fileDoc.fileName);
+    const filePath = path.resolve(process.cwd(), 'uploads', fileDoc.fileName);
     try {
       if (fs.existsSync(filePath)) {
         await fs.promises.unlink(filePath);

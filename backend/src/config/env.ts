@@ -31,7 +31,7 @@ export const config = {
       );
     },
   },
-  // Google OAuth configuration
+  // Google OAuth configuration (for Google Login)
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
@@ -39,6 +39,32 @@ export const config = {
       process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
     get isConfigured(): boolean {
       return Boolean(process.env.GOOGLE_CLIENT_ID);
+    },
+  },
+  // Google Drive OAuth configuration (for personal cloud storage)
+  googleDrive: {
+    clientId: process.env.GOOGLE_DRIVE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+    clientSecret: process.env.GOOGLE_DRIVE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '',
+    redirectUri:
+      process.env.GOOGLE_DRIVE_REDIRECT_URI ||
+      'http://localhost:5000/api/cloud/google/callback',
+    get isConfigured(): boolean {
+      return Boolean(
+        (process.env.GOOGLE_DRIVE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID) &&
+        (process.env.GOOGLE_DRIVE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET)
+      );
+    },
+  },
+  // Microsoft OneDrive / Graph API configuration (for personal cloud storage)
+  microsoft: {
+    clientId: process.env.MICROSOFT_CLIENT_ID || '',
+    clientSecret: process.env.MICROSOFT_CLIENT_SECRET || '',
+    tenantId: process.env.MICROSOFT_TENANT_ID || 'common',
+    redirectUri:
+      process.env.MICROSOFT_REDIRECT_URI ||
+      'http://localhost:5000/api/cloud/microsoft/callback',
+    get isConfigured(): boolean {
+      return Boolean(process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET);
     },
   },
   // Email / SMTP configuration

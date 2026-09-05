@@ -17,6 +17,7 @@ import {
   FileDeleteModal,
   FileUploadModal,
 } from '../components/files';
+import { CloudStorageSettings } from '../components/cloud/CloudStorageSettings';
 import {
   UserFileItem,
   FileListResponse,
@@ -70,8 +71,12 @@ export const MyFilesPage: React.FC = () => {
     loadFiles();
   }, [loadFiles]);
 
-  const handleDownload = (file: UserFileItem) => {
-    filesApi.downloadFile(file);
+  const handleDownload = async (file: UserFileItem) => {
+    try {
+      await filesApi.downloadFile(file);
+    } catch (err: any) {
+      console.error('Download failed:', err);
+    }
   };
 
   const handleConfirmDelete = async (file: UserFileItem) => {
@@ -116,6 +121,12 @@ export const MyFilesPage: React.FC = () => {
           Upload File
         </Button>
       </div>
+
+      {/* Cloud Storage Connection Panel */}
+      <CloudStorageSettings
+        className=""
+        onConnectionChange={loadFiles}
+      />
 
       {/* Storage Utilization Summary Cards */}
       <FileStorageSummary stats={filesData?.stats} />

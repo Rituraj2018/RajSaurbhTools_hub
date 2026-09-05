@@ -14,6 +14,10 @@ import {
   Heart,
   ChevronRight,
   ShieldAlert,
+  Linkedin,
+  Instagram,
+  Github,
+  Facebook,
 } from 'lucide-react';
 import { useAppSelector } from '../../features/store';
 import { Modal } from './Modal';
@@ -288,11 +292,11 @@ export const Footer: React.FC = () => {
 
               <div className="pt-2">
                 <a
-                  href="mailto:support@rajtools.com"
+                  href="mailto:riturajsingh8543@gmail.com"
                   className="block px-2.5 py-2 rounded-lg bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 hover:text-white hover:border-slate-700 transition-colors"
                 >
                   <span className="text-[10px] text-slate-500 block uppercase font-bold">Email Desk</span>
-                  <span className="truncate block font-medium">support@rajtools.com</span>
+                  <span className="truncate block font-medium">riturajsingh8543@gmail.com</span>
                 </a>
               </div>
             </div>
@@ -301,24 +305,89 @@ export const Footer: React.FC = () => {
 
         {/* Footer Bottom Bar */}
         <div className="border-t border-slate-800/80 bg-slate-950">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-4 text-center sm:text-left">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
               <p>© 2026 RajSaurbh Tools_Hub. All Rights Reserved.</p>
               <span className="hidden sm:inline text-slate-700">•</span>
-              <p className="flex items-center gap-1 text-slate-400">
-                Made with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" /> by{' '}
-                <span className="text-slate-200 font-medium">Rituraj Singh</span>
+              <p className="flex items-center gap-1.5 text-slate-400">
+                <span>Made with</span>
+                <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline animate-pulse" />
+                <span>by</span>
+                <a
+                  href="https://github.com/Rituraj2018"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-200 hover:text-blue-400 font-medium transition-colors underline decoration-slate-700 underline-offset-2 hover:decoration-blue-400"
+                >
+                  Rituraj Singh
+                </a>
               </p>
             </div>
 
-            <button
-              onClick={scrollToTop}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/80 hover:border-slate-700 transition-all cursor-pointer text-xs"
-              title="Scroll to Top"
-            >
-              <span>Back to top</span>
-              <ArrowUp className="w-3.5 h-3.5" />
-            </button>
+            {/* Social Media & Contact Links + Back to Top */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://github.com/Rituraj2018"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub Profile"
+                  title="GitHub: Rituraj2018"
+                  className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/80 hover:border-slate-700 transition-all flex items-center justify-center"
+                >
+                  <Github className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/rituraj-singh-437472284"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn Profile"
+                  title="LinkedIn: Rituraj Singh"
+                  className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#0a66c2] hover:bg-slate-800/80 hover:border-slate-700 transition-all flex items-center justify-center"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://www.instagram.com/rajsaurabhs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram Profile"
+                  title="Instagram"
+                  className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#e4405f] hover:bg-slate-800/80 hover:border-slate-700 transition-all flex items-center justify-center"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://www.facebook.com/share/14mQLgcHTq3/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook Profile"
+                  title="Facebook"
+                  className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#1877f2] hover:bg-slate-800/80 hover:border-slate-700 transition-all flex items-center justify-center"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a
+                  href="mailto:riturajsingh8543@gmail.com"
+                  aria-label="Email Rituraj Singh"
+                  title="Email: riturajsingh8543@gmail.com"
+                  className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-amber-400 hover:bg-slate-800/80 hover:border-slate-700 transition-all flex items-center justify-center"
+                >
+                  <Mail className="w-4 h-4" />
+                </a>
+              </div>
+
+              <div className="hidden sm:block h-4 w-px bg-slate-800" />
+
+              <button
+                onClick={scrollToTop}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/80 hover:border-slate-700 transition-all cursor-pointer text-xs"
+                title="Scroll to Top"
+              >
+                <span>Back to top</span>
+                <ArrowUp className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </footer>
@@ -373,10 +442,10 @@ export const Footer: React.FC = () => {
               <p className="text-slate-400 leading-relaxed">
                 Reach out to our support team anytime via email at{' '}
                 <a
-                  href="mailto:support@rajtools.com"
+                  href="mailto:riturajsingh8543@gmail.com"
                   className="text-blue-400 hover:underline font-medium"
                 >
-                  support@rajtools.com
+                  riturajsingh8543@gmail.com
                 </a>
                 .
               </p>
@@ -413,10 +482,10 @@ export const Footer: React.FC = () => {
                   Direct email support for tool issues, bug reports, and inquiries.
                 </p>
                 <a
-                  href="mailto:support@rajtools.com"
+                  href="mailto:riturajsingh8543@gmail.com"
                   className="inline-flex items-center gap-1 text-blue-400 hover:underline font-semibold"
                 >
-                  <span>support@rajtools.com</span>
+                  <span>riturajsingh8543@gmail.com</span>
                 </a>
               </div>
             </div>
@@ -427,10 +496,37 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <h4 className="font-semibold text-white">Developer & Creator</h4>
-                <p className="text-slate-400 text-[11px]">
+                <p className="text-slate-400 text-[11px] mb-2.5">
                   Engineered and maintained by <strong>Rituraj Singh</strong>. Built using modern
                   MERN architecture and end-to-end TypeScript.
                 </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href="https://github.com/Rituraj2018"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300 hover:text-white hover:border-slate-700 transition-colors"
+                  >
+                    <Github className="w-3 h-3" />
+                    <span>GitHub</span>
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/rituraj-singh"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300 hover:text-[#0a66c2] hover:border-slate-700 transition-colors"
+                  >
+                    <Linkedin className="w-3 h-3" />
+                    <span>LinkedIn</span>
+                  </a>
+                  <a
+                    href="mailto:riturajsingh8543@gmail.com"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors"
+                  >
+                    <Mail className="w-3 h-3" />
+                    <span>Email</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>

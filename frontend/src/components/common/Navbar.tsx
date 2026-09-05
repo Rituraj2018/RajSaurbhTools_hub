@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Layers, Activity, LayoutDashboard, Github, LogIn, UserPlus, User } from 'lucide-react';
+import { Layers, Activity, LayoutDashboard, Github, LogIn, UserPlus, User, Menu, X } from 'lucide-react';
 import { useAppSelector } from '../../features/store';
 import { Button } from './Button';
 
@@ -8,6 +8,9 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const { health, loading: systemLoading } = useAppSelector((state) => state.system);
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   const navLinks = [
     { label: 'Overview', path: '/' },
@@ -16,6 +19,49 @@ export const Navbar: React.FC = () => {
     { label: 'PDF Suite', path: '/tools?category=pdf' },
     { label: 'Document Lab', path: '/tools?category=document' },
   ];
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location]);
+
+  // Close mobile menu on outside click
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(target) &&
+        hamburgerRef.current &&
+        !hamburgerRef.current.contains(target)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [mobileMenuOpen]);
+
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [mobileMenuOpen]);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 transition-all">
@@ -141,9 +187,118 @@ export const Navbar: React.FC = () => {
             >
               <Github className="w-4 h-4" />
             </a>
+
+            {/* Mobile Hamburger Button — visible only below md */}
+            <button
+              ref={hamburgerRef}
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="md:hidden p-2 rounded-lg text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation Menu — visible only below md */}
+      {mobileMenuOpen && (
+        <div
+          ref={mobileMenuRef}
+          className="md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-xl"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3">
+            {/* Mobile Nav Links */}
+            <nav className="space-y-1">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={closeMobileMenu}
+                    className={`block px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Mobile API Status */}
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
+              <Activity
+                className={`w-3.5 h-3.5 ${
+                  systemLoading
+                    ? 'text-amber-400 animate-spin'
+                    : health?.status === 'healthy'
+                    ? 'text-emerald-400 animate-pulse'
+                    : 'text-rose-400'
+                }`}
+              />
+              <span className="text-slate-400 font-medium">API:</span>
+              <span
+                className={`font-semibold capitalize ${
+                  systemLoading
+                    ? 'text-amber-400'
+                    : health?.status === 'healthy'
+                    ? 'text-emerald-400'
+                    : 'text-rose-400'
+                }`}
+              >
+                {systemLoading ? 'Checking...' : health?.status || 'Offline'}
+              </span>
+            </div>
+
+            {/* Mobile Auth Section */}
+            <div className="border-t border-slate-800/60 pt-3">
+              {isAuthenticated ? (
+                <Link
+                  to="/dashboard"
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all"
+                >
+                  <div className="w-7 h-7 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-xs font-bold text-blue-400">
+                    {user?.name?.charAt(0).toUpperCase() || <User className="w-3.5 h-3.5" />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="truncate max-w-[200px]">{user?.name}</span>
+                    <span className="text-xs text-slate-500 font-normal">Go to Dashboard</span>
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <Link to="/login" onClick={closeMobileMenu}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      leftIcon={<LogIn className="w-3.5 h-3.5" />}
+                      className="w-full justify-center"
+                    >
+                      <span>Sign In</span>
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={closeMobileMenu}>
+                    <Button
+                      variant="gradient"
+                      size="sm"
+                      leftIcon={<UserPlus className="w-3.5 h-3.5" />}
+                      className="w-full justify-center"
+                    >
+                      <span>Get Started</span>
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

@@ -17,7 +17,7 @@ export interface IUser {
   profileImage?: string;
   isEmailVerified: boolean;
   isBlocked: boolean;
-  favoriteTools?: string[];
+  favoriteTools?: mongoose.Types.ObjectId[];
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   createdAt: Date;
@@ -28,7 +28,7 @@ export interface IUser {
  * TypeScript interface for User Mongoose Document
  */
 export interface IUserDocument extends Document, Omit<IUser, 'createdAt' | 'updatedAt'> {
-  favoriteTools: string[];
+  favoriteTools: mongoose.Types.ObjectId[];
   isBlocked: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -100,10 +100,12 @@ const userSchema = new Schema<IUserDocument>(
       default: false,
       index: true,
     },
-    favoriteTools: {
-      type: [String],
-      default: [],
-    },
+    favoriteTools: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Tool',
+      },
+    ],
     resetPasswordToken: {
       type: String,
       select: false,

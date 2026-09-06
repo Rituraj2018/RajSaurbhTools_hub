@@ -10,6 +10,10 @@ import {
   Wrench,
   ArrowRight,
   Heart,
+  QrCode,
+  CreditCard,
+  PenTool,
+  FileImage,
 } from 'lucide-react';
 import { Tool } from '../../features/tools';
 import { ToolItem } from '../../types';
@@ -36,6 +40,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({
       case 'camera':
         return <Camera className="w-5 h-5" />;
       case 'filetext':
+      case 'filetype':
       case 'pdf':
         return <FileText className="w-5 h-5" />;
       case 'layers':
@@ -48,12 +53,25 @@ export const ToolCard: React.FC<ToolCardProps> = ({
       case 'compress':
         return <Minimize2 className="w-5 h-5" />;
       case 'filecheck':
-      case 'creditcard':
       case 'document':
         return <FileCheck className="w-5 h-5" />;
+      case 'creditcard':
+      case 'card':
+        return <CreditCard className="w-5 h-5" />;
+      case 'qrcode':
+      case 'qr':
+        return <QrCode className="w-5 h-5" />;
+      case 'pentool':
+      case 'signature':
+      case 'pen':
+        return <PenTool className="w-5 h-5" />;
       case 'sparkles':
       case 'heartpulse':
         return <Sparkles className="w-5 h-5" />;
+      case 'fileimage':
+      case 'image':
+      case 'imageicon':
+        return <FileImage className="w-5 h-5" />;
       default:
         return <Wrench className="w-5 h-5" />;
     }

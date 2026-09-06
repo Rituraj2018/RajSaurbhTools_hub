@@ -34,11 +34,14 @@ export const Footer: React.FC = () => {
 
   const popularTools = [
     { name: 'Passport Photo Studio', path: '/tools/passport-photo-studio', badge: 'Popular' },
-    { name: 'Aadhaar Print Studio', path: '/tools/aadhaar-print-studio', badge: 'Print Ready' },
-    { name: 'Ayushman Card Print', path: '/tools/ayushman-print-tool', badge: 'PM-JAY' },
-    { name: 'Image to PDF', path: '/tools/image-to-pdf', badge: 'Converter' },
-    { name: 'PDF Merge', path: '/tools/pdf-merge', badge: 'Utility' },
+    { name: 'Aadhaar Print Studio Pro', path: '/tools/aadhaar-print-studio', badge: 'Print Ready' },
+    { name: 'Ayushman Card Print Pro', path: '/tools/ayushman-print-tool', badge: 'PM-JAY' },
+    { name: 'PAN / CR80 Print Studio', path: '/tools/pan-print-studio', badge: 'CR80 PVC' },
+    { name: 'Merge PDF Master', path: '/tools/pdf-merge', badge: 'Utility' },
+    { name: 'Split PDF Pro', path: '/tools/pdf-split', badge: 'Extract' },
     { name: 'Image Compressor', path: '/tools/image-compressor', badge: 'Lossless' },
+    { name: 'QR Code Studio Pro', path: '/tools/qr-generator', badge: 'UPI Ready' },
+    { name: 'Signature Cropper', path: '/tools/signature-cropper', badge: 'Exam Preset' },
   ];
 
   return (

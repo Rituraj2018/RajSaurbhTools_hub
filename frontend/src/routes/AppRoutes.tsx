@@ -25,6 +25,15 @@ import {
   AdminFilesPage,
   AdminAnalyticsPage,
   CloudCallbackPage,
+  PdfSplitPage,
+  QrGeneratorPage,
+  PanPrintStudioPage,
+  SignatureCropperPage,
+  PngToJpgPage,
+  JpgToPngPage,
+  PdfToWordPage,
+  WordToPdfPage,
+  ImageResizerPage,
 } from '../pages';
 import { ProtectedRoute } from './ProtectedRoute';
 import { GuestRoute } from './GuestRoute';
@@ -42,12 +51,30 @@ export const AppRoutes: React.FC = () => {
         <Route path="/image-to-pdf" element={<ImageToPdfPage />} />
         <Route path="/tools/pdf-merge" element={<PdfMergePage />} />
         <Route path="/pdf-merge" element={<PdfMergePage />} />
+        <Route path="/tools/pdf-split" element={<PdfSplitPage />} />
+        <Route path="/pdf-split" element={<PdfSplitPage />} />
         <Route path="/tools/aadhaar-print-studio" element={<AadhaarPrintStudioPage />} />
         <Route path="/aadhaar-print-studio" element={<AadhaarPrintStudioPage />} />
         <Route path="/tools/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
         <Route path="/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
+        <Route path="/tools/pan-print-studio" element={<PanPrintStudioPage />} />
+        <Route path="/pan-print-studio" element={<PanPrintStudioPage />} />
         <Route path="/tools/image-compressor" element={<ImageCompressorPage />} />
         <Route path="/image-compressor" element={<ImageCompressorPage />} />
+        <Route path="/tools/qr-generator" element={<QrGeneratorPage />} />
+        <Route path="/qr-generator" element={<QrGeneratorPage />} />
+        <Route path="/tools/signature-cropper" element={<SignatureCropperPage />} />
+        <Route path="/signature-cropper" element={<SignatureCropperPage />} />
+        <Route path="/tools/png-to-jpg" element={<PngToJpgPage />} />
+        <Route path="/png-to-jpg" element={<PngToJpgPage />} />
+        <Route path="/tools/jpg-to-png" element={<JpgToPngPage />} />
+        <Route path="/jpg-to-png" element={<JpgToPngPage />} />
+        <Route path="/tools/pdf-to-word" element={<PdfToWordPage />} />
+        <Route path="/pdf-to-word" element={<PdfToWordPage />} />
+        <Route path="/tools/word-to-pdf" element={<WordToPdfPage />} />
+        <Route path="/word-to-pdf" element={<WordToPdfPage />} />
+        <Route path="/tools/image-resizer" element={<ImageResizerPage />} />
+        <Route path="/image-resizer" element={<ImageResizerPage />} />
         {/* Cloud OAuth callback — public route used inside OAuth popup */}
         <Route path="/cloud/callback" element={<CloudCallbackPage />} />
       </Route>
@@ -77,15 +104,43 @@ export const AppRoutes: React.FC = () => {
           <Route path="/tools/pdf-merge" element={<PdfMergePage />} />
           <Route path="/tools/pdf/pdf-merge" element={<PdfMergePage />} />
           <Route path="/pdf-merge" element={<PdfMergePage />} />
+          <Route path="/tools/pdf-split" element={<PdfSplitPage />} />
+          <Route path="/tools/pdf/pdf-split" element={<PdfSplitPage />} />
+          <Route path="/pdf-split" element={<PdfSplitPage />} />
           <Route path="/tools/aadhaar-print-studio" element={<AadhaarPrintStudioPage />} />
           <Route path="/tools/photo/aadhaar-print-studio" element={<AadhaarPrintStudioPage />} />
           <Route path="/aadhaar-print-studio" element={<AadhaarPrintStudioPage />} />
           <Route path="/tools/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
           <Route path="/tools/photo/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
           <Route path="/ayushman-print-tool" element={<AyushmanPrintStudioPage />} />
+          <Route path="/tools/pan-print-studio" element={<PanPrintStudioPage />} />
+          <Route path="/tools/document/pan-print-studio" element={<PanPrintStudioPage />} />
+          <Route path="/pan-print-studio" element={<PanPrintStudioPage />} />
           <Route path="/tools/image-compressor" element={<ImageCompressorPage />} />
           <Route path="/tools/photo/image-compressor" element={<ImageCompressorPage />} />
           <Route path="/image-compressor" element={<ImageCompressorPage />} />
+          <Route path="/tools/qr-generator" element={<QrGeneratorPage />} />
+          <Route path="/tools/utility/qr-generator" element={<QrGeneratorPage />} />
+          <Route path="/qr-generator" element={<QrGeneratorPage />} />
+          <Route path="/tools/signature-cropper" element={<SignatureCropperPage />} />
+          <Route path="/tools/photo/signature-cropper" element={<SignatureCropperPage />} />
+          <Route path="/signature-cropper" element={<SignatureCropperPage />} />
+          <Route path="/tools/png-to-jpg" element={<PngToJpgPage />} />
+          <Route path="/tools/image/png-to-jpg" element={<PngToJpgPage />} />
+          <Route path="/png-to-jpg" element={<PngToJpgPage />} />
+          <Route path="/tools/jpg-to-png" element={<JpgToPngPage />} />
+          <Route path="/tools/image/jpg-to-png" element={<JpgToPngPage />} />
+          <Route path="/jpg-to-png" element={<JpgToPngPage />} />
+          <Route path="/tools/pdf-to-word" element={<PdfToWordPage />} />
+          <Route path="/tools/pdf/pdf-to-word" element={<PdfToWordPage />} />
+          <Route path="/pdf-to-word" element={<PdfToWordPage />} />
+          <Route path="/tools/word-to-pdf" element={<WordToPdfPage />} />
+          <Route path="/tools/document/word-to-pdf" element={<WordToPdfPage />} />
+          <Route path="/tools/pdf/word-to-pdf" element={<WordToPdfPage />} />
+          <Route path="/word-to-pdf" element={<WordToPdfPage />} />
+          <Route path="/tools/image-resizer" element={<ImageResizerPage />} />
+          <Route path="/tools/image/image-resizer" element={<ImageResizerPage />} />
+          <Route path="/image-resizer" element={<ImageResizerPage />} />
           <Route path="/tools/:category" element={<ToolsPage />} />
           <Route path="/files" element={<MyFilesPage />} />
           <Route path="/history" element={<HistoryPage />} />

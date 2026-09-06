@@ -17,13 +17,13 @@ export interface HealthCheckData {
   environment?: string;
 }
 
-export type ToolCategoryType = 'all' | 'photo' | 'pdf' | 'document' | 'favorites';
+export type ToolCategoryType = 'all' | 'photo' | 'pdf' | 'document' | 'image' | 'favorites';
 
 export interface ToolItem {
   id: string;
   title: string;
   description: string;
-  category: 'photo' | 'pdf' | 'document';
+  category: 'photo' | 'pdf' | 'document' | 'image';
   icon: string;
   badge?: string;
   popular?: boolean;

@@ -23,5 +23,13 @@ export * from './AdminFilesPage';
 export * from './AdminAnalyticsPage';
 // Cloud OAuth callback
 export * from './CloudCallbackPage';
-
-
+// Missing & New Tools
+export * from './PdfSplitPage';
+export * from './QrGeneratorPage';
+export * from './PanPrintStudioPage';
+export * from './SignatureCropperPage';
+export * from './PngToJpgPage';
+export * from './JpgToPngPage';
+export * from './PdfToWordPage';
+export * from './WordToPdfPage';
+export * from './ImageResizerPage';

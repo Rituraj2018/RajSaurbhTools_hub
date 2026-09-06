@@ -36,7 +36,7 @@ export interface BackgroundSettings {
 }
 
 export type PaperSize = 'A4' | '4x6';
-export type PhotoCopies = 4 | 6 | 8 | 12 | 16 | 24;
+export type PhotoCopies = number;
 
 export interface SheetOptions {
   paperSize: PaperSize;
@@ -421,89 +421,34 @@ export function calculatePrintGrid(
   const photoWidthPx = PASSPORT_WIDTH_PX;
   const photoHeightPx = PASSPORT_HEIGHT_PX;
 
-  // Determine optimal columns & rows based on copies and paper
-  let cols = 2;
-  let rows = 2;
+  // Determine optimal columns & rows based on paper type
+  // A4 Standard: 5 columns x 6 rows (1 to 30 photos filling row by row)
+  // 4x6 Photo Paper: 2 columns x up to 4 rows (1 to 8 photos)
+  let cols = 5;
+  let rows = 6;
+  let gapXPx = Math.round(11.811 * 5); // 5mm
+  let gapYPx = Math.round(11.811 * 5); // 5mm
 
   if (paperSize === '4x6') {
-    // 4x6 (1200 x 1800 px)
-    switch (copies) {
-      case 4:
-        cols = 2;
-        rows = 2;
-        break;
-      case 6:
-        cols = 2;
-        rows = 3;
-        break;
-      case 8:
-        cols = 2;
-        rows = 4;
-        break;
-      case 12:
-        cols = 3;
-        rows = 4;
-        break;
-      case 16:
-      case 24:
-        cols = 4;
-        rows = Math.ceil(copies / 4);
-        break;
-      default:
-        cols = 2;
-        rows = 3;
-    }
+    // 4x6 photo paper (101.6 x 152.4 mm) - max 8 photos
+    cols = 2;
+    rows = Math.min(4, Math.max(1, Math.ceil(copies / 2)));
+    gapXPx = Math.round(11.811 * 3);
+    gapYPx = Math.round(11.811 * 3);
   } else {
-    // A4 (2480 x 3508 px)
-    switch (copies) {
-      case 4:
-        cols = 2;
-        rows = 2;
-        break;
-      case 6:
-        cols = 3;
-        rows = 2;
-        break;
-      case 8:
-        cols = 4;
-        rows = 2;
-        break;
-      case 12:
-        cols = 4;
-        rows = 3;
-        break;
-      case 16:
-        cols = 4;
-        rows = 4;
-        break;
-      case 24:
-        cols = 4;
-        rows = 6;
-        break;
-      default:
-        cols = 4;
-        rows = 3;
-    }
+    // A4 paper (210 x 297 mm) - Standard 5 columns x 6 rows (up to 30 photos)
+    cols = 5;
+    rows = 6;
+    gapXPx = Math.round(11.811 * 5); // 5mm horizontal gap
+    gapYPx = Math.round(11.811 * 5); // 5mm vertical gap
   }
-
-  // Margin and gaps (approx 3mm gap between photos, centered on sheet)
-  const gapXPx = Math.round(11.811 * 3); // 3mm gap
-  const gapYPx = Math.round(11.811 * 3);
 
   const totalGridWidth = cols * photoWidthPx + (cols - 1) * gapXPx;
   const totalGridHeight = rows * photoHeightPx + (rows - 1) * gapYPx;
 
-  // A4: default position is top-left with a ~10 mm page margin
-  // 4x6: keep centred (small paper — photos should be centered)
-  const PAGE_MARGIN_PX = Math.round(11.811 * 10); // 10 mm ≈ 118 px @ 300 DPI
-  const startX =
-    paperSize === 'A4'
-      ? Math.max(0, PAGE_MARGIN_PX)
-      : Math.max(0, Math.round((sheetWidthPx - totalGridWidth) / 2));
-  const startY =
-    paperSize === 'A4'
-      ? Math.max(0, PAGE_MARGIN_PX)
-      : Math.max(0, Math.round((sheetHeightPx - totalGridHeight) / 2));
+  // Center symmetrically on the sheet so 5mm margins and gaps fit cleanly
+  const startX = Math.max(0, Math.round((sheetWidthPx - totalGridWidth) / 2));
+  const startY = Math.max(0, Math.round((sheetHeightPx - totalGridHeight) / 2));
 
   return {
     cols,
@@ -628,12 +573,15 @@ export function generatePrintSheetCanvas(
     }
   }
 
-  // Add subtle footer branding & print metadata at the sheet margin
-  ctx.fillStyle = '#94A3B8';
-  ctx.font = '18px sans-serif';
-  const paperName = PAPER_SPECS[paperSize].name;
-  const footerText = `Passport Studio Pro • 35x45mm • ${copies} Copies • ${paperName} (300 DPI)`;
-  ctx.fillText(footerText, grid.startX + offsetX, sheetCanvas.height - 24);
+  // Add subtle footer branding & print metadata only if there is sufficient sheet margin
+  const remainingBottomSpace = sheetCanvas.height - (grid.startY + offsetY + totalGridHeight);
+  if (remainingBottomSpace >= 30) {
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '18px sans-serif';
+    const paperName = PAPER_SPECS[paperSize].name;
+    const footerText = `Passport Studio Pro • 35x45mm • ${copies} Copies • ${paperName} (300 DPI)`;
+    ctx.fillText(footerText, grid.startX + offsetX, sheetCanvas.height - 24);
+  }
 
   return sheetCanvas;
 }

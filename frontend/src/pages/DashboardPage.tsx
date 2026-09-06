@@ -79,11 +79,91 @@ export const DashboardPage: React.FC = () => {
     }
     if (
       slug === 'ayushman-print-tool' ||
+      slug === 'ayushman-card-print' ||
       name.includes('ayushman') ||
       name.includes('pmjay') ||
       name.includes('health card')
     ) {
       navigate('/tools/ayushman-print-tool');
+      return;
+    }
+    if (
+      slug === 'image-compressor' ||
+      slug === 'photo-compress' ||
+      name.includes('image compress') ||
+      name.includes('compress image')
+    ) {
+      navigate('/tools/image-compressor');
+      return;
+    }
+    if (
+      slug === 'pdf-split' ||
+      name.includes('split pdf') ||
+      name.includes('pdf split')
+    ) {
+      navigate('/tools/pdf-split');
+      return;
+    }
+    if (
+      slug === 'qr-generator' ||
+      slug === 'qr-code-studio' ||
+      name.includes('qr')
+    ) {
+      navigate('/tools/qr-generator');
+      return;
+    }
+    if (
+      slug === 'pan-print-studio' ||
+      name.includes('pan') ||
+      name.includes('cr80')
+    ) {
+      navigate('/tools/pan-print-studio');
+      return;
+    }
+    if (
+      slug === 'signature-cropper' ||
+      name.includes('signature crop') ||
+      name.includes('crop signature')
+    ) {
+      navigate('/tools/signature-cropper');
+      return;
+    }
+    if (
+      slug === 'png-to-jpg' ||
+      name.includes('png to jpg')
+    ) {
+      navigate('/tools/png-to-jpg');
+      return;
+    }
+    if (
+      slug === 'jpg-to-png' ||
+      name.includes('jpg to png')
+    ) {
+      navigate('/tools/jpg-to-png');
+      return;
+    }
+    if (
+      slug === 'pdf-to-word' ||
+      name.includes('pdf to word')
+    ) {
+      navigate('/tools/pdf-to-word');
+      return;
+    }
+    if (
+      slug === 'word-to-pdf' ||
+      slug === 'doc-word-to-pdf' ||
+      name.includes('word to pdf')
+    ) {
+      navigate('/tools/word-to-pdf');
+      return;
+    }
+    if (
+      slug === 'image-resizer' ||
+      slug === 'photo-crop-resize' ||
+      name.includes('image resiz') ||
+      name.includes('resize image')
+    ) {
+      navigate('/tools/image-resizer');
       return;
     }
     setSelectedTool(tool);

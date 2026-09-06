@@ -48,8 +48,48 @@ export const FavoritesPage: React.FC = () => {
       navigate('/tools/aadhaar-print-studio');
       return;
     }
-    if (slug === 'ayushman-print-tool' || tool.name.toLowerCase().includes('ayushman') || tool.name.toLowerCase().includes('pmjay')) {
+    if (slug === 'ayushman-print-tool' || slug === 'ayushman-card-print' || tool.name.toLowerCase().includes('ayushman') || tool.name.toLowerCase().includes('pmjay')) {
       navigate('/tools/ayushman-print-tool');
+      return;
+    }
+    if (slug === 'image-compressor' || slug === 'photo-compress' || tool.name.toLowerCase().includes('image compress') || tool.name.toLowerCase().includes('compress image')) {
+      navigate('/tools/image-compressor');
+      return;
+    }
+    if (slug === 'pdf-split' || tool.name.toLowerCase().includes('split pdf') || tool.name.toLowerCase().includes('pdf split')) {
+      navigate('/tools/pdf-split');
+      return;
+    }
+    if (slug === 'qr-generator' || slug === 'qr-code-studio' || tool.name.toLowerCase().includes('qr')) {
+      navigate('/tools/qr-generator');
+      return;
+    }
+    if (slug === 'pan-print-studio' || tool.name.toLowerCase().includes('pan') || tool.name.toLowerCase().includes('cr80')) {
+      navigate('/tools/pan-print-studio');
+      return;
+    }
+    if (slug === 'signature-cropper' || tool.name.toLowerCase().includes('signature crop') || tool.name.toLowerCase().includes('crop signature')) {
+      navigate('/tools/signature-cropper');
+      return;
+    }
+    if (slug === 'png-to-jpg' || tool.name.toLowerCase().includes('png to jpg')) {
+      navigate('/tools/png-to-jpg');
+      return;
+    }
+    if (slug === 'jpg-to-png' || tool.name.toLowerCase().includes('jpg to png')) {
+      navigate('/tools/jpg-to-png');
+      return;
+    }
+    if (slug === 'pdf-to-word' || tool.name.toLowerCase().includes('pdf to word')) {
+      navigate('/tools/pdf-to-word');
+      return;
+    }
+    if (slug === 'word-to-pdf' || slug === 'doc-word-to-pdf' || tool.name.toLowerCase().includes('word to pdf')) {
+      navigate('/tools/word-to-pdf');
+      return;
+    }
+    if (slug === 'image-resizer' || tool.name.toLowerCase().includes('image resiz') || tool.name.toLowerCase().includes('resize image')) {
+      navigate('/tools/image-resizer');
       return;
     }
     dispatch(setSelectedTool(tool));

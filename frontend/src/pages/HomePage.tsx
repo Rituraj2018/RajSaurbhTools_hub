@@ -50,12 +50,48 @@ export const HomePage: React.FC = () => {
       navigate('/tools/aadhaar-print-studio');
       return;
     }
-    if (id === 'ayushman-print-tool' || tool.title?.toLowerCase().includes('ayushman') || tool.title?.toLowerCase().includes('pmjay') || tool.title?.toLowerCase().includes('health card')) {
+    if (id === 'ayushman-print-tool' || id === 'ayushman-card-print' || tool.title?.toLowerCase().includes('ayushman') || tool.title?.toLowerCase().includes('pmjay') || tool.title?.toLowerCase().includes('health card')) {
       navigate('/tools/ayushman-print-tool');
       return;
     }
-    if (id === 'photo-compress' || id === 'image-compressor' || tool.title?.toLowerCase().includes('image compress')) {
+    if (id === 'photo-compress' || id === 'image-compressor' || tool.title?.toLowerCase().includes('image compress') || tool.title?.toLowerCase().includes('compress image')) {
       navigate('/tools/image-compressor');
+      return;
+    }
+    if (id === 'pdf-split' || tool.title?.toLowerCase().includes('split pdf') || tool.title?.toLowerCase().includes('pdf split')) {
+      navigate('/tools/pdf-split');
+      return;
+    }
+    if (id === 'qr-generator' || id === 'qr-code-studio' || tool.title?.toLowerCase().includes('qr')) {
+      navigate('/tools/qr-generator');
+      return;
+    }
+    if (id === 'pan-print-studio' || tool.title?.toLowerCase().includes('pan') || tool.title?.toLowerCase().includes('cr80')) {
+      navigate('/tools/pan-print-studio');
+      return;
+    }
+    if (id === 'signature-cropper' || tool.title?.toLowerCase().includes('signature crop') || tool.title?.toLowerCase().includes('crop signature')) {
+      navigate('/tools/signature-cropper');
+      return;
+    }
+    if (id === 'png-to-jpg' || tool.title?.toLowerCase().includes('png to jpg')) {
+      navigate('/tools/png-to-jpg');
+      return;
+    }
+    if (id === 'jpg-to-png' || tool.title?.toLowerCase().includes('jpg to png')) {
+      navigate('/tools/jpg-to-png');
+      return;
+    }
+    if (id === 'pdf-to-word' || tool.title?.toLowerCase().includes('pdf to word')) {
+      navigate('/tools/pdf-to-word');
+      return;
+    }
+    if (id === 'word-to-pdf' || id === 'doc-word-to-pdf' || tool.title?.toLowerCase().includes('word to pdf')) {
+      navigate('/tools/word-to-pdf');
+      return;
+    }
+    if (id === 'image-resizer' || id === 'photo-crop-resize' || tool.title?.toLowerCase().includes('image resiz') || tool.title?.toLowerCase().includes('resize')) {
+      navigate('/tools/image-resizer');
       return;
     }
     navigate('/tools');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download,
   Printer,
@@ -17,6 +17,7 @@ import {
 } from '../../utils/ayushmanProcessor';
 import { Button } from '../common/Button';
 import { GoogleDriveButton } from '../cloud';
+import { recordToolHistorySafely } from '../../api/historyApi';
 
 export interface AyushmanPreviewProps {
   cards: AyushmanCardItem[];
@@ -48,11 +49,79 @@ export const AyushmanPreview: React.FC<AyushmanPreviewProps> = ({
     }
   }, [cards, options]);
 
+  const lastRecordedTimeRef = useRef<number>(0);
+
+  const recordAyushmanHistory = (
+    canvas: HTMLCanvasElement | null,
+    filename: string,
+    mimeType: string,
+    directSize?: number
+  ) => {
+    const now = Date.now();
+    if (now - lastRecordedTimeRef.current < 800) return;
+    lastRecordedTimeRef.current = now;
+
+    if (directSize !== undefined) {
+      recordToolHistorySafely({
+        tool: 'ayushman-card-print',
+        toolName: 'Ayushman Card Print Tool Pro',
+        inputFiles: cards.map((c) => ({
+          name: c.name || 'Ayushman_Card.pdf',
+          size: c.fileSize || undefined,
+          type: c.fileType || 'application/pdf',
+        })),
+        outputFile: {
+          name: filename,
+          size: directSize,
+          type: mimeType,
+        },
+        status: 'completed',
+        metadata: {
+          totalCards: cards.length,
+          layoutMode: options.layoutMode,
+        },
+      });
+      return;
+    }
+
+    if (!canvas) return;
+    try {
+      canvas.toBlob(
+        (blob) => {
+          recordToolHistorySafely({
+            tool: 'ayushman-card-print',
+            toolName: 'Ayushman Card Print Tool Pro',
+            inputFiles: cards.map((c) => ({
+              name: c.name || 'Ayushman_Card.pdf',
+              size: c.fileSize || undefined,
+              type: c.fileType || 'application/pdf',
+            })),
+            outputFile: {
+              name: filename,
+              size: blob?.size || undefined,
+              type: mimeType,
+            },
+            status: 'completed',
+            metadata: {
+              totalCards: cards.length,
+              layoutMode: options.layoutMode,
+            },
+          });
+        },
+        mimeType.startsWith('image/') ? mimeType : 'image/jpeg',
+        0.95
+      );
+    } catch (err) {
+      console.error('Failed to record Ayushman history:', err);
+    }
+  };
+
   const handleDownloadPdf = () => {
     if (!sheetCanvas) return;
     setIsGenerating(true);
     try {
-      generateAyushmanPDF(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet');
+      const size = generateAyushmanPDF(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet');
+      recordAyushmanHistory(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet.pdf', 'application/pdf', size);
     } finally {
       setIsGenerating(false);
     }
@@ -61,15 +130,18 @@ export const AyushmanPreview: React.FC<AyushmanPreviewProps> = ({
   const handleDownloadJpg = () => {
     if (!sheetCanvas) return;
     downloadCanvasImage(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet', 'image/jpeg');
+    recordAyushmanHistory(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet.jpg', 'image/jpeg');
   };
 
   const handleDownloadPng = () => {
     if (!sheetCanvas) return;
     downloadCanvasImage(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet', 'image/png');
+    recordAyushmanHistory(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet.png', 'image/png');
   };
 
   const handlePrint = () => {
     if (!sheetCanvas) return;
+    recordAyushmanHistory(sheetCanvas, 'Ayushman_Card_A4_Print_Sheet.jpg', 'image/jpeg');
     setIsPrinting(true);
     try {
       const dataUrl = sheetCanvas.toDataURL('image/jpeg', 0.98);
@@ -187,7 +259,8 @@ export const AyushmanPreview: React.FC<AyushmanPreviewProps> = ({
     const canvas = side === 'front' ? frontCardCanvas : backCardCanvas;
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
-    generateAyushmanCardPDF(canvas, `Ayushman_CR80_${label}_Card`);
+    const size = generateAyushmanCardPDF(canvas, `Ayushman_CR80_${label}_Card`);
+    recordAyushmanHistory(canvas, `Ayushman_CR80_${label}_Card.pdf`, 'application/pdf', size);
   };
 
   const handleDownloadActualJpg = (side: 'front' | 'back') => {
@@ -195,6 +268,7 @@ export const AyushmanPreview: React.FC<AyushmanPreviewProps> = ({
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
     downloadCanvasImage(canvas, `Ayushman_CR80_${label}_Card`, 'image/jpeg');
+    recordAyushmanHistory(canvas, `Ayushman_CR80_${label}_Card.jpg`, 'image/jpeg');
   };
 
   const handleDownloadActualPng = (side: 'front' | 'back') => {
@@ -202,12 +276,14 @@ export const AyushmanPreview: React.FC<AyushmanPreviewProps> = ({
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
     downloadCanvasImage(canvas, `Ayushman_CR80_${label}_Card`, 'image/png');
+    recordAyushmanHistory(canvas, `Ayushman_CR80_${label}_Card.png`, 'image/png');
   };
 
   const handlePrintActualSize = (side: 'front' | 'back') => {
     const canvas = side === 'front' ? frontCardCanvas : backCardCanvas;
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
+    recordAyushmanHistory(canvas, `Ayushman_CR80_${label}_Card.jpg`, 'image/jpeg');
     const dataUrl = canvas.toDataURL('image/jpeg', 0.98);
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';

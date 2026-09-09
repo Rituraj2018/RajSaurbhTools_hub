@@ -263,7 +263,7 @@ export function downloadQrPdf(
   title: string = 'Scan to Pay / Connect',
   subtitle: string = 'Point your camera or UPI app to scan',
   filename: string = 'QRCode_Print'
-): void {
+): number {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -303,9 +303,11 @@ export function downloadQrPdf(
   // Footer branding
   doc.setFontSize(10);
   doc.setTextColor(148, 163, 184);
-  doc.text('Powered by RajSaurbh Tools_Hub • Verified QR Studio', pageWidth / 2, 225, {
+  doc.text('Powered by RajSaurabh Tools_Hub • Verified QR Studio', pageWidth / 2, 225, {
     align: 'center',
   });
 
+  const byteLength = (doc.output('arraybuffer') as ArrayBuffer).byteLength;
   doc.save(`${filename.replace(/\.pdf$/i, '')}.pdf`);
+  return byteLength;
 }

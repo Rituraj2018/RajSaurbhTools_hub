@@ -86,11 +86,18 @@ export const PassportPhotoStudioPage: React.FC = () => {
   // Processed Output Canvases
   const [singlePassportCanvas, setSinglePassportCanvas] = useState<HTMLCanvasElement | null>(null);
   const [printSheetCanvas, setPrintSheetCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [inputFileMeta, setInputFileMeta] = useState<{ name: string; size?: number; type?: string } | null>(null);
 
   // Handle new image upload
   const handleImageSelected = (img: HTMLImageElement, file: File | null) => {
     setSourceImage(img);
-    setFileName(file?.name || 'Sample_Portrait.png');
+    const resolvedName = file?.name || 'Sample_Portrait.png';
+    setFileName(resolvedName);
+    setInputFileMeta({
+      name: resolvedName,
+      size: file?.size,
+      type: file?.type || 'image/png',
+    });
     // Calculate auto crop
     const initialCrop = calculateAutoCrop(img.naturalWidth, img.naturalHeight);
     setCropArea(initialCrop);
@@ -102,6 +109,7 @@ export const PassportPhotoStudioPage: React.FC = () => {
   const handleClearImage = () => {
     setSourceImage(null);
     setFileName('');
+    setInputFileMeta(null);
     setSinglePassportCanvas(null);
     setPrintSheetCanvas(null);
   };
@@ -429,6 +437,7 @@ export const PassportPhotoStudioPage: React.FC = () => {
                   photoPosition={photoPosition}
                   onPhotoPositionChange={setPhotoPosition}
                   sheetOptions={sheetOptions}
+                  inputFileMeta={inputFileMeta}
                 />
               </div>
             </div>

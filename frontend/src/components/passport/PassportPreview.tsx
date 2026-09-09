@@ -21,6 +21,7 @@ import {
 import { generatePDFSheet } from '../../utils/pdfGenerator';
 import { Button } from '../common/Button';
 import { GoogleDriveButton } from '../cloud';
+import { recordToolHistorySafely } from '../../api/historyApi';
 
 export interface PassportPreviewProps {
   passportCanvas: HTMLCanvasElement | null;
@@ -32,6 +33,7 @@ export interface PassportPreviewProps {
   onPhotoPositionChange: (pos: { x: number; y: number }) => void;
   /** Needed to compute boundary limits during drag. */
   sheetOptions: SheetOptions;
+  inputFileMeta?: { name: string; size?: number; type?: string } | null;
 }
 
 export const PassportPreview: React.FC<PassportPreviewProps> = ({
@@ -42,6 +44,7 @@ export const PassportPreview: React.FC<PassportPreviewProps> = ({
   photoPosition,
   onPhotoPositionChange,
   sheetOptions,
+  inputFileMeta,
 }) => {
   const [activeTab, setActiveTab] = useState<'single' | 'sheet'>('sheet');
   const [sheetZoom, setSheetZoom] = useState<number>(1);
@@ -108,45 +111,105 @@ export const PassportPreview: React.FC<PassportPreviewProps> = ({
     setIsDragging(false);
   };
 
+  const lastRecordedTimeRef = useRef<number>(0);
+
+  const recordExportHistory = (
+    canvas: HTMLCanvasElement | null,
+    filename: string,
+    mimeType: string,
+    directSize?: number
+  ) => {
+    const now = Date.now();
+    if (now - lastRecordedTimeRef.current < 800) return;
+    lastRecordedTimeRef.current = now;
+
+    if (directSize !== undefined) {
+      recordToolHistorySafely({
+        tool: 'passport-photo-studio',
+        toolName: 'Passport Photo Studio',
+        inputFiles: inputFileMeta ? [inputFileMeta] : [{ name: 'Portrait_Image.png' }],
+        outputFile: {
+          name: filename,
+          size: directSize,
+          type: mimeType,
+        },
+        status: 'completed',
+        metadata: {
+          paperSize,
+          copies,
+        },
+      });
+      return;
+    }
+
+    if (!canvas) return;
+    try {
+      canvas.toBlob(
+        (blob) => {
+          recordToolHistorySafely({
+            tool: 'passport-photo-studio',
+            toolName: 'Passport Photo Studio',
+            inputFiles: inputFileMeta ? [inputFileMeta] : [{ name: 'Portrait_Image.png' }],
+            outputFile: {
+              name: filename,
+              size: blob?.size || undefined,
+              type: mimeType,
+            },
+            status: 'completed',
+            metadata: {
+              paperSize,
+              copies,
+            },
+          });
+        },
+        mimeType.startsWith('image/') ? mimeType : 'image/jpeg',
+        0.95
+      );
+    } catch (err) {
+      console.error('Failed to record passport history:', err);
+    }
+  };
+
   // Single Photo Downloads
   const handleDownloadSingleJpg = () => {
     if (!passportCanvas) return;
-    downloadCanvasImage(passportCanvas, `Passport_Photo_35x45mm_${Date.now()}`, 'jpg', 0.95);
+    const filename = `Passport_Photo_35x45mm_${Date.now()}`;
+    downloadCanvasImage(passportCanvas, filename, 'jpg', 0.95);
+    recordExportHistory(passportCanvas, `${filename}.jpg`, 'image/jpeg');
   };
 
   const handleDownloadSinglePng = () => {
     if (!passportCanvas) return;
-    downloadCanvasImage(passportCanvas, `Passport_Photo_35x45mm_${Date.now()}`, 'png');
+    const filename = `Passport_Photo_35x45mm_${Date.now()}`;
+    downloadCanvasImage(passportCanvas, filename, 'png');
+    recordExportHistory(passportCanvas, `${filename}.png`, 'image/png');
   };
 
   // Sheet Downloads
   const handleDownloadSheetJpg = () => {
     if (!sheetCanvas) return;
-    downloadCanvasImage(
-      sheetCanvas,
-      `Passport_Print_Sheet_${paperSize}_${copies}Copies_${Date.now()}`,
-      'jpg',
-      0.95
-    );
+    const filename = `Passport_Print_Sheet_${paperSize}_${copies}Copies_${Date.now()}`;
+    downloadCanvasImage(sheetCanvas, filename, 'jpg', 0.95);
+    recordExportHistory(sheetCanvas, `${filename}.jpg`, 'image/jpeg');
   };
 
   const handleDownloadSheetPng = () => {
     if (!sheetCanvas) return;
-    downloadCanvasImage(
-      sheetCanvas,
-      `Passport_Print_Sheet_${paperSize}_${copies}Copies_${Date.now()}`,
-      'png'
-    );
+    const filename = `Passport_Print_Sheet_${paperSize}_${copies}Copies_${Date.now()}`;
+    downloadCanvasImage(sheetCanvas, filename, 'png');
+    recordExportHistory(sheetCanvas, `${filename}.png`, 'image/png');
   };
 
   const handleDownloadPDF = async () => {
     if (!sheetCanvas) return;
+    const filename = `Passport_Print_Sheet_${paperSize}_${copies}Copies_${Date.now()}`;
     try {
       setIsExportingPDF(true);
-      await generatePDFSheet(sheetCanvas, {
+      const pdfSize = await generatePDFSheet(sheetCanvas, {
         paperSize,
-        filename: `Passport_Print_Sheet_${paperSize}_${copies}Copies_${Date.now()}`,
+        filename,
       });
+      recordExportHistory(sheetCanvas, `${filename}.pdf`, 'application/pdf', pdfSize);
     } catch (err) {
       console.error('PDF export error:', err);
     } finally {
@@ -156,6 +219,8 @@ export const PassportPreview: React.FC<PassportPreviewProps> = ({
 
   const handleBrowserPrint = () => {
     if (!sheetCanvas) return;
+    const filename = `Passport_Print_Sheet_${paperSize}_${copies}Copies_${Date.now()}.png`;
+    recordExportHistory(sheetCanvas, filename, 'image/png');
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
@@ -373,9 +438,21 @@ export const PassportPreview: React.FC<PassportPreviewProps> = ({
                   canvasToSave.toBlob((blob) => {
                     if (!blob) return;
                     const suffix = activeTab === 'single' ? 'Single_35x45mm' : `Sheet_${paperSize}_${copies}Copies`;
+                    const outName = `Passport_${suffix}_${Date.now()}.png`;
+                    recordToolHistorySafely({
+                      tool: 'passport-photo-studio',
+                      toolName: 'Passport Photo Studio',
+                      inputFiles: inputFileMeta ? [inputFileMeta] : [{ name: 'Portrait_Image.png' }],
+                      outputFile: {
+                        name: outName,
+                        size: blob.size,
+                        type: 'image/png',
+                      },
+                      status: 'completed',
+                    });
                     resolve({
                       blob,
-                      fileName: `Passport_${suffix}_${Date.now()}.png`,
+                      fileName: outName,
                       mimeType: 'image/png',
                       category: 'Images',
                     });

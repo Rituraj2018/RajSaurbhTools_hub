@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   UploadCloud,
@@ -9,34 +9,81 @@ import {
   FileCheck2,
   CheckCircle,
   Wrench,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../features/store';
 import { fetchTools, fetchFavoriteTools, toggleFavoriteTool } from '../features/tools';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { ToolCard } from '../components/tools/ToolCard';
 import { Button, Modal } from '../components/common';
-import {
-  mockStats,
-  mockTools,
-  mockRecentActivities,
-  mockStorageBreakdown,
-} from '../utils/mockData';
-import { ToolItem, RecentActivity } from '../types';
+import { mockTools } from '../utils/mockData';
+import { ToolItem, DashboardData, DashboardStat } from '../types';
+import { dashboardApi } from '../api/dashboardApi';
 import { CloudStorageSettings } from '../components/cloud/CloudStorageSettings';
+
+/**
+ * Helper to format byte counts into human-readable strings (e.g. 1.4 MB)
+ */
+const formatBytes = (bytes?: number): string => {
+  if (!bytes || bytes <= 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+};
+
+/**
+ * Helper to format timestamps into relative time or localized date
+ */
+const formatRelativeTime = (dateString?: string): string => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '-';
+  const now = new Date();
+  const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diffSec < 60) return 'Just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [activities] = useState<RecentActivity[]>(mockRecentActivities);
+
+  // Live user dashboard data state
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const { tools, favoriteToolIds } = useAppSelector((state) => state.tools);
 
-  React.useEffect(() => {
+  const loadDashboardStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await dashboardApi.getUserDashboardStats();
+      setDashboardData(data);
+    } catch (err: any) {
+      console.error('Failed to load dashboard metrics:', err);
+      setError(err?.response?.data?.message || err?.message || 'Failed to load live dashboard metrics.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     dispatch(fetchTools());
     dispatch(fetchFavoriteTools());
-  }, [dispatch]);
+    loadDashboardStats();
+  }, [dispatch, loadDashboardStats]);
 
   const handleToggleFavorite = (toolId: string) => {
     dispatch(toggleFavoriteTool(toolId));
@@ -190,8 +237,112 @@ export const DashboardPage: React.FC = () => {
     return [...userFavs, ...otherTools].slice(0, 4);
   }, [tools, favoriteToolIds]);
 
+  // Dynamically compute live stat cards from MongoDB metrics
+  const statCards: DashboardStat[] = useMemo(() => {
+    const metrics = dashboardData?.metrics || {
+      totalToolsUsed: 0,
+      filesProcessed: 0,
+      storageUsedBytes: 0,
+      storageSavedBytes: 0,
+      totalFavorites: 0,
+    };
+
+    return [
+      {
+        id: 'tools-used',
+        label: 'Total Tools Used',
+        value: metrics.totalToolsUsed.toString(),
+        numericValue: metrics.totalToolsUsed,
+        change: metrics.totalToolsUsed > 0 ? `${metrics.totalToolsUsed} Active` : '0 Active',
+        isPositive: metrics.totalToolsUsed > 0,
+        icon: 'TrendingUp',
+        gradient: 'from-blue-600/20 via-indigo-600/10 to-transparent',
+        textColor: 'text-blue-400',
+        borderColor: 'border-blue-500/30',
+        subtitle:
+          metrics.totalToolsUsed === 1
+            ? '1 unique tool executed'
+            : `${metrics.totalToolsUsed} unique tools executed`,
+      },
+      {
+        id: 'files-processed',
+        label: 'Files Processed',
+        value: metrics.filesProcessed.toLocaleString(),
+        numericValue: metrics.filesProcessed,
+        change: metrics.filesProcessed > 0 ? `${metrics.filesProcessed} Done` : '0 Done',
+        isPositive: metrics.filesProcessed > 0,
+        icon: 'FileText',
+        gradient: 'from-purple-600/20 via-fuchsia-600/10 to-transparent',
+        textColor: 'text-purple-400',
+        borderColor: 'border-purple-500/30',
+        subtitle:
+          metrics.filesProcessed === 1
+            ? '1 file completed'
+            : `${metrics.filesProcessed.toLocaleString()} total files completed`,
+      },
+      {
+        id: 'storage-used',
+        label: 'Storage Used',
+        value: formatBytes(metrics.storageUsedBytes),
+        numericValue: metrics.storageUsedBytes,
+        change: metrics.storageUsedBytes > 0 ? formatBytes(metrics.storageUsedBytes) : '0 B',
+        isPositive: true,
+        icon: 'HardDrive',
+        gradient: 'from-violet-600/20 via-purple-600/10 to-transparent',
+        textColor: 'text-violet-400',
+        borderColor: 'border-violet-500/30',
+        subtitle: 'Total vault & processed storage',
+      },
+      {
+        id: 'total-favorites',
+        label: 'Total Favorites',
+        value: metrics.totalFavorites.toString(),
+        numericValue: metrics.totalFavorites,
+        change: metrics.totalFavorites > 0 ? `${metrics.totalFavorites} Pinned` : '0 Pinned',
+        isPositive: metrics.totalFavorites > 0,
+        icon: 'FileSpreadsheet',
+        gradient: 'from-cyan-600/20 via-blue-600/10 to-transparent',
+        textColor: 'text-cyan-400',
+        borderColor: 'border-cyan-500/30',
+        subtitle:
+          metrics.totalFavorites === 1
+            ? '1 pinned quick-launch tool'
+            : `${metrics.totalFavorites} pinned quick-launch tools`,
+      },
+    ];
+  }, [dashboardData]);
+
+  const recentActivities = dashboardData?.recentActivities || [];
+  const storageBreakdown = dashboardData?.storageBreakdown || [];
+  const metrics = dashboardData?.metrics || {
+    totalToolsUsed: 0,
+    filesProcessed: 0,
+    storageUsedBytes: 0,
+    storageSavedBytes: 0,
+    totalFavorites: 0,
+  };
+
   return (
     <div className="space-y-8 animate-fadeIn">
+      {/* Error Alert Banner with Retry Button */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-2.5 text-xs font-medium">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <span>{error}</span>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={loadDashboardStats}
+            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            className="shrink-0"
+          >
+            Retry
+          </Button>
+        </div>
+      )}
+
       {/* Top Banner / Welcome Action Card */}
       <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-blue-950/70 via-slate-900 to-purple-950/70 border border-slate-800/80 shadow-2xl overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-full blur-3xl pointer-events-none -z-0" />
@@ -200,10 +351,10 @@ export const DashboardPage: React.FC = () => {
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[11px] font-bold text-blue-400">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>RajSaurbh Tools_Hub • Active</span>
+              <span>RajSaurabh Tools_Hub • Active</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Welcome to RajSaurbh Tools_Hub
+              Welcome to RajSaurabh Tools_Hub
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Batch process PDFs, remove photo backgrounds with AI, extract text with OCR, or manage your stored processed files.
@@ -232,17 +383,19 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Primary Stats Cards */}
+      {/* 4 Primary Stats Cards (Live Metrics from MongoDB) */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">
             System Metrics & Analytics
           </h3>
-          <span className="text-[11px] text-slate-500 font-mono">Last 30 Days</span>
+          <span className="text-[11px] text-slate-500 font-mono">
+            {loading ? 'Refreshing...' : 'Live MongoDB Metrics'}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {mockStats.map((stat) => (
+          {statCards.map((stat) => (
             <StatsCard key={stat.id} stat={stat} />
           ))}
         </div>
@@ -302,107 +455,164 @@ export const DashboardPage: React.FC = () => {
                 Recent Processing History
               </h3>
               <p className="text-xs text-slate-400">
-                Latest batch files executed in your local environment.
+                Latest batch files executed in your personal account.
               </p>
             </div>
             <span className="text-xs font-medium text-slate-400 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
-              {activities.length} Files Processed
+              {metrics.filesProcessed} Total Processed
             </span>
           </div>
 
-          <div className="rounded-2xl bg-slate-900/70 border border-slate-800/80 overflow-hidden shadow-xl">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-800 bg-slate-950/40 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    <th className="py-3.5 px-4 sm:px-6">File Name</th>
-                    <th className="py-3.5 px-4">Tool Used</th>
-                    <th className="py-3.5 px-4">Size</th>
-                    <th className="py-3.5 px-4">Time</th>
-                    <th className="py-3.5 px-4 text-right">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 text-xs">
-                  {activities.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-slate-800/40 transition-colors group"
-                    >
-                      <td className="py-3.5 px-4 sm:px-6 font-semibold text-slate-200">
-                        <div className="flex items-center gap-2.5 max-w-[200px] sm:max-w-none">
-                          <FileCheck2 className="w-4 h-4 text-blue-400 shrink-0" />
-                          <span className="truncate">{item.fileName}</span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-300">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-800 text-[11px] font-medium">
-                          {item.toolName}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
-                        {item.size}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                        {item.timestamp}
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          <CheckCircle className="w-3 h-3" />
-                          <span>Done</span>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {recentActivities.length === 0 ? (
+            <div className="rounded-2xl bg-slate-900/70 border border-slate-800/80 p-10 text-center space-y-3 shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-slate-800/80 text-slate-500 mx-auto flex items-center justify-center border border-slate-700/50">
+                <FileCheck2 className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-slate-200">No processing history recorded yet</h4>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  Files processed through our document, photo, and PDF tools will appear in your live audit log.
+                </p>
+              </div>
+              <Link to="/tools" className="inline-block pt-2">
+                <Button variant="secondary" size="sm" leftIcon={<Wrench className="w-3.5 h-3.5" />}>
+                  Explore All Tools
+                </Button>
+              </Link>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-2xl bg-slate-900/70 border border-slate-800/80 overflow-hidden shadow-xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 bg-slate-950/40 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      <th className="py-3.5 px-4 sm:px-6">File Name</th>
+                      <th className="py-3.5 px-4">Tool Used</th>
+                      <th className="py-3.5 px-4">Size</th>
+                      <th className="py-3.5 px-4">Time</th>
+                      <th className="py-3.5 px-4 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 text-xs">
+                    {recentActivities.map((item) => (
+                      <tr
+                        key={item.id || item.fileName}
+                        className="hover:bg-slate-800/40 transition-colors group"
+                      >
+                        <td className="py-3.5 px-4 sm:px-6 font-semibold text-slate-200">
+                          <div className="flex items-center gap-2.5 max-w-[200px] sm:max-w-none">
+                            <FileCheck2 className="w-4 h-4 text-blue-400 shrink-0" />
+                            <span className="truncate">{item.fileName}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-300">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-800 text-[11px] font-medium">
+                            {item.toolName}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                          {item.size}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-400 text-[11px]">
+                          {formatRelativeTime(item.createdAt)}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              item.status === 'failed'
+                                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                : item.status === 'processing'
+                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            }`}
+                          >
+                            <CheckCircle className="w-3 h-3" />
+                            <span className="capitalize">{item.status || 'Done'}</span>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Storage Breakdown Widget (1 Col) */}
+        {/* Dynamic Storage Breakdown Widget (1 Col) */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <HardDrive className="w-4 h-4 text-blue-400" />
               Storage Distribution
             </h3>
-            <span className="text-xs font-mono text-purple-400">4.2 / 10 GB</span>
+            <span className="text-xs font-mono text-purple-400">
+              {formatBytes(metrics.storageUsedBytes)}
+            </span>
           </div>
 
           <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 space-y-6 shadow-xl">
-            {/* Visual Gauge Bar */}
-            <div className="space-y-2">
-              <div className="flex h-3 w-full rounded-full bg-slate-950 overflow-hidden gap-0.5 p-0.5 border border-slate-800">
-                <div className="h-full bg-cyan-500 rounded-l-full" style={{ width: '50%' }} />
-                <div className="h-full bg-purple-500" style={{ width: '33%' }} />
-                <div className="h-full bg-blue-500 rounded-r-full" style={{ width: '17%' }} />
+            {/* Visual Dynamic Gauge Bar */}
+            {metrics.storageUsedBytes === 0 ? (
+              <div className="space-y-2">
+                <div className="flex h-3 w-full rounded-full bg-slate-950 overflow-hidden p-0.5 border border-slate-800">
+                  <div className="h-full bg-slate-800/60 rounded-full w-full" />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                  <span>0 B Stored in Vault</span>
+                  <span className="text-slate-500 font-semibold">0% Used</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                <span>Total 10.0 GB Cloud Allocation</span>
-                <span className="text-emerald-400 font-semibold">58% Free</span>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex h-3 w-full rounded-full bg-slate-950 overflow-hidden gap-0.5 p-0.5 border border-slate-800">
+                  {storageBreakdown.map((cat, idx) => {
+                    if (cat.percentage <= 0) return null;
+                    const isFirst = idx === 0;
+                    const isLast = idx === storageBreakdown.length - 1;
+                    return (
+                      <div
+                        key={cat.fileType}
+                        className={`h-full ${cat.color} ${isFirst ? 'rounded-l-full' : ''} ${
+                          isLast ? 'rounded-r-full' : ''
+                        }`}
+                        style={{ width: `${cat.percentage}%` }}
+                        title={`${cat.name}: ${cat.percentage}%`}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                  <span>{formatBytes(metrics.storageUsedBytes)} Total Stored</span>
+                  <span className="text-emerald-400 font-semibold">
+                    {storageBreakdown.reduce((sum, c) => sum + c.count, 0)} Files
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Category details */}
+            {/* Category details with dynamic percentages */}
             <div className="space-y-3 pt-2 border-t border-slate-800/80">
-              {mockStorageBreakdown.map((cat) => (
-                <div key={cat.name} className="flex items-center justify-between text-xs">
+              {storageBreakdown.map((cat) => (
+                <div key={cat.fileType} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <span className={`w-2.5 h-2.5 rounded-full ${cat.color}`} />
                     <span className="text-slate-300 font-medium">{cat.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-mono text-[11px]">{cat.size}</span>
+                    <span className="text-slate-400 font-mono text-[11px]">{formatBytes(cat.bytes)}</span>
                     <span className="text-slate-500 text-[10px]">({cat.percentage}%)</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Optimize Button */}
-            <Button variant="secondary" size="sm" className="w-full">
-              Clean Temporary Cache
-            </Button>
+            {/* Clean Cache / Explore Vault Button */}
+            <Link to="/vault">
+              <Button variant="secondary" size="sm" className="w-full">
+                View Vault Files
+              </Button>
+            </Link>
           </div>
 
           {/* Personal Cloud Storage Connection */}

@@ -61,6 +61,8 @@ export const AadhaarUploader: React.FC<AadhaarUploaderProps> = ({
             frontCrop: { ...DEFAULT_FRONT_CROP },
             backCrop: { ...DEFAULT_BACK_CROP },
             adjustments: { ...DEFAULT_ADJUSTMENTS },
+            fileSize: file.size,
+            fileType: file.type || 'application/pdf',
           };
           onDocumentLoaded(docItem);
           setIsProcessing(false);
@@ -92,6 +94,8 @@ export const AadhaarUploader: React.FC<AadhaarUploaderProps> = ({
           frontCrop: { ...DEFAULT_FRONT_CROP },
           backCrop: { ...DEFAULT_BACK_CROP },
           adjustments: { ...DEFAULT_ADJUSTMENTS },
+          fileSize: file.size,
+          fileType: file.type || 'image/png',
         };
         onDocumentLoaded(docItem);
         setIsProcessing(false);
@@ -121,6 +125,8 @@ export const AadhaarUploader: React.FC<AadhaarUploaderProps> = ({
         frontCrop: { ...DEFAULT_FRONT_CROP },
         backCrop: { ...DEFAULT_BACK_CROP },
         adjustments: { ...DEFAULT_ADJUSTMENTS },
+        fileSize: pendingPdfBuffer.byteLength,
+        fileType: 'application/pdf',
       };
 
       onDocumentLoaded(docItem);

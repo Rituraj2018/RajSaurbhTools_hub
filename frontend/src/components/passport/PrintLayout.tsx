@@ -16,12 +16,15 @@ import {
   Info,
   Minus,
   Plus,
+  Sliders,
 } from 'lucide-react';
 import {
   PaperSize,
   PhotoCopies,
+  ColumnsMode,
   SheetOptions,
   calculatePrintGrid,
+  PAPER_SPECS,
 } from '../../utils/passportProcessor';
 
 export interface PrintLayoutProps {
@@ -42,7 +45,12 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
 
   // Compute boundary limits from the current grid so we never move outside the sheet
   const getClampedPosition = (dx: number, dy: number): { x: number; y: number } => {
-    const grid = calculatePrintGrid(options.paperSize, options.copies, options.landscape);
+    const grid = calculatePrintGrid(
+      options.paperSize,
+      options.copies,
+      options.landscape,
+      options.columnsMode
+    );
     const totalGridWidth = grid.cols * grid.photoWidthPx + (grid.cols - 1) * grid.gapXPx;
     const totalGridHeight = grid.rows * grid.photoHeightPx + (grid.rows - 1) * grid.gapYPx;
 
@@ -64,7 +72,12 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
 
   // CENTER: move photo group to the visual center of the sheet
   const moveCenter = () => {
-    const grid = calculatePrintGrid(options.paperSize, options.copies, options.landscape);
+    const grid = calculatePrintGrid(
+      options.paperSize,
+      options.copies,
+      options.landscape,
+      options.columnsMode
+    );
     const totalGridWidth = grid.cols * grid.photoWidthPx + (grid.cols - 1) * grid.gapXPx;
     const totalGridHeight = grid.rows * grid.photoHeightPx + (grid.rows - 1) * grid.gapYPx;
     // The centered startX/Y that would place the grid in the middle of the sheet
@@ -80,15 +93,32 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
   // RESET: restore the default top-left position (offset = 0)
   const resetPosition = () => onPhotoPositionChange({ x: 0, y: 0 });
 
-  const maxCopies = options.paperSize === 'A4' ? 30 : 8;
+  const paperList: { size: PaperSize; label: string; dim: string; desc: string; max: number }[] = [
+    { size: 'A4', label: 'A4 Paper', dim: '210 × 297 mm', desc: '1 to 30 photos (Standard Sheet)', max: 30 },
+    { size: '4x6', label: '4 × 6 Inch', dim: '102 × 152 mm', desc: 'Up to 8 photos (2 × 4 card)', max: 8 },
+    { size: '5x7', label: '5 × 7 Inch', dim: '127 × 178 mm', desc: 'Up to 10 photos (2 × 5 card)', max: 10 },
+    { size: '6x8', label: '6 × 8 Inch', dim: '152 × 203 mm', desc: 'Up to 12 photos (3 × 4 card)', max: 12 },
+    { size: '8x10', label: '8 × 10 Inch', dim: '203 × 254 mm', desc: 'Up to 20 photos (4 × 5 sheet)', max: 20 },
+  ];
+
+  const currentPaperConfig = paperList.find((p) => p.size === options.paperSize) || paperList[0];
+  const maxCopies = currentPaperConfig.max;
   const currentCopies = Math.min(maxCopies, Math.max(1, options.copies || 1));
 
+  // Current active calculated grid
+  const grid = calculatePrintGrid(
+    options.paperSize,
+    currentCopies,
+    options.landscape,
+    options.columnsMode
+  );
+
   const handlePaperSizeChange = (paperSize: PaperSize) => {
-    const newMax = paperSize === 'A4' ? 30 : 8;
+    const paperTarget = paperList.find((p) => p.size === paperSize) || paperList[0];
     onChange({
       ...options,
       paperSize,
-      copies: Math.min(newMax, options.copies),
+      copies: Math.min(paperTarget.max, options.copies),
     });
   };
 
@@ -97,6 +127,13 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
     onChange({
       ...options,
       copies: clamped,
+    });
+  };
+
+  const handleColumnsModeChange = (columnsMode: ColumnsMode) => {
+    onChange({
+      ...options,
+      columnsMode,
     });
   };
 
@@ -114,9 +151,17 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
     });
   };
 
-  // Preset copy selections
-  const a4Presets = [1, 2, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30];
-  const cardPresets = [1, 2, 4, 6, 8];
+  const recommendedPresets = [
+    { count: 6, label: '6 (2×3)' },
+    { count: 8, label: '8 (2×4)' },
+    { count: 10, label: '10 (2×5)' },
+    { count: 12, label: '12 (3×4)' },
+    { count: 13, label: '13 (5 cols)' },
+    { count: 15, label: '15 (3×5)' },
+    { count: 20, label: '20 (4×5)' },
+    { count: 24, label: '24 (4×6)' },
+    { count: 30, label: '30 (5×6 Full)' },
+  ];
 
   return (
     <div className="p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl space-y-6">
@@ -128,64 +173,53 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-bold text-white tracking-tight">Print Sheet Layout</h3>
-            <p className="text-[11px] text-slate-400">Configure paper size, 1–30 copy count and cutting guides</p>
+            <p className="text-[11px] text-slate-400">Configure paper size, 1–30 copy count, and auto layout</p>
           </div>
         </div>
       </div>
 
-      {/* 1. Paper Size Selector (A4, 4x6) */}
+      {/* 1. Paper Size Selector (A4, 4x6, 5x7, 6x8, 8x10) */}
       <div className="space-y-2">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <FileSpreadsheet className="w-3.5 h-3.5 text-blue-400" />
-          <span>Paper Size</span>
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <FileSpreadsheet className="w-3.5 h-3.5 text-blue-400" />
+            <span>Paper Size Options</span>
+          </label>
+          <span className="text-[10px] text-slate-500 font-mono">
+            {PAPER_SPECS[options.paperSize]?.widthMm} × {PAPER_SPECS[options.paperSize]?.heightMm} mm
+          </span>
+        </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          {/* A4 Paper */}
-          <button
-            type="button"
-            onClick={() => handlePaperSizeChange('A4')}
-            className={`p-3.5 rounded-2xl border text-left transition-all ${
-              options.paperSize === 'A4'
-                ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500'
-                : 'border-slate-800/80 bg-slate-950/60 hover:bg-slate-950 hover:border-slate-700'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold text-white">A4 Paper</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                210 × 297 mm
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-tight">
-              Standard office printer paper sheet (1 to 30 photos)
-            </p>
-          </button>
-
-          {/* 4x6 Photo Paper */}
-          <button
-            type="button"
-            onClick={() => handlePaperSizeChange('4x6')}
-            className={`p-3.5 rounded-2xl border text-left transition-all ${
-              options.paperSize === '4x6'
-                ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500'
-                : 'border-slate-800/80 bg-slate-950/60 hover:bg-slate-950 hover:border-slate-700'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold text-white">4 × 6 Inch</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                101 × 152 mm
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-tight">
-              Standard photo studio card paper (1 to 8 photos)
-            </p>
-          </button>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          {paperList.map((paper) => {
+            const isSelected = options.paperSize === paper.size;
+            return (
+              <button
+                key={paper.size}
+                type="button"
+                onClick={() => handlePaperSizeChange(paper.size)}
+                className={`p-3 rounded-2xl border text-left transition-all ${
+                  isSelected
+                    ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500'
+                    : 'border-slate-800/80 bg-slate-950/60 hover:bg-slate-950 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-white">{paper.label}</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                    {paper.dim}
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  {paper.desc}
+                </p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* 2. Photo Count (1 to 30 with row-by-row filling) */}
+      {/* 2. Photo Count (1 to maxCopies with row-by-row filling) */}
       <div className="space-y-4 pt-1">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -195,13 +229,13 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300">
               {currentCopies} {currentCopies === 1 ? 'Photo' : 'Photos'}
-              {options.paperSize === 'A4' && ` • Row ${Math.ceil(currentCopies / 5)} of 6`}
+              {` • ${grid.cols} cols × ${grid.rows} rows`}
             </span>
           </div>
         </div>
 
         {/* Stepper + Slider Control Box */}
-        <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-3 shadow-inner">
+        <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-3.5 shadow-inner">
           <div className="flex items-center justify-between gap-3">
             {/* Decrement Button */}
             <button
@@ -227,15 +261,9 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>1 photo</span>
-                {options.paperSize === 'A4' ? (
-                  <>
-                    <span>10 (R2)</span>
-                    <span>20 (R4)</span>
-                    <span>30 (Full)</span>
-                  </>
-                ) : (
-                  <span>8 max</span>
-                )}
+                {maxCopies >= 20 && <span>12</span>}
+                {maxCopies >= 24 && <span>24</span>}
+                <span>{maxCopies} max</span>
               </div>
             </div>
 
@@ -266,163 +294,226 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
             </div>
           </div>
 
-          {/* A4 Interactive Row-by-Row Fill Visualizer */}
-          {options.paperSize === 'A4' && (
-            <div className="space-y-2 pt-2 border-t border-slate-800/80">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400 font-medium">Automatic Row Filling (5 per row):</span>
-                <span className="text-slate-300 font-mono">
-                  {Math.floor(currentCopies / 5)} full {Math.floor(currentCopies / 5) === 1 ? 'row' : 'rows'}
-                  {currentCopies % 5 > 0 ? ` + ${currentCopies % 5} on row ${Math.ceil(currentCopies / 5)}` : ''}
-                </span>
-              </div>
-
-              {/* 6 Rows of 5 Slots Grid Visualizer */}
-              <div className="space-y-1.5 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
-                {[0, 1, 2, 3, 4, 5].map((rowIndex) => {
-                  const rowStart = rowIndex * 5 + 1;
-                  const rowEnd = rowStart + 4;
-                  const isRowFilled = currentCopies >= rowEnd;
-                  const isRowPartial = currentCopies >= rowStart && currentCopies < rowEnd;
-
-                  return (
-                    <div key={rowIndex} className="flex items-center gap-2">
-                      <span className="w-14 text-[10px] text-slate-400 font-mono shrink-0">
-                        Row {rowIndex + 1} ({rowStart}–{rowEnd})
-                      </span>
-                      <div className="grid grid-cols-5 gap-1.5 flex-1">
-                        {[0, 1, 2, 3, 4].map((colIndex) => {
-                          const slotNumber = rowIndex * 5 + colIndex + 1;
-                          const isSlotFilled = slotNumber <= currentCopies;
-
-                          return (
-                            <button
-                              key={colIndex}
-                              type="button"
-                              onClick={() => handleCopiesChange(slotNumber)}
-                              title={`Set to ${slotNumber} photos (Row ${rowIndex + 1}, Col ${colIndex + 1})`}
-                              className={`h-5 rounded-md text-[9px] font-bold transition-all flex items-center justify-center ${
-                                isSlotFilled
-                                  ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/40 hover:bg-purple-500'
-                                  : 'bg-slate-950/80 border border-slate-800 text-slate-500 hover:border-purple-500/40 hover:text-slate-300'
-                              }`}
-                            >
-                              {slotNumber}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <span className="w-10 text-[9px] text-right shrink-0 font-medium">
-                        {isRowFilled ? (
-                          <span className="text-emerald-400">Full</span>
-                        ) : isRowPartial ? (
-                          <span className="text-purple-300">+{currentCopies % 5}</span>
-                        ) : (
-                          <span className="text-slate-600">Empty</span>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+          {/* Columns Arrangement Mode Selector */}
+          <div className="flex items-center justify-between flex-wrap gap-2 pt-1 border-t border-slate-800/60">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+              <Sliders className="w-3.5 h-3.5 text-purple-400" />
+              <span>Columns Layout:</span>
             </div>
-          )}
-
-          {/* Quick Row Jump Buttons (A4) */}
-          {options.paperSize === 'A4' ? (
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] text-slate-400 block font-medium">Quick Row Fill:</span>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-                {[
-                  { label: '1 Row (5)', val: 5 },
-                  { label: '2 Rows (10)', val: 10 },
-                  { label: '3 Rows (15)', val: 15 },
-                  { label: '4 Rows (20)', val: 20 },
-                  { label: '5 Rows (25)', val: 25 },
-                  { label: '6 Rows (30)', val: 30 },
-                ].map((row) => (
-                  <button
-                    key={row.val}
-                    type="button"
-                    onClick={() => handleCopiesChange(row.val)}
-                    className={`py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all text-center ${
-                      currentCopies === row.val
-                        ? 'bg-purple-600 border-purple-500 text-white shadow-md shadow-purple-600/30'
-                        : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-purple-500/40 hover:text-white'
-                    }`}
-                  >
-                    {row.label}
-                  </button>
-                ))}
-              </div>
+            <div className="flex items-center gap-1 p-1 bg-slate-900 border border-slate-800 rounded-xl">
+              {[
+                { id: 'auto', label: `Auto (${grid.cols} per row)` },
+                { id: 5, label: '5 Cols' },
+                { id: 4, label: '4 Cols' },
+                { id: 3, label: '3 Cols' },
+                { id: 2, label: '2 Cols' },
+              ].map((mode) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => handleColumnsModeChange(mode.id as ColumnsMode)}
+                  className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${
+                    (options.columnsMode || 'auto') === mode.id
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              ))}
             </div>
-          ) : null}
+          </div>
 
-          {/* Quick Popular Presets */}
-          <div className="space-y-1.5 pt-1">
-            <span className="text-[10px] text-slate-400 block font-medium">Quick Count Presets:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {(options.paperSize === 'A4' ? a4Presets : cardPresets).map((num) => {
-                const isSelected = currentCopies === num;
+          {/* Dynamic Row-by-Row Fill Visualizer (adapts to current grid cols/rows) */}
+          <div className="space-y-2 pt-2 border-t border-slate-800/80">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-slate-400 font-medium">
+                Automatic Row-by-Row Filling ({grid.cols} per row):
+              </span>
+              <span className="text-slate-300 font-mono">
+                {Math.floor(currentCopies / grid.cols)} full {Math.floor(currentCopies / grid.cols) === 1 ? 'row' : 'rows'}
+                {currentCopies % grid.cols > 0 ? ` + ${currentCopies % grid.cols} on row ${Math.ceil(currentCopies / grid.cols)}` : ''}
+              </span>
+            </div>
+
+            {/* Dynamic Rows × Cols Slot Visualizer */}
+            <div className="space-y-1.5 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60 max-h-48 overflow-y-auto">
+              {Array.from({ length: grid.rows }).map((_, rowIndex) => {
+                const rowStart = rowIndex * grid.cols + 1;
+                const rowEnd = rowStart + grid.cols - 1;
+                const isRowFilled = currentCopies >= rowEnd;
+                const isRowPartial = currentCopies >= rowStart && currentCopies < rowEnd;
+
                 return (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => handleCopiesChange(num)}
-                    className={`h-7 px-2.5 rounded-lg text-xs font-bold border transition-all ${
-                      isSelected
-                        ? 'bg-purple-600 border-purple-500 text-white shadow-sm shadow-purple-600/30'
-                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
-                    }`}
-                  >
-                    {num}
-                  </button>
+                  <div key={rowIndex} className="flex items-center gap-2">
+                    <span className="w-16 text-[10px] text-slate-400 font-mono shrink-0">
+                      Row {rowIndex + 1} ({rowStart}–{rowEnd})
+                    </span>
+                    <div
+                      className="gap-1.5 flex-1 grid"
+                      style={{ gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))` }}
+                    >
+                      {Array.from({ length: grid.cols }).map((_, colIndex) => {
+                        const slotNumber = rowIndex * grid.cols + colIndex + 1;
+                        if (slotNumber > maxCopies) return null;
+                        const isSlotFilled = slotNumber <= currentCopies;
+
+                        return (
+                          <button
+                            key={colIndex}
+                            type="button"
+                            onClick={() => handleCopiesChange(slotNumber)}
+                            title={`Set to ${slotNumber} photos (Row ${rowIndex + 1}, Col ${colIndex + 1})`}
+                            className={`h-5 rounded-md text-[9px] font-bold transition-all flex items-center justify-center ${
+                              isSlotFilled
+                                ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/40 hover:bg-purple-500'
+                                : 'bg-slate-950/80 border border-slate-800 text-slate-500 hover:border-purple-500/40 hover:text-slate-300'
+                            }`}
+                          >
+                            {slotNumber}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <span className="w-10 text-[9px] text-right shrink-0 font-medium">
+                      {isRowFilled ? (
+                        <span className="text-emerald-400">Full</span>
+                      ) : isRowPartial ? (
+                        <span className="text-purple-300">+{currentCopies % grid.cols}</span>
+                      ) : (
+                        <span className="text-slate-600">Empty</span>
+                      )}
+                    </span>
+                  </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Quick Preset Buttons (Matching the Recommended Table) */}
+          <div className="space-y-1.5 pt-1">
+            <span className="text-[10px] text-slate-400 block font-medium">
+              Recommended Layout Presets (Count & Format):
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {recommendedPresets
+                .filter((p) => p.count <= maxCopies)
+                .map((preset) => {
+                  const isSelected = currentCopies === preset.count;
+                  return (
+                    <button
+                      key={preset.count}
+                      type="button"
+                      onClick={() => handleCopiesChange(preset.count)}
+                      className={`h-7 px-2.5 rounded-lg text-xs font-bold border transition-all ${
+                        isSelected
+                          ? 'bg-purple-600 border-purple-500 text-white shadow-sm shadow-purple-600/30'
+                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-purple-500/40 hover:text-white'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
             </div>
           </div>
         </div>
       </div>
 
-      {/* A4 30-Photo Studio Layout Specification Callout (as per reference diagram) */}
-      {options.paperSize === 'A4' && (
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-950/40 to-slate-900 border border-blue-500/30 space-y-3 text-slate-200 shadow-inner">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-              <span className="text-xs font-bold text-blue-200 uppercase tracking-wide">
-                Passport Size Photo Layout on A4 Sheet
-              </span>
-            </div>
-            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">
-              5 per row • Max 30 Photos
+      {/* 3. Layout Specifications & Diagram Summary Reference */}
+      <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-950/40 to-slate-900 border border-blue-500/30 space-y-3 text-slate-200 shadow-inner">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
+            <span className="text-xs font-bold text-blue-200 uppercase tracking-wide">
+              Passport Photo Printing Layout (Exact Specifications)
             </span>
           </div>
+          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">
+            {grid.cols} Cols × {grid.rows} Rows • {currentCopies} Photos
+          </span>
+        </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-            <div>
-              <span className="text-slate-400 block text-[10px]">Photo Size</span>
-              <span className="font-bold text-white">35 mm × 45 mm</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-[10px]">Current Status</span>
-              <span className="font-bold text-purple-300">
-                {currentCopies} of 30 Photos
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-[10px]">Horizontal Gap</span>
-              <span className="font-bold text-white">5 mm</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-[10px]">Vertical Gap</span>
-              <span className="font-bold text-white">5 mm</span>
-            </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+          <div>
+            <span className="text-slate-400 block text-[10px]">Photo Size</span>
+            <span className="font-bold text-white">35 mm × 45 mm</span>
           </div>
+          <div>
+            <span className="text-slate-400 block text-[10px]">Current Layout</span>
+            <span className="font-bold text-purple-300">
+              {grid.cols} per row • {grid.rows} rows
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px]">Gaps (H / V)</span>
+            <span className="font-bold text-white">5 mm / 5 mm</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px]">Paper Size</span>
+            <span className="font-bold text-white">{PAPER_SPECS[options.paperSize]?.name || options.paperSize}</span>
+          </div>
+        </div>
 
-          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-            <div className="leading-snug">
+        {/* Summary Reference Table */}
+        <div className="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
+          <table className="w-full text-[10px] text-left border-collapse">
+            <thead>
+              <tr className="text-slate-400 border-b border-slate-800/80 bg-slate-900/50">
+                <th className="py-1.5 px-2.5">Photos</th>
+                <th className="py-1.5 px-2.5">Rows × Columns</th>
+                <th className="py-1.5 px-2.5">Paper Size (Recommended)</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-300 divide-y divide-slate-800/40">
+              <tr className={currentCopies === 6 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">6</td>
+                <td className="py-1 px-2.5">3 × 2</td>
+                <td className="py-1 px-2.5">4 × 6 inch / A4</td>
+              </tr>
+              <tr className={currentCopies === 8 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">8</td>
+                <td className="py-1 px-2.5">4 × 2</td>
+                <td className="py-1 px-2.5">4 × 6 inch</td>
+              </tr>
+              <tr className={currentCopies === 10 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">10</td>
+                <td className="py-1 px-2.5">5 × 2</td>
+                <td className="py-1 px-2.5">5 × 7 inch</td>
+              </tr>
+              <tr className={currentCopies === 12 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">12</td>
+                <td className="py-1 px-2.5">4 × 3</td>
+                <td className="py-1 px-2.5">A4 / 6 × 8 inch</td>
+              </tr>
+              <tr className={currentCopies === 15 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">15</td>
+                <td className="py-1 px-2.5">5 × 3</td>
+                <td className="py-1 px-2.5">A4</td>
+              </tr>
+              <tr className={currentCopies === 20 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">20</td>
+                <td className="py-1 px-2.5">5 × 4</td>
+                <td className="py-1 px-2.5">A4 / 8 × 10 inch</td>
+              </tr>
+              <tr className={currentCopies === 24 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">24</td>
+                <td className="py-1 px-2.5">6 × 4</td>
+                <td className="py-1 px-2.5">A4</td>
+              </tr>
+              <tr className={currentCopies === 30 ? 'text-purple-300 font-bold bg-purple-500/10' : ''}>
+                <td className="py-1 px-2.5">30</td>
+                <td className="py-1 px-2.5">6 × 5</td>
+                <td className="py-1 px-2.5">A4 (Standard Full Sheet)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5">
+          <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className="leading-snug space-y-1">
+            <div>
               <span className="font-bold text-amber-300 uppercase tracking-wide mr-1.5 text-[11px]">
                 Important Note:
               </span>
@@ -430,9 +521,12 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
                 Printer settings me <strong>'Actual Size'</strong> ya <strong>'100% Scale'</strong> select karein to size sahi rahega.
               </span>
             </div>
+            <p className="text-[10px] text-amber-200/70">
+              Fitting 36 photos (35×45 mm) onto an A4 sheet with proper cutting gaps is not practical. 30 photos (5 × 6) is the optimal maximum.
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
       {/* 3. Toggles: Cutting Guides & Border */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">

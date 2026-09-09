@@ -28,6 +28,8 @@ export interface PanDocItem {
   backCrop: PanCropBox;
   hasBackCard: boolean;
   adjustments: PanImageAdjustments;
+  size?: number;
+  type?: string;
 }
 
 export interface PanPrintOptions {

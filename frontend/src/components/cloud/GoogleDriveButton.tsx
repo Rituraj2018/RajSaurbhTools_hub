@@ -7,8 +7,9 @@ export interface GoogleDriveButtonProps {
    * Callback that produces the file blob, filename, and mimeType on-demand when saving.
    */
   onGetFile: () =>
-    | Promise<DriveUploadOptions | null>
+    | Promise<DriveUploadOptions | DriveUploadOptions[] | null>
     | DriveUploadOptions
+    | DriveUploadOptions[]
     | null;
   /**
    * Button label override (defaults to "Save to Google Drive").

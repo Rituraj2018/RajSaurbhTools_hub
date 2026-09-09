@@ -19,7 +19,9 @@ import {
   CompressionOptions,
   DEFAULT_OPTIONS,
   compressImage,
+  generateFilename,
 } from '../utils/imageCompressorProcessor';
+import { recordToolHistorySafely } from '../api/historyApi';
 
 export const ImageCompressorPage: React.FC = () => {
   // State
@@ -107,6 +109,31 @@ export const ImageCompressorPage: React.FC = () => {
     try {
       const result = await compressImage(imageInfo, options);
       setCompressed(result);
+
+      const outFilename = generateFilename(imageInfo.name, options, imageInfo.width, imageInfo.height);
+      await recordToolHistorySafely({
+        tool: 'image-compressor',
+        toolName: 'Image Compressor',
+        inputFiles: [
+          {
+            name: imageInfo.name,
+            size: imageInfo.size,
+            type: imageInfo.format || imageInfo.file.type || 'image/jpeg',
+          },
+        ],
+        outputFile: {
+          name: outFilename,
+          size: result.size,
+          type: result.format,
+        },
+        status: 'completed',
+        metadata: {
+          width: result.width,
+          height: result.height,
+          quality: options.quality,
+          mode: options.mode,
+        },
+      });
     } catch (err: any) {
       setError(err?.message || 'Compression failed. Please try again.');
     } finally {

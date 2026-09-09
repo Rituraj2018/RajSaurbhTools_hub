@@ -77,6 +77,8 @@ export const AyushmanUploader: React.FC<AyushmanUploaderProps> = ({
           frontCrop: { ...DEFAULT_AYUSHMAN_FRONT_CROP },
           backCrop: { ...DEFAULT_AYUSHMAN_BACK_CROP },
           adjustments: { ...DEFAULT_ADJUSTMENTS },
+          fileSize: file.size,
+          fileType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/png'),
         });
       } catch (err: any) {
         console.error('File load error:', err);

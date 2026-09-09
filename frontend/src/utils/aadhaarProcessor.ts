@@ -26,6 +26,8 @@ export interface AadhaarDocItem {
   frontCrop: CardCropBox;
   backCrop: CardCropBox;
   adjustments: ImageAdjustments;
+  fileSize?: number;
+  fileType?: string;
 }
 
 export interface AadhaarPrintOptions {
@@ -481,7 +483,7 @@ export function generateAadhaarA4SheetCanvas(
   // Footer Note
   ctx.fillStyle = '#94A3B8';
   ctx.font = '20px Arial, sans-serif';
-  ctx.fillText('Processed 100% locally via RajSaurbh Tools_Hub • Print at 100% Scale / Actual Size', 90, a4Canvas.height - 50);
+  ctx.fillText('Processed 100% locally via RajSaurabh Tools_Hub • Print at 100% Scale / Actual Size', 90, a4Canvas.height - 50);
 
   return a4Canvas;
 }
@@ -556,7 +558,7 @@ export function downloadCanvasImage(
 /**
  * Generates an A4 PDF document containing the print sheet
  */
-export function generateAadhaarPDF(sheetCanvas: HTMLCanvasElement, filename: string): void {
+export function generateAadhaarPDF(sheetCanvas: HTMLCanvasElement, filename: string): number {
   const cleanName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -566,14 +568,16 @@ export function generateAadhaarPDF(sheetCanvas: HTMLCanvasElement, filename: str
 
   const imgData = sheetCanvas.toDataURL('image/jpeg', 0.98);
   pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+  const byteLength = (pdf.output('arraybuffer') as ArrayBuffer).byteLength;
   pdf.save(cleanName);
+  return byteLength;
 }
 
 /**
  * Generates a PDF at true CR80 / PAN Card dimensions (85.6 × 54 mm) for actual-size card printing.
  * The PDF page is exactly 85.6 × 54 mm — print at 100% scale / actual size.
  */
-export function generateAadhaarCardPDF(cardCanvas: HTMLCanvasElement, filename: string): void {
+export function generateAadhaarCardPDF(cardCanvas: HTMLCanvasElement, filename: string): number {
   const cleanName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
   const pdf = new jsPDF({
     orientation: 'landscape',
@@ -584,5 +588,7 @@ export function generateAadhaarCardPDF(cardCanvas: HTMLCanvasElement, filename: 
   const imgData = cardCanvas.toDataURL('image/jpeg', 0.98);
   // Fill the entire 85.6 × 54 mm page with the card image
   pdf.addImage(imgData, 'JPEG', 0, 0, 85.6, 54);
+  const byteLength = (pdf.output('arraybuffer') as ArrayBuffer).byteLength;
   pdf.save(cleanName);
+  return byteLength;
 }

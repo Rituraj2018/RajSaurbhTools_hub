@@ -129,11 +129,11 @@ export const emailService = {
 <body>
   <div class="wrapper">
     <div class="header">
-      <h1>RajSaurbh Tools_Hub</h1>
+      <h1>RajSaurabh Tools_Hub</h1>
     </div>
     <div class="content">
       <div class="greeting">Hello ${userName || 'there'},</div>
-      <p>We received a request to reset the password for your RajSaurbh Tools_Hub account. Click the button below to set a new password:</p>
+      <p>We received a request to reset the password for your RajSaurabh Tools_Hub account. Click the button below to set a new password:</p>
       
       <div class="btn-container">
         <a href="${resetUrl}" class="btn" target="_blank">Reset My Password</a>
@@ -146,7 +146,7 @@ export const emailService = {
       <p>If you did not request a password reset, you can safely ignore this email. Your existing password will remain unchanged and your account is secure.</p>
     </div>
     <div class="footer">
-      &copy; ${new Date().getFullYear()} RajSaurbh Tools_Hub. All rights reserved.
+      &copy; ${new Date().getFullYear()} RajSaurabh Tools_Hub. All rights reserved.
     </div>
   </div>
 </body>
@@ -156,7 +156,7 @@ export const emailService = {
             await transporter.sendMail({
                 from: config.email.from,
                 to: toEmail,
-                subject: 'Password Reset Request — RajSaurbh Tools_Hub',
+                subject: 'Password Reset Request — RajSaurabh Tools_Hub',
                 text: `Hello ${userName || 'there'},\n\nWe received a request to reset your password. Use the following link to reset your password:\n\n${resetUrl}\n\nThis link will expire in 15 minutes.\n\nIf you did not request this, please ignore this email.\n`,
                 html: htmlContent,
             });

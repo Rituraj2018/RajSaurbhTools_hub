@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download,
   Printer,
@@ -16,6 +16,7 @@ import {
 } from '../../utils/imageToPdfProcessor';
 import { Button } from '../common/Button';
 import { GoogleDriveButton } from '../cloud';
+import { recordToolHistorySafely } from '../../api/historyApi';
 
 export interface PdfLivePreviewProps {
   images: ImageFileItem[];
@@ -60,6 +61,8 @@ export const PdfLivePreview: React.FC<PdfLivePreviewProps> = ({ images, settings
     };
   }, [images, currentPageIndex, settings]);
 
+  const lastRecordedTimeRef = useRef<number>(0);
+
   const handleGenerateAndDownload = async () => {
     if (images.length === 0) return;
 
@@ -71,7 +74,33 @@ export const PdfLivePreview: React.FC<PdfLivePreviewProps> = ({ images, settings
         setProgressPercent(percent);
       });
 
+      const outName = `${settings.filename || 'Converted_Document'}.pdf`;
       downloadPdfBlob(blob, settings.filename || 'Converted_Document');
+
+      const now = Date.now();
+      if (now - lastRecordedTimeRef.current >= 800) {
+        lastRecordedTimeRef.current = now;
+        await recordToolHistorySafely({
+          tool: 'image-to-pdf',
+          toolName: 'Image to PDF',
+          inputFiles: images.map((img) => ({
+            name: img.name,
+            size: img.size,
+            type: img.file?.type || 'image/jpeg',
+          })),
+          outputFile: {
+            name: outName,
+            size: blob.size,
+            type: 'application/pdf',
+          },
+          status: 'completed',
+          metadata: {
+            totalImages: images.length,
+            pageSize: settings.pageSize,
+            orientation: settings.orientation,
+          },
+        });
+      }
     } catch (err) {
       console.error('PDF Generation failed:', err);
     } finally {
@@ -97,6 +126,31 @@ export const PdfLivePreview: React.FC<PdfLivePreviewProps> = ({ images, settings
           URL.revokeObjectURL(url);
         }, 3000);
       };
+
+      const now = Date.now();
+      if (now - lastRecordedTimeRef.current >= 800) {
+        lastRecordedTimeRef.current = now;
+        await recordToolHistorySafely({
+          tool: 'image-to-pdf',
+          toolName: 'Image to PDF',
+          inputFiles: images.map((img) => ({
+            name: img.name,
+            size: img.size,
+            type: img.file?.type || 'image/jpeg',
+          })),
+          outputFile: {
+            name: `${settings.filename || 'Converted_Document'}.pdf`,
+            size: blob.size,
+            type: 'application/pdf',
+          },
+          status: 'completed',
+          metadata: {
+            totalImages: images.length,
+            pageSize: settings.pageSize,
+            orientation: settings.orientation,
+          },
+        });
+      }
     } catch (err) {
       console.error('Print failed:', err);
     } finally {

@@ -149,11 +149,17 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response): Pro
     throw new ApiError(400, 'Google authentication credential is required');
   }
 
+  if (!config.google.clientId || !config.google.clientId.trim()) {
+    throw new ApiError(500, 'Google Client ID is not configured on the server');
+  }
+
+  const expectedAudience = config.google.clientId.trim();
+
   let ticket;
   try {
     ticket = await googleClient.verifyIdToken({
       idToken: credential,
-      audience: config.google.clientId || undefined,
+      audience: expectedAudience,
     });
   } catch (error: any) {
     throw new ApiError(401, 'Invalid or expired Google authentication credential');
@@ -162,6 +168,10 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response): Pro
   const payload = ticket.getPayload();
   if (!payload || !payload.email) {
     throw new ApiError(401, 'Unable to retrieve verified email from Google credential');
+  }
+
+  if (payload.aud !== expectedAudience) {
+    throw new ApiError(401, 'Invalid Google authentication credential audience');
   }
 
   const { sub: googleId, email, name, picture, email_verified } = payload;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download,
   Printer,
@@ -17,6 +17,7 @@ import {
 } from '../../utils/aadhaarProcessor';
 import { Button } from '../common/Button';
 import { GoogleDriveButton } from '../cloud';
+import { recordToolHistorySafely } from '../../api/historyApi';
 
 export interface AadhaarPreviewProps {
   documents: AadhaarDocItem[];
@@ -46,12 +47,80 @@ export const AadhaarPreview: React.FC<AadhaarPreviewProps> = ({
     }
   }, [documents, options]);
 
+  const lastRecordedTimeRef = useRef<number>(0);
+
+  const recordAadhaarHistory = (
+    canvas: HTMLCanvasElement | null,
+    filename: string,
+    mimeType: string,
+    directSize?: number
+  ) => {
+    const now = Date.now();
+    if (now - lastRecordedTimeRef.current < 800) return;
+    lastRecordedTimeRef.current = now;
+
+    if (directSize !== undefined) {
+      recordToolHistorySafely({
+        tool: 'aadhaar-print-studio',
+        toolName: 'Aadhaar Print Studio Pro',
+        inputFiles: documents.map((d) => ({
+          name: d.name || 'Aadhaar_Document.pdf',
+          size: d.fileSize || undefined,
+          type: d.fileType || 'application/pdf',
+        })),
+        outputFile: {
+          name: filename,
+          size: directSize,
+          type: mimeType,
+        },
+        status: 'completed',
+        metadata: {
+          totalDocuments: documents.length,
+          layoutMode: options.layoutMode,
+        },
+      });
+      return;
+    }
+
+    if (!canvas) return;
+    try {
+      canvas.toBlob(
+        (blob) => {
+          recordToolHistorySafely({
+            tool: 'aadhaar-print-studio',
+            toolName: 'Aadhaar Print Studio Pro',
+            inputFiles: documents.map((d) => ({
+              name: d.name || 'Aadhaar_Document.pdf',
+              size: d.fileSize || undefined,
+              type: d.fileType || 'application/pdf',
+            })),
+            outputFile: {
+              name: filename,
+              size: blob?.size || undefined,
+              type: mimeType,
+            },
+            status: 'completed',
+            metadata: {
+              totalDocuments: documents.length,
+              layoutMode: options.layoutMode,
+            },
+          });
+        },
+        mimeType.startsWith('image/') ? mimeType : 'image/jpeg',
+        0.95
+      );
+    } catch (err) {
+      console.error('Failed to record Aadhaar history:', err);
+    }
+  };
+
   // ── Existing A4 handlers (unchanged) ──────────────────────────────────────
   const handleDownloadPdf = () => {
     if (!sheetCanvas) return;
     setIsGenerating(true);
     try {
-      generateAadhaarPDF(sheetCanvas, 'Aadhaar_A4_Print_Sheet');
+      const size = generateAadhaarPDF(sheetCanvas, 'Aadhaar_A4_Print_Sheet');
+      recordAadhaarHistory(sheetCanvas, 'Aadhaar_A4_Print_Sheet.pdf', 'application/pdf', size);
     } finally {
       setIsGenerating(false);
     }
@@ -60,15 +129,18 @@ export const AadhaarPreview: React.FC<AadhaarPreviewProps> = ({
   const handleDownloadJpg = () => {
     if (!sheetCanvas) return;
     downloadCanvasImage(sheetCanvas, 'Aadhaar_A4_Print_Sheet', 'image/jpeg');
+    recordAadhaarHistory(sheetCanvas, 'Aadhaar_A4_Print_Sheet.jpg', 'image/jpeg');
   };
 
   const handleDownloadPng = () => {
     if (!sheetCanvas) return;
     downloadCanvasImage(sheetCanvas, 'Aadhaar_A4_Print_Sheet', 'image/png');
+    recordAadhaarHistory(sheetCanvas, 'Aadhaar_A4_Print_Sheet.png', 'image/png');
   };
 
   const handlePrint = () => {
     if (!sheetCanvas) return;
+    recordAadhaarHistory(sheetCanvas, 'Aadhaar_A4_Print_Sheet.jpg', 'image/jpeg');
     const dataUrl = sheetCanvas.toDataURL('image/jpeg', 0.98);
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
@@ -116,7 +188,8 @@ export const AadhaarPreview: React.FC<AadhaarPreviewProps> = ({
     const canvas = side === 'front' ? frontCardCanvas : backCardCanvas;
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
-    generateAadhaarCardPDF(canvas, `Aadhaar_CR80_${label}_Card`);
+    const size = generateAadhaarCardPDF(canvas, `Aadhaar_CR80_${label}_Card`);
+    recordAadhaarHistory(canvas, `Aadhaar_CR80_${label}_Card.pdf`, 'application/pdf', size);
   };
 
   const handleDownloadActualJpg = (side: 'front' | 'back') => {
@@ -124,6 +197,7 @@ export const AadhaarPreview: React.FC<AadhaarPreviewProps> = ({
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
     downloadCanvasImage(canvas, `Aadhaar_CR80_${label}_Card`, 'image/jpeg');
+    recordAadhaarHistory(canvas, `Aadhaar_CR80_${label}_Card.jpg`, 'image/jpeg');
   };
 
   const handleDownloadActualPng = (side: 'front' | 'back') => {
@@ -131,12 +205,14 @@ export const AadhaarPreview: React.FC<AadhaarPreviewProps> = ({
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
     downloadCanvasImage(canvas, `Aadhaar_CR80_${label}_Card`, 'image/png');
+    recordAadhaarHistory(canvas, `Aadhaar_CR80_${label}_Card.png`, 'image/png');
   };
 
   const handlePrintActualSize = (side: 'front' | 'back') => {
     const canvas = side === 'front' ? frontCardCanvas : backCardCanvas;
     if (!canvas) return;
     const label = side === 'front' ? 'Front' : 'Back';
+    recordAadhaarHistory(canvas, `Aadhaar_CR80_${label}_Card.jpg`, 'image/jpeg');
     const dataUrl = canvas.toDataURL('image/jpeg', 0.98);
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';

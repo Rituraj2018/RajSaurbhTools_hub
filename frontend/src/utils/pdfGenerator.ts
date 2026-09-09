@@ -14,7 +14,7 @@ export interface PDFExportOptions {
 export async function generatePDFSheet(
   sheetCanvas: HTMLCanvasElement,
   options: PDFExportOptions
-): Promise<void> {
+): Promise<number> {
   const {
     paperSize,
     landscape = false,
@@ -39,6 +39,10 @@ export async function generatePDFSheet(
   // Draw full-bleed sheet onto PDF page with exact mm dimensions
   doc.addImage(imgData, 'JPEG', 0, 0, widthMm, heightMm, undefined, 'FAST');
 
+  const byteLength = (doc.output('arraybuffer') as ArrayBuffer).byteLength;
+
   // Trigger download
   doc.save(`${filename}.pdf`);
+
+  return byteLength;
 }

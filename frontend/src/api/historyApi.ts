@@ -30,6 +30,18 @@ export const historyApi = {
   },
 
   /**
+   * Record a new processing action safely without throwing on error
+   */
+  recordToolHistorySafely: async (entry: CreateHistoryDto): Promise<HistoryItem | null> => {
+    try {
+      return await historyApi.recordHistory(entry);
+    } catch (historyError) {
+      console.error('Failed to record processing history:', historyError);
+      return null;
+    }
+  },
+
+  /**
    * Clear all processing history for the user
    */
   clearHistory: async (): Promise<{ deletedCount: number }> => {
@@ -39,3 +51,8 @@ export const historyApi = {
     return response.data.data;
   },
 };
+
+/**
+ * Convenience helper to record tool history safely without breaking tool operations
+ */
+export const recordToolHistorySafely = historyApi.recordToolHistorySafely;

@@ -11,3 +11,5 @@ export const systemApi = {
 export { axiosClient };
 export * from './filesApi';
 export * from './historyApi';
+export * from './dashboardApi';
+

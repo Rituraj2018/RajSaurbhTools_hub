@@ -15,6 +15,7 @@ import {
 } from '../../utils/pdfMergeProcessor';
 import { Button } from '../common/Button';
 import { GoogleDriveButton } from '../cloud';
+import { recordToolHistorySafely } from '../../api/historyApi';
 
 export interface PdfMergeActionCardProps {
   files: PdfFileItem[];
@@ -55,6 +56,27 @@ export const PdfMergeActionCard: React.FC<PdfMergeActionCardProps> = ({ files })
       setMergedBytes(bytes);
       // Auto-trigger download
       downloadMergedPdf(bytes, filename || 'Merged_Document');
+
+      const outName = `${filename || 'Merged_Document'}.pdf`;
+      await recordToolHistorySafely({
+        tool: 'pdf-merge',
+        toolName: 'PDF Merge',
+        inputFiles: validFiles.map((f) => ({
+          name: f.name,
+          size: f.size,
+          type: 'application/pdf',
+        })),
+        outputFile: {
+          name: outName,
+          size: bytes.byteLength,
+          type: 'application/pdf',
+        },
+        status: 'completed',
+        metadata: {
+          totalFiles: validFiles.length,
+          totalPages,
+        },
+      });
     } catch (err: any) {
       console.error('Merge failed:', err);
       setErrorMessage(err?.message || 'Failed to merge PDF files. Please verify documents are valid.');

@@ -35,8 +35,9 @@ export interface BackgroundSettings {
   feather: number; // 1 to 5 edge feathering
 }
 
-export type PaperSize = 'A4' | '4x6';
+export type PaperSize = 'A4' | '4x6' | '5x7' | '6x8' | '8x10';
 export type PhotoCopies = number;
+export type ColumnsMode = 'auto' | 2 | 3 | 4 | 5;
 
 export interface SheetOptions {
   paperSize: PaperSize;
@@ -47,6 +48,7 @@ export interface SheetOptions {
   landscape?: boolean;
   /** Pixel offset from the default centered position. {x:0, y:0} = centered (default). */
   photoPosition?: { x: number; y: number };
+  columnsMode?: ColumnsMode;
 }
 
 // 300 DPI Standard Dimensions
@@ -58,7 +60,10 @@ export const PASSPORT_HEIGHT_PX = 531; // 45mm * 11.811
 export const PASSPORT_ASPECT_RATIO = PASSPORT_WIDTH_PX / PASSPORT_HEIGHT_PX; // ~0.7778 (7:9)
 
 // Paper Dimensions in mm & pixels @ 300 DPI
-export const PAPER_SPECS = {
+export const PAPER_SPECS: Record<
+  PaperSize,
+  { name: string; widthMm: number; heightMm: number; widthPx: number; heightPx: number }
+> = {
   A4: {
     name: 'A4 Paper',
     widthMm: 210,
@@ -67,11 +72,32 @@ export const PAPER_SPECS = {
     heightPx: 3508,
   },
   '4x6': {
-    name: '4 x 6 Inch Photo Paper',
+    name: '4 × 6 Inch',
     widthMm: 101.6,
     heightMm: 152.4,
     widthPx: 1200,
     heightPx: 1800,
+  },
+  '5x7': {
+    name: '5 × 7 Inch',
+    widthMm: 127,
+    heightMm: 177.8,
+    widthPx: 1500,
+    heightPx: 2100,
+  },
+  '6x8': {
+    name: '6 × 8 Inch',
+    widthMm: 152.4,
+    heightMm: 203.2,
+    widthPx: 1800,
+    heightPx: 2400,
+  },
+  '8x10': {
+    name: '8 × 10 Inch',
+    widthMm: 203.2,
+    heightMm: 254,
+    widthPx: 2400,
+    heightPx: 3000,
   },
 };
 
@@ -400,7 +426,8 @@ export function applyBackgroundColor(
 export function calculatePrintGrid(
   paperSize: PaperSize,
   copies: PhotoCopies,
-  landscape: boolean = false
+  landscape: boolean = false,
+  columnsMode: ColumnsMode = 'auto'
 ): {
   cols: number;
   rows: number;
@@ -413,7 +440,7 @@ export function calculatePrintGrid(
   sheetWidthPx: number;
   sheetHeightPx: number;
 } {
-  const specs = PAPER_SPECS[paperSize];
+  const specs = PAPER_SPECS[paperSize] || PAPER_SPECS.A4;
   const sheetWidthPx = landscape ? specs.heightPx : specs.widthPx;
   const sheetHeightPx = landscape ? specs.widthPx : specs.heightPx;
 
@@ -421,26 +448,59 @@ export function calculatePrintGrid(
   const photoWidthPx = PASSPORT_WIDTH_PX;
   const photoHeightPx = PASSPORT_HEIGHT_PX;
 
-  // Determine optimal columns & rows based on paper type
-  // A4 Standard: 5 columns x 6 rows (1 to 30 photos filling row by row)
-  // 4x6 Photo Paper: 2 columns x up to 4 rows (1 to 8 photos)
+  // Standard gap is 5mm (59px @ 300 DPI) as per reference diagram
+  const gapXPx = Math.round(11.811 * 5); // 5mm
+  const gapYPx = Math.round(11.811 * 5); // 5mm
+
   let cols = 5;
   let rows = 6;
-  let gapXPx = Math.round(11.811 * 5); // 5mm
-  let gapYPx = Math.round(11.811 * 5); // 5mm
 
-  if (paperSize === '4x6') {
-    // 4x6 photo paper (101.6 x 152.4 mm) - max 8 photos
+  if (columnsMode !== 'auto') {
+    cols = columnsMode;
+    rows = Math.max(1, Math.ceil(copies / cols));
+  } else if (paperSize === 'A4') {
+    // Exact layout specifications from reference diagram:
+    // 24 photos -> 4 cols x 6 rows (user specified 4 per row for 24)
+    // 20 photos -> 4 cols x 5 rows
+    // 15 photos -> 3 cols x 5 rows
+    // 12 photos -> 3 cols x 4 rows
+    // 6 photos  -> 2 cols x 3 rows
+    // other counts (e.g. 13, 30) -> default 5 cols
+    if (copies === 24) {
+      cols = 4;
+      rows = 6;
+    } else if (copies === 20) {
+      cols = 4;
+      rows = 5;
+    } else if (copies === 15) {
+      cols = 3;
+      rows = 5;
+    } else if (copies === 12) {
+      cols = 3;
+      rows = 4;
+    } else if (copies === 6) {
+      cols = 2;
+      rows = 3;
+    } else {
+      cols = 5;
+      rows = 6;
+    }
+  } else if (paperSize === '4x6') {
+    // 4x6 photo paper: 8 photos (2 x 4)
     cols = 2;
-    rows = Math.min(4, Math.max(1, Math.ceil(copies / 2)));
-    gapXPx = Math.round(11.811 * 3);
-    gapYPx = Math.round(11.811 * 3);
-  } else {
-    // A4 paper (210 x 297 mm) - Standard 5 columns x 6 rows (up to 30 photos)
-    cols = 5;
-    rows = 6;
-    gapXPx = Math.round(11.811 * 5); // 5mm horizontal gap
-    gapYPx = Math.round(11.811 * 5); // 5mm vertical gap
+    rows = 4;
+  } else if (paperSize === '5x7') {
+    // 5x7 photo paper: 10 photos (2 x 5)
+    cols = 2;
+    rows = 5;
+  } else if (paperSize === '6x8') {
+    // 6x8 photo paper: 12 photos (3 x 4)
+    cols = 3;
+    rows = 4;
+  } else if (paperSize === '8x10') {
+    // 8x10 photo paper: 20 photos (4 x 5)
+    cols = 4;
+    rows = 5;
   }
 
   const totalGridWidth = cols * photoWidthPx + (cols - 1) * gapXPx;
@@ -471,8 +531,8 @@ export function generatePrintSheetCanvas(
   passportPhotoCanvas: HTMLCanvasElement,
   options: SheetOptions
 ): HTMLCanvasElement {
-  const { paperSize, copies, showCuttingGuides, showBorder, landscape, photoPosition } = options;
-  const grid = calculatePrintGrid(paperSize, copies, landscape);
+  const { paperSize, copies, showCuttingGuides, showBorder, landscape, photoPosition, columnsMode } = options;
+  const grid = calculatePrintGrid(paperSize, copies, landscape, columnsMode);
 
   const sheetCanvas = document.createElement('canvas');
   sheetCanvas.width = grid.sheetWidthPx;

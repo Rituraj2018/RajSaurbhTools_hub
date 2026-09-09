@@ -6,6 +6,7 @@ import {
   Target,
 } from 'lucide-react';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
 import {
   ImageInfo,
   CompressedResult,
@@ -165,6 +166,25 @@ export const ImageCompressorResults: React.FC<ImageCompressorResultsProps> = ({
             </Button>
           ))}
         </div>
+
+        {/* Save to Google Drive */}
+        <GoogleDriveButton
+          variant="secondary"
+          size="md"
+          label="Save to Google Drive"
+          className="w-full justify-center"
+          disabled={!compressed || !compressed.blob}
+          onGetFile={() => {
+            if (!compressed || !compressed.blob) return null;
+            const filename = generateFilename(original.name, options, original.width, original.height);
+            return {
+              blob: compressed.blob,
+              fileName: filename,
+              mimeType: compressed.format || 'image/jpeg',
+              category: 'Images',
+            };
+          }}
+        />
       </div>
 
       {/* ---- Reset ---- */}

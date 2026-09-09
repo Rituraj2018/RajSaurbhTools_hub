@@ -2,6 +2,8 @@ import React from 'react';
 import { Download, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '../common/Button';
 import { SplitMode } from '../../utils/pdfSplitProcessor';
+import { GoogleDriveButton } from '../cloud';
+import { DriveUploadOptions } from '../../services/googleDriveService';
 
 interface PdfSplitActionCardProps {
   documentName: string;
@@ -11,6 +13,11 @@ interface PdfSplitActionCardProps {
   outputFilename: string;
   onOutputFilenameChange: (name: string) => void;
   onExecuteSplit: () => void;
+  onGetCloudFiles?: () =>
+    | Promise<DriveUploadOptions | DriveUploadOptions[] | null>
+    | DriveUploadOptions
+    | DriveUploadOptions[]
+    | null;
   isProcessing: boolean;
   canExecute: boolean;
 }
@@ -23,6 +30,7 @@ export const PdfSplitActionCard: React.FC<PdfSplitActionCardProps> = ({
   outputFilename,
   onOutputFilenameChange,
   onExecuteSplit,
+  onGetCloudFiles,
   isProcessing,
   canExecute,
 }) => {
@@ -111,6 +119,16 @@ export const PdfSplitActionCard: React.FC<PdfSplitActionCardProps> = ({
             : `Split & Download (${selectedCount} Pages)`}
         </span>
       </Button>
+
+      {/* Save to Google Drive */}
+      <GoogleDriveButton
+        variant="secondary"
+        size="md"
+        label="Save to Google Drive"
+        className="w-full justify-center"
+        disabled={!canExecute || isProcessing}
+        onGetFile={onGetCloudFiles || (() => null)}
+      />
 
       {/* Security note */}
       <div className="flex items-center gap-2 text-[11px] text-slate-400 justify-center">

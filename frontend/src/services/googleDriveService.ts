@@ -65,7 +65,14 @@ export const loadGoogleGsiScript = (): Promise<void> => {
 export const getGoogleClientId = async (): Promise<string> => {
   if (cachedClientId) return cachedClientId;
 
-  // 1. Check frontend Vite environment variable
+  // 1. Check dedicated Google Drive Vite environment variable first
+  const driveEnvId = import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID;
+  if (driveEnvId && typeof driveEnvId === 'string' && driveEnvId.trim().length > 0) {
+    cachedClientId = driveEnvId.trim();
+    return cachedClientId;
+  }
+
+  // 2. Fall back to generic VITE_GOOGLE_CLIENT_ID (shared with Login)
   const envId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   if (envId && typeof envId === 'string' && envId.trim().length > 0) {
     cachedClientId = envId.trim();

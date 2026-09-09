@@ -26,6 +26,8 @@ export interface AyushmanCardItem {
   frontCrop: CardCropBox;
   backCrop: CardCropBox;
   adjustments: ImageAdjustments;
+  fileSize?: number;
+  fileType?: string;
 }
 
 export interface AyushmanPrintOptions {
@@ -541,7 +543,7 @@ export function downloadCanvasImage(
 /**
  * Generates an A4 PDF document containing the print sheet
  */
-export function generateAyushmanPDF(sheetCanvas: HTMLCanvasElement, filename: string): void {
+export function generateAyushmanPDF(sheetCanvas: HTMLCanvasElement, filename: string): number {
   const cleanName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -551,14 +553,16 @@ export function generateAyushmanPDF(sheetCanvas: HTMLCanvasElement, filename: st
 
   const imgData = sheetCanvas.toDataURL('image/jpeg', 0.98);
   pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+  const byteLength = (pdf.output('arraybuffer') as ArrayBuffer).byteLength;
   pdf.save(cleanName);
+  return byteLength;
 }
 
 /**
  * Generates a PDF at true CR80 / PAN Card dimensions (85.6 × 54 mm) for actual-size card printing.
  * The PDF page is exactly 85.6 × 54 mm — print at 100% scale / actual size.
  */
-export function generateAyushmanCardPDF(cardCanvas: HTMLCanvasElement, filename: string): void {
+export function generateAyushmanCardPDF(cardCanvas: HTMLCanvasElement, filename: string): number {
   const cleanName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
   const pdf = new jsPDF({
     orientation: 'landscape',
@@ -568,5 +572,7 @@ export function generateAyushmanCardPDF(cardCanvas: HTMLCanvasElement, filename:
 
   const imgData = cardCanvas.toDataURL('image/jpeg', 0.98);
   pdf.addImage(imgData, 'JPEG', 0, 0, 85.6, 54);
+  const byteLength = (pdf.output('arraybuffer') as ArrayBuffer).byteLength;
   pdf.save(cleanName);
+  return byteLength;
 }

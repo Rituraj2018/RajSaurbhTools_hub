@@ -10,6 +10,7 @@ import {
   LoadedSignatureImage,
 } from '../utils/signatureCropperProcessor';
 import { Button } from '../components/common/Button';
+import { recordToolHistorySafely } from '../api/historyApi';
 
 type CropperStage = 'upload' | 'crop' | 'preview';
 
@@ -27,6 +28,38 @@ export const SignatureCropperPage: React.FC = () => {
   const handleCropApplied = (canvas: HTMLCanvasElement) => {
     setCroppedCanvas(canvas);
     setStage('preview');
+
+    if (loadedImage) {
+      try {
+        canvas.toBlob((blob) => {
+          recordToolHistorySafely({
+            tool: 'signature-cropper',
+            toolName: 'Signature Cropper',
+            inputFiles: [
+              {
+                name: loadedImage.name,
+                size: loadedImage.size,
+                type: loadedImage.file.type || 'image/png',
+              },
+            ],
+            outputFile: {
+              name: `Cropped_Signature_${loadedImage.name.replace(/\.[^/.]+$/, '')}.png`,
+              size: blob?.size || undefined,
+              type: 'image/png',
+            },
+            status: 'completed',
+            metadata: {
+              originalWidth: loadedImage.width,
+              originalHeight: loadedImage.height,
+              croppedWidth: canvas.width,
+              croppedHeight: canvas.height,
+            },
+          });
+        }, 'image/png');
+      } catch (e) {
+        console.error('Failed to record signature cropper history:', e);
+      }
+    }
   };
 
   const handleRecrop = () => {

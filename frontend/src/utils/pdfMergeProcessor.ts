@@ -131,7 +131,7 @@ export async function createSamplePdf(
     });
 
     const bodyParagraph =
-      'This document page was generated client-side by RajSaurbh Tools_Hub PDF Engine.\nAll vector graphics, fonts, and page structures are compiled directly in browser memory\nfor high-throughput batch processing with zero cloud uploads.';
+      'This document page was generated client-side by RajSaurabh Tools_Hub PDF Engine.\nAll vector graphics, fonts, and page structures are compiled directly in browser memory\nfor high-throughput batch processing with zero cloud uploads.';
 
     page.drawText(bodyParagraph, {
       x: 60,
@@ -150,7 +150,7 @@ export async function createSamplePdf(
       color: rgb(0.85, 0.88, 0.92),
     });
 
-    page.drawText('RajSaurbh Tools_Hub • PDF Merge Engine', {
+    page.drawText('RajSaurabh Tools_Hub • PDF Merge Engine', {
       x: 40,
       y: 32,
       size: 9,
@@ -216,8 +216,8 @@ export async function mergePdfDocuments(
 
   // Set standard metadata on merged document
   mergedPdf.setTitle('Merged Document');
-  mergedPdf.setProducer('RajSaurbh Tools_Hub');
-  mergedPdf.setCreator('RajSaurbh Tools_Hub PDF Merge Engine');
+  mergedPdf.setProducer('RajSaurabh Tools_Hub');
+  mergedPdf.setCreator('RajSaurabh Tools_Hub PDF Merge Engine');
 
   const mergedBytes = await mergedPdf.save();
   return mergedBytes;

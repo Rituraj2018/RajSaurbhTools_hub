@@ -197,7 +197,7 @@ export const ImageToPdfUploader: React.FC<ImageToPdfUploaderProps> = ({
     const samples = [
       createSampleSlide(
         'Executive Project Brief',
-        'RajSaurbh Tools_Hub • Image to PDF Engine',
+        'RajSaurabh Tools_Hub • Image to PDF Engine',
         '#1E1B4B',
         '#312E81',
         1

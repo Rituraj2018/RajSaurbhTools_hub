@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Download, Copy, Check, FileDown, ShieldCheck, Printer, Sparkles } from 'lucide-react';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
+import { recordToolHistorySafely } from '../../api/historyApi';
 import {
   QrStylingOptions,
   generateQrCanvas,
@@ -71,19 +73,99 @@ export const QrPreviewCard: React.FC<QrPreviewCardProps> = ({
     };
   }, [payloadText, stylingOptions]);
 
+  const lastRecordedTimeRef = useRef<number>(0);
+
   const handleDownloadPng = () => {
     if (!canvasRef.current) return;
     downloadQrPng(canvasRef.current, 'QRCode_RajTools');
+
+    const now = Date.now();
+    if (now - lastRecordedTimeRef.current < 800) return;
+    lastRecordedTimeRef.current = now;
+
+    canvasRef.current.toBlob((blob) => {
+      recordToolHistorySafely({
+        tool: 'qr-generator',
+        toolName: 'QR Code Studio Pro',
+        inputFiles: [
+          {
+            name: 'QR_Data.txt',
+            size: new Blob([payloadText]).size,
+            type: 'text/plain',
+          },
+        ],
+        outputFile: {
+          name: 'QRCode_RajTools.png',
+          size: blob?.size || undefined,
+          type: 'image/png',
+        },
+        status: 'completed',
+        metadata: {
+          title,
+        },
+      });
+    }, 'image/png');
   };
 
   const handleDownloadSvg = () => {
     if (!svgContent) return;
     downloadQrSvg(svgContent, 'QRCode_RajTools');
+
+    const now = Date.now();
+    if (now - lastRecordedTimeRef.current < 800) return;
+    lastRecordedTimeRef.current = now;
+
+    const svgSize = new Blob([svgContent], { type: 'image/svg+xml' }).size;
+    recordToolHistorySafely({
+      tool: 'qr-generator',
+      toolName: 'QR Code Studio Pro',
+      inputFiles: [
+        {
+          name: 'QR_Data.txt',
+          size: new Blob([payloadText]).size,
+          type: 'text/plain',
+        },
+      ],
+      outputFile: {
+        name: 'QRCode_RajTools.svg',
+        size: svgSize,
+        type: 'image/svg+xml',
+      },
+      status: 'completed',
+      metadata: {
+        title,
+      },
+    });
   };
 
   const handleDownloadPdf = () => {
     if (!canvasRef.current) return;
-    downloadQrPdf(canvasRef.current, title, subtitle, 'QRCode_PrintReady_RajTools');
+    const pdfSize = downloadQrPdf(canvasRef.current, title, subtitle, 'QRCode_PrintReady_RajTools');
+
+    const now = Date.now();
+    if (now - lastRecordedTimeRef.current < 800) return;
+    lastRecordedTimeRef.current = now;
+
+    recordToolHistorySafely({
+      tool: 'qr-generator',
+      toolName: 'QR Code Studio Pro',
+      inputFiles: [
+        {
+          name: 'QR_Data.txt',
+          size: new Blob([payloadText]).size,
+          type: 'text/plain',
+        },
+      ],
+      outputFile: {
+        name: 'QRCode_PrintReady_RajTools.pdf',
+        size: pdfSize,
+        type: 'application/pdf',
+      },
+      status: 'completed',
+      metadata: {
+        title,
+      },
+    });
   };
 
   const handleCopyImage = async () => {
@@ -188,6 +270,29 @@ export const QrPreviewCard: React.FC<QrPreviewCardProps> = ({
             <span>Print PDF Standee</span>
           </Button>
         </div>
+
+        {/* Save to Google Drive */}
+        <GoogleDriveButton
+          variant="secondary"
+          size="md"
+          label="Save to Google Drive"
+          className="w-full justify-center"
+          disabled={!payloadText.trim() || !canvasRef.current}
+          onGetFile={async () => {
+            if (!canvasRef.current) return null;
+            return new Promise((resolve) => {
+              canvasRef.current!.toBlob((blob) => {
+                if (!blob) return;
+                resolve({
+                  blob,
+                  fileName: 'QRCode_RajTools.png',
+                  mimeType: 'image/png',
+                  category: 'Images',
+                });
+              }, 'image/png');
+            });
+          }}
+        />
       </div>
 
       <div className="flex items-center gap-2 text-[11px] text-slate-400 justify-center pt-2 border-t border-slate-800/80">

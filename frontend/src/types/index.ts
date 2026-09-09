@@ -65,3 +65,4 @@ export interface StorageCategory {
 
 export * from './file.types';
 export * from './history.types';
+export * from './dashboard.types';

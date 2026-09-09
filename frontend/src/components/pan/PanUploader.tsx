@@ -4,7 +4,7 @@ import { Button } from '../common/Button';
 import { renderPdfPageToCanvas, renderImageFileToCanvas } from '../../utils/panProcessor';
 
 interface PanUploaderProps {
-  onDocumentLoaded: (name: string, canvas: HTMLCanvasElement) => void;
+  onDocumentLoaded: (name: string, canvas: HTMLCanvasElement, size?: number, type?: string) => void;
   hasDocuments?: boolean;
 }
 
@@ -18,7 +18,7 @@ export const PanUploader: React.FC<PanUploaderProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // PDF Password Handling
-  const [pendingPdfBuffer, setPendingPdfBuffer] = useState<{ buffer: ArrayBuffer; name: string } | null>(null);
+  const [pendingPdfBuffer, setPendingPdfBuffer] = useState<{ buffer: ArrayBuffer; name: string; size?: number; type?: string } | null>(null);
   const [password, setPassword] = useState('');
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
@@ -64,13 +64,13 @@ export const PanUploader: React.FC<PanUploaderProps> = ({
         const buffer = await file.arrayBuffer();
         try {
           const canvas = await renderPdfPageToCanvas(buffer);
-          onDocumentLoaded(file.name, canvas);
+          onDocumentLoaded(file.name, canvas, file.size, file.type || 'application/pdf');
         } catch (pdfErr: any) {
           if (
             pdfErr?.name === 'PasswordException' ||
             pdfErr?.message?.toLowerCase().includes('password')
           ) {
-            setPendingPdfBuffer({ buffer, name: file.name });
+            setPendingPdfBuffer({ buffer, name: file.name, size: file.size, type: file.type || 'application/pdf' });
             setIsPasswordModalOpen(true);
             return;
           }
@@ -78,7 +78,7 @@ export const PanUploader: React.FC<PanUploaderProps> = ({
         }
       } else {
         const canvas = await renderImageFileToCanvas(file);
-        onDocumentLoaded(file.name, canvas);
+        onDocumentLoaded(file.name, canvas, file.size, file.type || 'image/png');
       }
     } catch (err: any) {
       console.error('File load error:', err);
@@ -97,7 +97,7 @@ export const PanUploader: React.FC<PanUploaderProps> = ({
 
     try {
       const canvas = await renderPdfPageToCanvas(pendingPdfBuffer.buffer, password.trim());
-      onDocumentLoaded(pendingPdfBuffer.name, canvas);
+      onDocumentLoaded(pendingPdfBuffer.name, canvas, pendingPdfBuffer.size, pendingPdfBuffer.type);
       setIsPasswordModalOpen(false);
       setPendingPdfBuffer(null);
       setPassword('');

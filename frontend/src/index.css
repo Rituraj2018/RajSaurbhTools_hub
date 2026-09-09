@@ -2,16 +2,270 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────
+   Day / Night Theme System — CSS Custom Properties
+   Dark values match existing slate palette exactly.
+   ───────────────────────────────────────────────────────── */
+
+/* ── Light (Day) Mode ── */
+:root {
+  --color-50:  248 250 252;   /* slate-50  */
+  --color-100: 241 245 249;   /* slate-100 */
+  --color-200: 226 232 240;   /* slate-200 */
+  --color-300: 203 213 225;   /* slate-300 */
+  --color-400: 148 163 184;   /* slate-400 */
+  --color-500: 100 116 139;   /* slate-500 */
+  --color-600: 71  85  105;   /* slate-600 */
+  --color-700: 51  65  85;    /* slate-700 */
+  --color-800: 30  41  59;    /* slate-800 */
+  --color-900: 15  23  42;    /* slate-900 */
+  --color-950: 2   6   23;    /* slate-950 */
+
+  /* Surface overrides for light mode */
+  --surface-body:       255 255 255;
+  --surface-card:       248 250 252;
+  --surface-card-hover: 241 245 249;
+  --surface-elevated:   241 245 249;
+  --surface-input:      255 255 255;
+  --surface-overlay:    248 250 252;
+
+  --text-primary:   15  23  42;
+  --text-secondary: 71  85  105;
+  --text-muted:     100 116 139;
+  --text-inverted:  248 250 252;
+
+  --border-default: 226 232 240;
+  --border-subtle:  241 245 249;
+
+  --scrollbar-track: 241 245 249;
+  --scrollbar-thumb: 203 213 225;
+  --scrollbar-hover: 148 163 184;
+}
+
+/* ── Dark (Night) Mode — preserves original appearance exactly ── */
+.dark {
+  --surface-body:       2   6   23;
+  --surface-card:       15  23  42;
+  --surface-card-hover: 19  29  54;
+  --surface-elevated:   15  23  42;
+  --surface-input:      15  23  42;
+  --surface-overlay:    15  23  42;
+
+  --text-primary:   248 250 252;
+  --text-secondary: 203 213 225;
+  --text-muted:     148 163 184;
+  --text-inverted:  15  23  42;
+
+  --border-default: 30  41  59;
+  --border-subtle:  51  65  85;
+
+  --scrollbar-track: 2   6   23;
+  --scrollbar-thumb: 30  41  59;
+  --scrollbar-hover: 51  65  85;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Global Overrides — remap slate utilities to theme vars
+   ───────────────────────────────────────────────────────── */
 @layer base {
   html {
     scroll-behavior: smooth;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 
+  /* Smooth theme transition */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, box-shadow;
+    transition-duration: 0ms;
+  }
+
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition-duration: 300ms !important;
+    transition-timing-function: ease-in-out !important;
+  }
+
   body {
-    @apply bg-slate-950 text-slate-100 antialiased selection:bg-blue-600 selection:text-white;
+    background-color: rgb(var(--surface-body));
+    color: rgb(var(--text-primary));
+    @apply antialiased selection:bg-blue-600 selection:text-white;
+  }
+
+  /* ── Background color overrides ── */
+  .bg-slate-950    { background-color: rgb(var(--surface-body)) !important; }
+  .bg-slate-950\/80 { background-color: rgb(var(--surface-body) / 0.8) !important; }
+  .bg-slate-950\/90 { background-color: rgb(var(--surface-body) / 0.9) !important; }
+  .bg-slate-950\/95 { background-color: rgb(var(--surface-body) / 0.95) !important; }
+  .bg-slate-950\/60 { background-color: rgb(var(--surface-body) / 0.6) !important; }
+  .bg-slate-950\/40 { background-color: rgb(var(--surface-body) / 0.4) !important; }
+
+  .bg-slate-900    { background-color: rgb(var(--surface-card)) !important; }
+  .bg-slate-900\/40 { background-color: rgb(var(--surface-card) / 0.4) !important; }
+  .bg-slate-900\/50 { background-color: rgb(var(--surface-card) / 0.5) !important; }
+  .bg-slate-900\/60 { background-color: rgb(var(--surface-card) / 0.6) !important; }
+  .bg-slate-900\/70 { background-color: rgb(var(--surface-card) / 0.7) !important; }
+  .bg-slate-900\/80 { background-color: rgb(var(--surface-card) / 0.8) !important; }
+  .bg-slate-900\/90 { background-color: rgb(var(--surface-card) / 0.9) !important; }
+
+  .bg-slate-800    { background-color: rgb(var(--surface-card-hover)) !important; }
+  .bg-slate-800\/60 { background-color: rgb(var(--surface-card-hover) / 0.6) !important; }
+  .bg-slate-800\/80 { background-color: rgb(var(--surface-card-hover) / 0.8) !important; }
+
+  /* ── Hover background overrides ── */
+  .hover\:bg-slate-800:hover       { background-color: rgb(var(--surface-card-hover)) !important; }
+  .hover\:bg-slate-800\/60:hover   { background-color: rgb(var(--surface-card-hover) / 0.6) !important; }
+  .hover\:bg-slate-700:hover       { background-color: rgb(var(--border-subtle)) !important; }
+  .hover\:bg-slate-700\/90:hover   { background-color: rgb(var(--border-subtle) / 0.9) !important; }
+  .hover\:bg-slate-900\/90:hover   { background-color: rgb(var(--surface-card) / 0.9) !important; }
+
+  /* ── Text color overrides ── */
+  .text-slate-100  { color: rgb(var(--text-primary)) !important; }
+  .text-slate-200  { color: rgb(var(--text-primary)) !important; }
+  .text-slate-300  { color: rgb(var(--text-secondary)) !important; }
+  .text-slate-400  { color: rgb(var(--text-muted)) !important; }
+  .text-slate-500  { color: rgb(var(--text-muted)) !important; }
+
+  /* In light mode, text-white adapts to dark text */
+  :root:not(.dark) .text-white {
+    color: rgb(var(--text-primary)) !important;
+  }
+
+  /* Specific elements that MUST have white text in light mode (colored buttons, badges, avatars, icon containers) */
+  :root:not(.dark) [class*="bg-blue-"].text-white,
+  :root:not(.dark) [class*="bg-indigo-"].text-white,
+  :root:not(.dark) [class*="bg-purple-"].text-white,
+  :root:not(.dark) [class*="bg-violet-"].text-white,
+  :root:not(.dark) [class*="bg-pink-"].text-white,
+  :root:not(.dark) [class*="bg-emerald-"].text-white,
+  :root:not(.dark) [class*="bg-rose-"].text-white,
+  :root:not(.dark) [class*="bg-red-"].text-white,
+  :root:not(.dark) [class*="bg-orange-"].text-white,
+  :root:not(.dark) [class*="bg-amber-"].text-white,
+  :root:not(.dark) [class*="bg-cyan-"].text-white,
+  :root:not(.dark) [class*="bg-teal-"].text-white,
+  :root:not(.dark) [class*="bg-gradient-"].text-white,
+  :root:not(.dark) button[class*="bg-"] .text-white,
+  :root:not(.dark) a[class*="bg-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-blue-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-indigo-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-purple-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-emerald-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-rose-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-red-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-gradient-"] .text-white,
+  :root:not(.dark) [class*="rounded-"][class*="bg-blue-"] svg,
+  :root:not(.dark) [class*="rounded-"][class*="bg-indigo-"] svg,
+  :root:not(.dark) [class*="rounded-"][class*="bg-purple-"] svg,
+  :root:not(.dark) [class*="rounded-"][class*="bg-emerald-"] svg,
+  :root:not(.dark) [class*="rounded-"][class*="bg-rose-"] svg,
+  :root:not(.dark) [class*="rounded-"][class*="bg-red-"] svg,
+  :root:not(.dark) [class*="rounded-"][class*="bg-gradient-"] svg,
+  :root:not(.dark) button svg,
+  :root:not(.dark) a[class*="bg-"] svg {
+    color: inherit;
+  }
+
+  .hover\:text-white:hover { color: rgb(var(--text-primary)) !important; }
+  :root:not(.dark) [class*="bg-blue-"].hover\:text-white:hover,
+  :root:not(.dark) [class*="bg-indigo-"].hover\:text-white:hover,
+  :root:not(.dark) [class*="bg-purple-"].hover\:text-white:hover,
+  :root:not(.dark) [class*="bg-violet-"].hover\:text-white:hover,
+  :root:not(.dark) [class*="bg-gradient-"].hover\:text-white:hover {
+    color: #ffffff !important;
+  }
+
+  /* ── Ensure text-transparent & bg-clip-text are never overridden ── */
+  .text-transparent,
+  .bg-clip-text {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+
+  /* ── Gradient text (Hero & Brand titles) in light mode ── */
+  :root:not(.dark) .bg-clip-text.from-white,
+  :root:not(.dark) [class*="bg-gradient-"].from-white.bg-clip-text {
+    --tw-gradient-from: #0f172a var(--tw-gradient-from-position, 0%) !important;
+    --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position, 100%) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position, 50%), #475569 var(--tw-gradient-to-position, 100%) !important;
+  }
+
+  /* ── Enhanced accent text contrast for light mode ── */
+  :root:not(.dark) .text-purple-300 { color: #7e22ce !important; }
+  :root:not(.dark) .text-purple-400 { color: #9333ea !important; }
+  :root:not(.dark) .text-blue-300   { color: #1d4ed8 !important; }
+  :root:not(.dark) .text-blue-400   { color: #2563eb !important; }
+  :root:not(.dark) .text-indigo-300 { color: #4338ca !important; }
+  :root:not(.dark) .text-indigo-400 { color: #4f46e5 !important; }
+  :root:not(.dark) .text-emerald-300{ color: #047857 !important; }
+  :root:not(.dark) .text-emerald-400{ color: #059669 !important; }
+  :root:not(.dark) .text-cyan-300   { color: #0e7490 !important; }
+  :root:not(.dark) .text-cyan-400   { color: #0891b2 !important; }
+  :root:not(.dark) .text-rose-300   { color: #be123c !important; }
+  :root:not(.dark) .text-rose-400   { color: #e11d48 !important; }
+  :root:not(.dark) .text-amber-300  { color: #b45309 !important; }
+  :root:not(.dark) .text-amber-400  { color: #d97706 !important; }
+
+  /* ── Border color overrides ── */
+  .border-slate-800    { border-color: rgb(var(--border-default)) !important; }
+  .border-slate-800\/60 { border-color: rgb(var(--border-default) / 0.6) !important; }
+  .border-slate-800\/80 { border-color: rgb(var(--border-default) / 0.8) !important; }
+  .border-slate-800\/90 { border-color: rgb(var(--border-default) / 0.9) !important; }
+  .border-slate-700    { border-color: rgb(var(--border-subtle)) !important; }
+  .border-slate-700\/80 { border-color: rgb(var(--border-subtle) / 0.8) !important; }
+
+  .hover\:border-slate-700:hover { border-color: rgb(var(--border-subtle)) !important; }
+  .hover\:border-slate-600:hover { border-color: rgb(var(--text-muted)) !important; }
+
+  /* ── Placeholder text ── */
+  .placeholder\:text-slate-500::placeholder { color: rgb(var(--text-muted)) !important; }
+
+  /* ── Backdrop / overlay ── */
+  .backdrop-blur-xl { backdrop-filter: blur(24px); }
+
+  /* ── Focus ring offset ── */
+  .focus\:ring-offset-slate-950 { --tw-ring-offset-color: rgb(var(--surface-body)); }
+
+  /* ── Input component styles ── */
+  .bg-slate-900\/90 input,
+  input.bg-slate-900\/90 {
+    background-color: rgb(var(--surface-input) / 0.9) !important;
   }
 }
+
+/* ─── Light-mode specific refinements ─── */
+:root:not(.dark) .shadow-lg,
+:root:not(.dark) .shadow-2xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.08);
+}
+
+:root:not(.dark) .shadow-inner {
+  --tw-shadow-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Card hover shadow in light mode */
+:root:not(.dark) .hover\:shadow-2xl:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+}
+
+/* Glass effect — softer in light mode */
+:root:not(.dark) .bg-slate-950\/80 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Container gradient cards in light mode (e.g. Dashboard banner, workspaces) */
+:root:not(.dark) .from-blue-950\/70  { --tw-gradient-from: rgba(239, 246, 255, 0.95) !important; }
+:root:not(.dark) .to-purple-950\/70  { --tw-gradient-to: rgba(250, 245, 255, 0.95) !important; }
+:root:not(.dark) .from-blue-950\/40  { --tw-gradient-from: rgba(239, 246, 255, 0.8) !important; }
+:root:not(.dark) .from-blue-950\/30  { --tw-gradient-from: rgba(239, 246, 255, 0.6) !important; }
+:root:not(.dark) .to-purple-950\/30  { --tw-gradient-to: rgba(250, 245, 255, 0.6) !important; }
+:root:not(.dark) .from-indigo-950\/30{ --tw-gradient-from: rgba(238, 242, 255, 0.6) !important; }
+:root:not(.dark) .to-slate-900\/80   { --tw-gradient-to: rgba(241, 245, 249, 0.8) !important; }
+:root:not(.dark) .to-slate-900      { --tw-gradient-to: rgb(241 245 249) !important; }
+:root:not(.dark) .bg-rose-950\/20    { background-color: rgba(255, 241, 242, 0.7) !important; }
+:root:not(.dark) .via-slate-900     { --tw-gradient-stops: var(--tw-gradient-from), rgba(241, 245, 249, 0.9) var(--tw-gradient-via-position, 50%), var(--tw-gradient-to) !important; }
 
 /* Micro-animations */
 @keyframes fadeIn {
@@ -64,14 +318,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: rgb(var(--scrollbar-track));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: rgb(var(--scrollbar-thumb));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: rgb(var(--scrollbar-hover));
 }

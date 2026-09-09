@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Download, RotateCcw, Check, Sparkles, ShieldCheck } from 'lucide-react';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
 import {
   downloadCroppedSignature,
   LoadedSignatureImage,
@@ -156,6 +157,33 @@ export const SignatureCroppedPreview: React.FC<SignatureCroppedPreviewProps> = (
                 : `Download Cropped Signature (${downloadFormat.toUpperCase()})`}
             </span>
           </Button>
+
+          {/* Save to Google Drive */}
+          <GoogleDriveButton
+            variant="secondary"
+            size="md"
+            label="Save to Google Drive"
+            className="w-full justify-center"
+            disabled={!croppedCanvas}
+            onGetFile={async () => {
+              if (!croppedCanvas) return null;
+              return new Promise((resolve) => {
+                const mime = downloadFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
+                const ext = downloadFormat === 'jpeg' ? 'jpg' : 'png';
+                const base = originalImage.name.replace(/\.[^/.]+$/, '');
+                const outName = `${base}_cropped_signature.${ext}`;
+                croppedCanvas.toBlob((blob) => {
+                  if (!blob) return;
+                  resolve({
+                    blob,
+                    fileName: outName,
+                    mimeType: mime,
+                    category: 'Images',
+                  });
+                }, mime, 0.95);
+              });
+            }}
+          />
 
           <div className="flex items-center gap-2 text-[11px] text-slate-400 justify-center">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />

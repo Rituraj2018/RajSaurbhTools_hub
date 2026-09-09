@@ -40,8 +40,9 @@ export interface CloudSaveModalProps {
   isOpen: boolean;
   onClose: () => void;
   onGetFile: () =>
-    | Promise<DriveUploadOptions | null>
+    | Promise<DriveUploadOptions | DriveUploadOptions[] | null>
     | DriveUploadOptions
+    | DriveUploadOptions[]
     | null;
 }
 
@@ -73,20 +74,27 @@ export const CloudSaveModal: React.FC<CloudSaveModalProps> = ({
       // Preview file metadata if ready
       try {
         const maybePromise = onGetFile();
-        if (maybePromise instanceof Promise) {
-          maybePromise.then((file) => {
-            if (file) {
+        const resolveMeta = (val: DriveUploadOptions | DriveUploadOptions[] | null) => {
+          if (!val) return;
+          if (Array.isArray(val)) {
+            if (val.length > 0) {
               setFileMeta({
-                name: file.fileName || 'Generated File',
-                category: file.category || 'Documents',
+                name: `${val.length} Documents (${val[0].fileName || 'Page 1'}...)`,
+                category: val[0].category || 'Documents',
               });
             }
-          }).catch(() => {});
+          } else {
+            setFileMeta({
+              name: val.fileName || 'Generated File',
+              category: val.category || 'Documents',
+            });
+          }
+        };
+
+        if (maybePromise instanceof Promise) {
+          maybePromise.then(resolveMeta).catch(() => {});
         } else if (maybePromise) {
-          setFileMeta({
-            name: maybePromise.fileName || 'Generated File',
-            category: maybePromise.category || 'Documents',
-          });
+          resolveMeta(maybePromise);
         }
       } catch {
         // will be handled during actual save
@@ -120,22 +128,41 @@ export const CloudSaveModal: React.FC<CloudSaveModalProps> = ({
       setStep('saving');
       setStatusText('Preparing file...');
 
-      const fileOptions = await onGetFile();
-      if (!fileOptions || !fileOptions.blob) {
+      const rawOptions = await onGetFile();
+      if (!rawOptions) {
+        throw new Error('No generated file is ready to be saved.');
+      }
+
+      const files = Array.isArray(rawOptions) ? rawOptions : [rawOptions];
+      if (files.length === 0 || !files[0]?.blob) {
         throw new Error('No generated file is ready to be saved.');
       }
 
       setFileMeta({
-        name: fileOptions.fileName || 'Generated File',
-        category: fileOptions.category || 'Documents',
+        name: files.length > 1
+          ? `${files.length} Documents (${files[0].fileName || 'file 1'}...)`
+          : files[0].fileName || 'Generated File',
+        category: files[0].category || 'Documents',
       });
 
-      setStatusText('Saving to Google Drive...');
-      const uploadResult = await uploadBlobToGoogleDrive(fileOptions, (text) => {
-        setStatusText(text);
-      });
+      let lastResult: DriveUploadResult | null = null;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const prefix = files.length > 1 ? `[${i + 1}/${files.length}] ` : '';
+        setStatusText(`${prefix}Saving ${file.fileName}...`);
+        lastResult = await uploadBlobToGoogleDrive(file, (text) => {
+          setStatusText(`${prefix}${text}`);
+        });
+      }
 
-      setResult(uploadResult);
+      if (lastResult && files.length > 1) {
+        lastResult = {
+          ...lastResult,
+          name: `${files.length} files (${files[0].fileName}...)`,
+        };
+      }
+
+      setResult(lastResult);
       setStep('success');
     } catch (err: any) {
       console.error('[CloudSaveModal] Save failed:', err);

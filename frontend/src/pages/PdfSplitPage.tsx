@@ -17,6 +17,8 @@ import {
   triggerFileDownload,
 } from '../utils/pdfSplitProcessor';
 import { Button } from '../components/common/Button';
+import { recordToolHistorySafely } from '../api/historyApi';
+import { DriveUploadOptions } from '../services/googleDriveService';
 
 export const PdfSplitPage: React.FC = () => {
   const [docInfo, setDocInfo] = useState<PdfDocumentInfo | null>(null);
@@ -126,6 +128,22 @@ export const PdfSplitPage: React.FC = () => {
     try {
       if (splitMode === 'all-individual') {
         const results = await extractAllIndividualPages(docInfo.arrayBuffer, docInfo.name);
+        const totalOutputBytes = results.reduce((sum, r) => sum + r.bytes.byteLength, 0);
+        await recordToolHistorySafely({
+          tool: 'pdf-split',
+          toolName: 'PDF Split',
+          inputFiles: [{ name: docInfo.name, size: docInfo.size, type: 'application/pdf' }],
+          outputFile: {
+            name: `${docInfo.name.replace(/\.pdf$/i, '')}_individual_pages (${results.length} pages).pdf`,
+            size: totalOutputBytes,
+            type: 'application/pdf',
+          },
+          status: 'completed',
+          metadata: {
+            splitMode,
+            totalPagesExtracted: results.length,
+          },
+        });
         for (let i = 0; i < results.length; i++) {
           triggerFileDownload(results[i].bytes, results[i].filename);
           // Slight delay between sequential browser downloads
@@ -139,6 +157,21 @@ export const PdfSplitPage: React.FC = () => {
 
         const bytes = await extractPagesToSinglePdf(docInfo.arrayBuffer, pages);
         const finalName = (outputFilename.trim() || 'Extracted_Pages') + '.pdf';
+        await recordToolHistorySafely({
+          tool: 'pdf-split',
+          toolName: 'PDF Split',
+          inputFiles: [{ name: docInfo.name, size: docInfo.size, type: 'application/pdf' }],
+          outputFile: {
+            name: finalName,
+            size: bytes.byteLength,
+            type: 'application/pdf',
+          },
+          status: 'completed',
+          metadata: {
+            splitMode,
+            pageCount: pages.length,
+          },
+        });
         triggerFileDownload(bytes, finalName);
       }
       setProcessSuccess(true);
@@ -147,6 +180,30 @@ export const PdfSplitPage: React.FC = () => {
       alert('Failed to split PDF: ' + (err?.message || 'Unknown error'));
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleGetCloudFiles = async (): Promise<DriveUploadOptions | DriveUploadOptions[] | null> => {
+    if (!docInfo) return null;
+    if (splitMode === 'all-individual') {
+      const results = await extractAllIndividualPages(docInfo.arrayBuffer, docInfo.name);
+      return results.map((r) => ({
+        blob: new Blob([r.bytes.buffer as ArrayBuffer], { type: 'application/pdf' }),
+        fileName: r.filename,
+        mimeType: 'application/pdf',
+        category: 'PDFs' as const,
+      }));
+    } else {
+      const pages = effectivePagesToExtract;
+      if (pages.length === 0) return null;
+      const bytes = await extractPagesToSinglePdf(docInfo.arrayBuffer, pages);
+      const finalName = (outputFilename.trim() || 'Extracted_Pages') + '.pdf';
+      return {
+        blob: new Blob([bytes.buffer as ArrayBuffer], { type: 'application/pdf' }),
+        fileName: finalName,
+        mimeType: 'application/pdf',
+        category: 'PDFs' as const,
+      };
     }
   };
 
@@ -295,6 +352,7 @@ export const PdfSplitPage: React.FC = () => {
               outputFilename={outputFilename}
               onOutputFilenameChange={setOutputFilename}
               onExecuteSplit={handleExecuteSplit}
+              onGetCloudFiles={handleGetCloudFiles}
               isProcessing={isProcessing}
               canExecute={canExecute}
             />

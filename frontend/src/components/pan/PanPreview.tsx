@@ -8,6 +8,8 @@ import {
   generatePanA4Pdf,
   generatePanCr80DirectPdf,
 } from '../../utils/panProcessor';
+import { recordToolHistorySafely } from '../../api/historyApi';
+import { GoogleDriveButton } from '../cloud';
 
 interface PanPreviewProps {
   documents: PanDocItem[];
@@ -23,6 +25,41 @@ export const PanPreview: React.FC<PanPreviewProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const printSheetCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const lastRecordedTimeRef = useRef<number>(0);
+
+  const recordPanHistory = (
+    filename: string,
+    mimeType: string,
+    size?: number
+  ) => {
+    const now = Date.now();
+    if (now - lastRecordedTimeRef.current < 800) return;
+    lastRecordedTimeRef.current = now;
+
+    try {
+      recordToolHistorySafely({
+        tool: 'pan-print-studio',
+        toolName: 'PAN / CR80 Print Studio Pro',
+        inputFiles: documents.map((d) => ({
+          name: d.name || 'PAN_Document.pdf',
+          size: d.size || undefined,
+          type: d.type || 'application/pdf',
+        })),
+        outputFile: {
+          name: filename,
+          size,
+          type: mimeType,
+        },
+        status: 'completed',
+        metadata: {
+          totalCards: documents.length,
+          layoutMode: printOptions.layoutMode,
+        },
+      });
+    } catch (err) {
+      console.error('Failed to record PAN history:', err);
+    }
+  };
 
   // Re-generate print sheet whenever docs or options update
   useEffect(() => {
@@ -56,7 +93,9 @@ export const PanPreview: React.FC<PanPreviewProps> = ({
   const handleDownloadA4Pdf = () => {
     if (!printSheetCanvasRef.current) return;
     const pdf = generatePanA4Pdf(printSheetCanvasRef.current);
+    const size = (pdf.output('arraybuffer') as ArrayBuffer).byteLength;
     pdf.save('PAN_Cards_A4_PrintSheet_RajTools.pdf');
+    recordPanHistory('PAN_Cards_A4_PrintSheet_RajTools.pdf', 'application/pdf', size);
   };
 
   // Download Direct CR80 PDF for Plastic Card Printers
@@ -64,15 +103,22 @@ export const PanPreview: React.FC<PanPreviewProps> = ({
     const activeDoc = documents[activeDocIndex] || documents[0];
     if (!activeDoc) return;
     const pdf = generatePanCr80DirectPdf(activeDoc);
-    pdf.save(`${activeDoc.name.replace(/\.[^/.]+$/, '')}_CR80_PlasticCard.pdf`);
+    const filename = `${activeDoc.name.replace(/\.[^/.]+$/, '')}_CR80_PlasticCard.pdf`;
+    const size = (pdf.output('arraybuffer') as ArrayBuffer).byteLength;
+    pdf.save(filename);
+    recordPanHistory(filename, 'application/pdf', size);
   };
 
   // Download PNG
   const handleDownloadPng = () => {
     if (!printSheetCanvasRef.current) return;
+    const filename = 'PAN_Cards_A4_PrintSheet_RajTools.png';
+    printSheetCanvasRef.current.toBlob((blob) => {
+      recordPanHistory(filename, 'image/png', blob?.size);
+    }, 'image/png');
     const a = document.createElement('a');
     a.href = printSheetCanvasRef.current.toDataURL('image/png');
-    a.download = 'PAN_Cards_A4_PrintSheet_RajTools.png';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -81,6 +127,7 @@ export const PanPreview: React.FC<PanPreviewProps> = ({
   // Direct Browser Print
   const handlePrint = () => {
     if (!printSheetCanvasRef.current) return;
+    recordPanHistory('PAN_Cards_A4_PrintSheet_RajTools.pdf', 'application/pdf');
     const imgData = printSheetCanvasRef.current.toDataURL('image/jpeg', 0.98);
     const win = window.open('', '_blank');
     if (!win) return;
@@ -89,7 +136,7 @@ export const PanPreview: React.FC<PanPreviewProps> = ({
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Print PAN Cards - RajSaurbh Tools_Hub</title>
+          <title>Print PAN Cards - RajSaurabh Tools_Hub</title>
           <style>
             @page {
               size: A4 portrait;
@@ -181,6 +228,26 @@ export const PanPreview: React.FC<PanPreviewProps> = ({
         >
           Download High-Res Sheet Image (PNG)
         </button>
+
+        {/* Save to Google Drive */}
+        <GoogleDriveButton
+          variant="secondary"
+          size="md"
+          label="Save to Google Drive"
+          className="w-full justify-center"
+          disabled={!printSheetCanvasRef.current || documents.length === 0}
+          onGetFile={async () => {
+            if (!printSheetCanvasRef.current) return null;
+            const pdf = generatePanA4Pdf(printSheetCanvasRef.current);
+            const blob = pdf.output('blob');
+            return {
+              blob,
+              fileName: 'PAN_Cards_A4_PrintSheet_RajTools.pdf',
+              mimeType: 'application/pdf',
+              category: 'PDFs',
+            };
+          }}
+        />
       </div>
 
       <div className="flex items-center gap-2 text-[11px] text-slate-400 justify-center pt-2 border-t border-slate-800/80">

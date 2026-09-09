@@ -112,7 +112,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-base font-extrabold text-white tracking-tight">
-                RajSaurbh Tools_Hub
+                RajSaurabh Tools_Hub
               </span>
             </div>
             <p className="text-[10px] text-slate-400 font-medium">Processing Platform</p>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Download,
   RotateCcw,
@@ -6,6 +6,8 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Button } from '../common/Button';
+import { GoogleDriveButton } from '../cloud';
+import { recordToolHistorySafely } from '../../api/historyApi';
 import {
   LoadedPngImage,
   ConvertedJpgResult,
@@ -50,9 +52,37 @@ export const PngConversionWorkspace: React.FC<PngConversionWorkspaceProps> = ({
     runConversion();
   }, [runConversion]);
 
-  const handleDownload = () => {
+  const lastRecordedTimeRef = useRef<number>(0);
+
+  const handleDownload = async () => {
     if (conversionResult) {
       downloadJpgFile(conversionResult);
+
+      const now = Date.now();
+      if (now - lastRecordedTimeRef.current < 800) return;
+      lastRecordedTimeRef.current = now;
+
+      await recordToolHistorySafely({
+        tool: 'png-to-jpg',
+        toolName: 'PNG to JPG',
+        inputFiles: [
+          {
+            name: image.name,
+            size: image.size,
+            type: 'image/png',
+          },
+        ],
+        outputFile: {
+          name: conversionResult.filename,
+          size: conversionResult.blob.size,
+          type: 'image/jpeg',
+        },
+        status: 'completed',
+        metadata: {
+          quality: Math.round(quality * 100),
+          backgroundColor: bgColor,
+        },
+      });
     }
   };
 
@@ -275,7 +305,24 @@ export const PngConversionWorkspace: React.FC<PngConversionWorkspaceProps> = ({
           Convert Another Image
         </Button>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          {/* Save to Google Drive */}
+          <GoogleDriveButton
+            variant="secondary"
+            size="md"
+            label="Save to Google Drive"
+            disabled={!conversionResult || isConverting}
+            onGetFile={() => {
+              if (!conversionResult) return null;
+              return {
+                blob: conversionResult.blob,
+                fileName: conversionResult.filename,
+                mimeType: 'image/jpeg',
+                category: 'Images',
+              };
+            }}
+          />
+
           <Button
             variant="gradient"
             size="lg"

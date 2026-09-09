@@ -66,7 +66,7 @@ export const ForgotPasswordPage: React.FC = () => {
               <Layers className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              RajSaurbh Tools_Hub
+              RajSaurabh Tools_Hub
             </span>
           </Link>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">

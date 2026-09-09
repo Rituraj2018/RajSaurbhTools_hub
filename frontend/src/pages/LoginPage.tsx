@@ -95,11 +95,11 @@ export const LoginPage: React.FC = () => {
               <Layers className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              RajSaurbh Tools_Hub
+              RajSaurabh Tools_Hub
             </span>
           </Link>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Welcome to RajSaurbh Tools_Hub
+            Welcome to RajSaurabh Tools_Hub
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
             Sign in to access your high-speed PDF, Photo and Document processing suite.
@@ -234,7 +234,9 @@ export const LoginPage: React.FC = () => {
                 }
               }}
               onError={() => {
-                // Handled gracefully without crash
+                console.error(
+                  '[Google OAuth] Sign-In was cancelled or failed. Verify that http://localhost:5173 is added to Authorized JavaScript Origins in Google Cloud Console.'
+                );
               }}
               theme="filled_black"
               shape="pill"

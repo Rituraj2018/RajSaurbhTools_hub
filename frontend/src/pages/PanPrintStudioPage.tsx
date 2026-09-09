@@ -37,7 +37,7 @@ export const PanPrintStudioPage: React.FC = () => {
 
   const activeDoc = documents[activeDocIndex] || documents[0];
 
-  const handleDocumentLoaded = (name: string, canvas: HTMLCanvasElement) => {
+  const handleDocumentLoaded = (name: string, canvas: HTMLCanvasElement, size?: number, type?: string) => {
     const newItem: PanDocItem = {
       id: `pan_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
       name,
@@ -46,6 +46,8 @@ export const PanPrintStudioPage: React.FC = () => {
       backCrop: { ...DEFAULT_PAN_BACK_CROP },
       hasBackCard: true,
       adjustments: { ...DEFAULT_PAN_ADJUSTMENTS },
+      size,
+      type,
     };
 
     setDocuments((prev) => {

@@ -6,3 +6,4 @@ export * from './EmptyState';
 export * from './Navbar';
 export * from './Footer';
 export * from './FileUpload';
+export * from './ThemeProvider';

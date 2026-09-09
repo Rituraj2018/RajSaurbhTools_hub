@@ -135,7 +135,7 @@ export const RegisterPage: React.FC = () => {
               <Layers className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              RajSaurbh Tools_Hub
+              RajSaurabh Tools_Hub
             </span>
           </Link>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
@@ -323,7 +323,9 @@ export const RegisterPage: React.FC = () => {
                 }
               }}
               onError={() => {
-                // Handled gracefully without crash
+                console.error(
+                  '[Google OAuth] Sign-In was cancelled or failed. Verify that http://localhost:5173 is added to Authorized JavaScript Origins in Google Cloud Console.'
+                );
               }}
               theme="filled_black"
               shape="pill"

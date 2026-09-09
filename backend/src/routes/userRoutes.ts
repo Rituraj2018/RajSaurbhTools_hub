@@ -3,10 +3,18 @@ import {
   addFavoriteTool,
   removeFavoriteTool,
   getFavoriteTools,
+  getUserDashboardStats,
 } from '../controllers/userController';
 import { authenticate } from '../middlewares/authMiddleware';
 
 const router = Router();
+
+/**
+ * @route   GET /api/users/dashboard
+ * @desc    Get live metrics and statistics for the authenticated user
+ * @access  Private (Requires Authentication)
+ */
+router.get('/dashboard', authenticate, getUserDashboardStats);
 
 /**
  * @route   GET /api/users/favorites

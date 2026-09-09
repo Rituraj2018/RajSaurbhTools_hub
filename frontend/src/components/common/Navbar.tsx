@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Layers, Activity, LayoutDashboard, Github, LogIn, UserPlus, User, Menu, X } from 'lucide-react';
+import { Layers, Activity, LayoutDashboard, Github, LogIn, UserPlus, User, Menu, X, Sun, Moon } from 'lucide-react';
 import { useAppSelector } from '../../features/store';
 import { Button } from './Button';
+import { useTheme } from './ThemeProvider';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const { health, loading: systemLoading } = useAppSelector((state) => state.system);
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -75,7 +77,7 @@ export const Navbar: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                  RajSaurbh Tools_Hub
+                  RajSaurabh Tools_Hub
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 font-medium tracking-wide hidden sm:block">
@@ -106,7 +108,8 @@ export const Navbar: React.FC = () => {
 
           {/* Action Area */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Backend Health Badge */}
+            {/* Backend Health Badge — Admin Only */}
+            {user?.role === 'admin' && (
             <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
               <Activity
                 className={`w-3.5 h-3.5 ${
@@ -130,6 +133,7 @@ export const Navbar: React.FC = () => {
                 {systemLoading ? 'Checking...' : health?.status || 'Offline'}
               </span>
             </div>
+            )}
 
             {/* Auth Dependent Navigation Buttons */}
             {isAuthenticated ? (
@@ -177,6 +181,16 @@ export const Navbar: React.FC = () => {
                 </Link>
               </div>
             )}
+
+            {/* Day/Night Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors hidden sm:flex items-center justify-center"
+              title={theme === 'dark' ? 'Switch to Day Mode' : 'Switch to Night Mode'}
+              aria-label={theme === 'dark' ? 'Switch to Day Mode' : 'Switch to Night Mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
 
             <a
               href="https://github.com"
@@ -230,7 +244,8 @@ export const Navbar: React.FC = () => {
               })}
             </nav>
 
-            {/* Mobile API Status */}
+            {/* Mobile API Status — Admin Only */}
+            {user?.role === 'admin' && (
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
               <Activity
                 className={`w-3.5 h-3.5 ${
@@ -254,6 +269,26 @@ export const Navbar: React.FC = () => {
                 {systemLoading ? 'Checking...' : health?.status || 'Offline'}
               </span>
             </div>
+            )}
+
+            {/* Mobile Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all w-full text-left"
+              aria-label={theme === 'dark' ? 'Switch to Day Mode' : 'Switch to Night Mode'}
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-400" />
+                  <span>Day Mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-indigo-400" />
+                  <span>Night Mode</span>
+                </>
+              )}
+            </button>
 
             {/* Mobile Auth Section */}
             <div className="border-t border-slate-800/60 pt-3">

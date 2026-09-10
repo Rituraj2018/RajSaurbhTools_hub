@@ -42,20 +42,34 @@ export const getCloudStatus = asyncHandler(async (req: Request, res: Response): 
     google_drive: {
       isConnected: false,
       isConfigured: config.googleDrive.isConfigured,
+      storageQuota: null,
     },
     onedrive: {
       isConnected: false,
       isConfigured: config.microsoft.isConfigured,
+      storageQuota: null,
     },
   };
 
   for (const conn of connections) {
+    let storageQuota = null;
+
+    if (conn.provider === 'google_drive' && conn.connectionStatus === 'connected') {
+      try {
+        const accessToken = await getValidAccessToken(req.user._id.toString(), 'google_drive');
+        storageQuota = await googleDriveProvider.getStorageQuota(accessToken);
+      } catch (quotaErr: any) {
+        console.warn('[CloudController] Could not fetch Google Drive storage quota:', quotaErr?.message);
+      }
+    }
+
     providers[conn.provider] = {
       isConnected: conn.connectionStatus === 'connected',
       connectionStatus: conn.connectionStatus,
       providerEmail: conn.providerEmail || undefined,
       connectedAt: conn.connectedAt,
       isConfigured: true,
+      storageQuota,
     };
   }
 
@@ -71,6 +85,60 @@ export const getCloudStatus = asyncHandler(async (req: Request, res: Response): 
       providers,
     },
   });
+});
+
+/**
+ * @desc    Get live Google Drive storage quota
+ * @route   GET /api/cloud/drive-storage
+ * @access  Private
+ */
+export const getDriveStorageQuota = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    throw new ApiError(401, 'Authentication required');
+  }
+
+  const conn = await CloudConnection.findOne({
+    user: req.user._id,
+    provider: 'google_drive',
+    connectionStatus: 'connected',
+  });
+
+  if (!conn) {
+    res.status(200).json({
+      success: true,
+      data: {
+        isConnected: false,
+        storageQuota: null,
+      },
+    });
+    return;
+  }
+
+  try {
+    const accessToken = await getValidAccessToken(req.user._id.toString(), 'google_drive');
+    const storageQuota = await googleDriveProvider.getStorageQuota(accessToken);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        isConnected: true,
+        provider: 'google_drive',
+        providerEmail: conn.providerEmail,
+        storageQuota,
+      },
+    });
+  } catch (err: any) {
+    res.status(200).json({
+      success: true,
+      data: {
+        isConnected: true,
+        provider: 'google_drive',
+        providerEmail: conn.providerEmail,
+        error: err?.message || 'Failed to fetch storage quota',
+        storageQuota: null,
+      },
+    });
+  }
 });
 
 /**

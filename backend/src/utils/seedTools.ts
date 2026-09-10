@@ -154,6 +154,16 @@ export const INITIAL_STATIC_TOOLS: Omit<ITool, 'createdAt' | 'updatedAt'>[] = [
     isActive: true,
     isFeatured: true,
   },
+  {
+    name: 'File Password Protector',
+    slug: 'file-password-protector',
+    description:
+      'Password-protect PDF and image files with AES-256-GCM encryption. All processing is done locally in your browser — your password never leaves your device.',
+    category: 'Security',
+    icon: 'Lock',
+    isActive: true,
+    isFeatured: true,
+  },
 ];
 
 /**

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Tool, ITool } from '../models/Tool';
+import { HistoryRecord } from '../models/History';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { seedInitialTools } from '../utils/seedTools';
@@ -63,6 +64,43 @@ export const getTools = asyncHandler(async (req: Request, res: Response): Promis
     data: {
       tools,
       total: tools.length,
+    },
+  });
+});
+
+/**
+ * @desc    Get top popular tools ranked by real user processing history
+ * @route   GET /api/tools/popular
+ * @access  Public
+ */
+export const getPopularTools = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  // Aggregate completed history records to find the most used tools
+  const topHistory = await HistoryRecord.aggregate([
+    {
+      $match: {
+        status: { $in: ['completed', 'processing'] },
+      },
+    },
+    {
+      $group: {
+        _id: { $toLower: '$tool' },
+        toolName: { $first: '$toolName' },
+        usageCount: { $sum: 1 },
+      },
+    },
+    { $sort: { usageCount: -1 } },
+    { $limit: 10 },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    message: 'Popular tools retrieved successfully',
+    data: {
+      popular: topHistory.map((item) => ({
+        slug: item._id,
+        toolName: item.toolName,
+        usageCount: item.usageCount,
+      })),
     },
   });
 });

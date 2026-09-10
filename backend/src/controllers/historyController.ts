@@ -153,3 +153,39 @@ export const clearUserHistory = asyncHandler(async (req: Request, res: Response)
     },
   });
 });
+
+/**
+ * @desc    Get top popular tools ranked by overall processing history usage
+ * @route   GET /api/history/popular
+ * @access  Public
+ */
+export const getPopularToolsUsage = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const topHistory = await HistoryRecord.aggregate([
+    {
+      $match: {
+        status: { $in: ['completed', 'processing'] },
+      },
+    },
+    {
+      $group: {
+        _id: { $toLower: '$tool' },
+        toolName: { $first: '$toolName' },
+        usageCount: { $sum: 1 },
+      },
+    },
+    { $sort: { usageCount: -1 } },
+    { $limit: 10 },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    message: 'Popular tools usage statistics retrieved successfully',
+    data: {
+      popular: topHistory.map((item) => ({
+        slug: item._id,
+        toolName: item.toolName,
+        usageCount: item.usageCount,
+      })),
+    },
+  });
+});

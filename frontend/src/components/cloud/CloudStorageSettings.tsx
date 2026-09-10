@@ -8,7 +8,7 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import { Button } from '../common/Button';
-import { cloudApi, CloudStatusResponse } from '../../api/cloudApi';
+import { cloudApi, CloudStatusResponse, formatStorageBytes } from '../../api/cloudApi';
 import { GoogleDriveIcon } from './CloudSaveModal';
 import { OneDriveIcon } from './OneDriveIcon';
 
@@ -189,10 +189,37 @@ export const CloudStorageSettings: React.FC<CloudStorageSettingsProps> = ({
             <div className="min-w-0">
               <p className="text-xs font-semibold text-white">Google Drive</p>
               {googleStatus?.isConnected ? (
-                <p className="text-[10px] text-emerald-400 flex items-center gap-1 truncate">
-                  <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
-                  {googleStatus.providerEmail || 'Connected'}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-emerald-400 flex items-center gap-1 truncate">
+                    <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
+                    {googleStatus.providerEmail || 'Connected'}
+                  </p>
+                  {googleStatus.storageQuota && (
+                    <div className="space-y-1 pt-0.5">
+                      <p className="text-[10px] text-slate-300 font-mono">
+                        {formatStorageBytes(googleStatus.storageQuota.usedBytes)} /{' '}
+                        {googleStatus.storageQuota.totalBytes > 0
+                          ? formatStorageBytes(googleStatus.storageQuota.totalBytes)
+                          : 'Unlimited'}{' '}
+                        ({googleStatus.storageQuota.usagePercentage}%)
+                      </p>
+                      <div className="w-32 sm:w-40 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            googleStatus.storageQuota.usagePercentage > 90
+                              ? 'bg-rose-500'
+                              : googleStatus.storageQuota.usagePercentage > 75
+                              ? 'bg-amber-500'
+                              : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500'
+                          }`}
+                          style={{
+                            width: `${Math.min(100, Math.max(0, googleStatus.storageQuota.usagePercentage))}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <p className="text-[10px] text-slate-500">Not connected</p>
               )}

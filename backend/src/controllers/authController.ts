@@ -88,6 +88,11 @@ export const loginUser = asyncHandler(async (req: Request, res: Response): Promi
     throw new ApiError(401, 'Invalid email or password');
   }
 
+  // Reject blocked accounts
+  if (user.isBlocked) {
+    throw new ApiError(403, 'Your account has been blocked by the administrator. Please contact support.');
+  }
+
   // Generate JWT token
   const token = generateToken(user._id.toString(), user.role);
 
@@ -185,7 +190,7 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response): Pro
   if (user) {
     // Check if user is suspended/blocked
     if (user.isBlocked) {
-      throw new ApiError(403, 'Your account has been suspended. Please contact support.');
+      throw new ApiError(403, 'Your account has been blocked by the administrator. Please contact support.');
     }
 
     let needsSave = false;

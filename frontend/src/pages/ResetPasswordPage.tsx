@@ -6,7 +6,6 @@ import {
   EyeOff,
   AlertCircle,
   CheckCircle2,
-  Layers,
   ArrowLeft,
   KeyRound,
   ShieldCheck,
@@ -15,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../features/store';
 import { performPasswordReset, clearAuthError, clearAuthSuccess } from '../features/auth';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
+import { BrandLogo } from '../components/common/BrandLogo';
 
 export const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -99,14 +99,9 @@ export const ResetPasswordPage: React.FC = () => {
       <div className="max-w-md w-full relative z-10 space-y-6">
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2.5 group mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-              <Layers className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              RajSaurabh Tools_Hub
-            </span>
-          </Link>
+          <div className="flex justify-center mb-2">
+            <BrandLogo size="lg" showSubtitle={false} />
+          </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
             Set a new password
           </h2>

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getCloudStatus,
+  getDriveStorageQuota,
   getGoogleAuthUrl,
   handleGoogleCallback,
   getMicrosoftAuthUrl,
@@ -17,6 +18,13 @@ const router = Router();
  * @access  Private
  */
 router.get('/status', authenticate, getCloudStatus);
+
+/**
+ * @route   GET /api/cloud/drive-storage
+ * @desc    Get live Google Drive storage quota
+ * @access  Private
+ */
+router.get('/drive-storage', authenticate, getDriveStorageQuota);
 
 /**
  * @route   GET /api/cloud/google/auth-url

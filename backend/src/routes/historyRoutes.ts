@@ -1,12 +1,20 @@
 import { Router } from 'express';
 import {
   getUserHistory,
+  getPopularToolsUsage,
   createHistoryEntry,
   clearUserHistory,
 } from '../controllers/historyController';
 import { authenticate } from '../middlewares/authMiddleware';
 
 const router = Router();
+
+/**
+ * @route   GET /api/history/popular
+ * @desc    Get top popular tools ranked by overall processing history usage
+ * @access  Public
+ */
+router.get('/popular', getPopularToolsUsage);
 
 /**
  * @route   GET /api/history

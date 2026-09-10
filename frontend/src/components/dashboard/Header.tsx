@@ -11,6 +11,7 @@ import {
   X,
   FileText,
   Image as ImageIcon,
+  Home,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { mockTools } from '../../utils/mockData';
@@ -71,12 +72,14 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
 
           {/* Desktop Tagline / Greeting */}
           <div className="hidden lg:block">
-            <h1 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>RajSaurabh Tools_Hub</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Live & Operational
-              </span>
-            </h1>
+            <Link to="/" className="group inline-flex items-center gap-2" title="Return to Home Page">
+              <h1 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors flex items-center gap-2">
+                <span>RajSaurabh Tools_Hub</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Live & Operational
+                </span>
+              </h1>
+            </Link>
             <p className="text-[11px] text-slate-400">
               Welcome to RajSaurabh Tools_Hub workspace.
             </p>
@@ -146,6 +149,15 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
                     {user?.email || 'user@example.com'}
                   </p>
                 </div>
+
+                <Link
+                  to="/"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                >
+                  <Home className="w-4 h-4 text-slate-400" />
+                  <span>Hub Home</span>
+                </Link>
 
                 <Link
                   to="/settings"

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getTools,
+  getPopularTools,
   getToolBySlug,
   createTool,
   updateTool,
@@ -17,6 +18,9 @@ const router = Router();
  */
 // GET /api/tools - Retrieve all tools with query filtering
 router.get('/', getTools);
+
+// GET /api/tools/popular - Retrieve top popular tools by processing history
+router.get('/popular', getPopularTools);
 
 // GET /api/tools/:slug - Retrieve single tool details by slug
 router.get('/:slug', getToolBySlug);

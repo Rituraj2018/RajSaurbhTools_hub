@@ -12,4 +12,5 @@ export { axiosClient };
 export * from './filesApi';
 export * from './historyApi';
 export * from './dashboardApi';
-
+export * from './feedbackApi';
+export * from './websiteApi';

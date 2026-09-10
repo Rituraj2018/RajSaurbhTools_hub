@@ -61,3 +61,10 @@ export interface CreateHistoryDto {
   status?: HistoryStatus;
   metadata?: Record<string, any>;
 }
+
+export interface PopularToolUsage {
+  slug: string;
+  toolName?: string;
+  usageCount: number;
+}
+

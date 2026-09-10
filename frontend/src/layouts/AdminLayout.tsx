@@ -6,6 +6,7 @@ import {
   Wrench,
   FolderOpen,
   BarChart3,
+  Globe,
   ShieldCheck,
   X,
   Menu,
@@ -20,6 +21,7 @@ const adminNavItems = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, exact: true },
   { name: 'Users', path: '/admin/users', icon: Users },
   { name: 'Tools', path: '/admin/tools', icon: Wrench },
+  { name: 'Useful Websites', path: '/admin/websites', icon: Globe },
   { name: 'Files', path: '/admin/files', icon: FolderOpen },
   { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
 ];

@@ -301,6 +301,34 @@ export class GoogleDriveProvider implements ICloudStorageProvider {
   }
 
   /**
+   * Fetch actual storage quota from Google Drive API about.get
+   */
+  async getStorageQuota(accessToken: string): Promise<{
+    usedBytes: number;
+    totalBytes: number;
+    remainingBytes: number;
+    usagePercentage: number;
+  }> {
+    const drive = this.getDriveClient(accessToken);
+    const about = await drive.about.get({
+      fields: 'storageQuota, user',
+    });
+
+    const quota = about.data.storageQuota;
+    const limit = quota?.limit ? Number(quota.limit) : 0;
+    const usage = quota?.usage ? Number(quota.usage) : 0;
+    const remaining = limit > 0 ? Math.max(0, limit - usage) : 0;
+    const percentage = limit > 0 ? Number(((usage / limit) * 100).toFixed(1)) : 0;
+
+    return {
+      usedBytes: usage,
+      totalBytes: limit,
+      remainingBytes: remaining,
+      usagePercentage: percentage,
+    };
+  }
+
+  /**
    * Revoke Google OAuth token.
    */
   async revokeToken(accessToken: string): Promise<void> {

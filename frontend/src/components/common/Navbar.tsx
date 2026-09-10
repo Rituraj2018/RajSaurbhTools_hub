@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Layers, Activity, LayoutDashboard, Github, LogIn, UserPlus, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { Activity, LayoutDashboard, Github, LogIn, UserPlus, User, Menu, X, Sun, Moon } from 'lucide-react';
 import { useAppSelector } from '../../features/store';
 import { Button } from './Button';
 import { useTheme } from './ThemeProvider';
+import { BrandLogo } from './BrandLogo';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -29,34 +30,30 @@ export const Navbar: React.FC = () => {
 
   // Close mobile menu on outside click
   useEffect(() => {
-    if (!mobileMenuOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
+    const handleOutsideClick = (event: MouseEvent) => {
       if (
         mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(target) &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
         hamburgerRef.current &&
-        !hamburgerRef.current.contains(target)
+        !hamburgerRef.current.contains(event.target as Node)
       ) {
         setMobileMenuOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
   }, [mobileMenuOpen]);
 
-  // Close mobile menu on Escape key
+  // Close on Escape key press
   useEffect(() => {
-    if (!mobileMenuOpen) return;
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setMobileMenuOpen(false);
-      }
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
     };
-
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [mobileMenuOpen]);
@@ -70,21 +67,7 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-              <Layers className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                  RajSaurabh Tools_Hub
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-400 font-medium tracking-wide hidden sm:block">
-                All-in-One Processing Platform
-              </p>
-            </div>
-          </Link>
+          <BrandLogo size="md" />
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-xl border border-slate-800/80">

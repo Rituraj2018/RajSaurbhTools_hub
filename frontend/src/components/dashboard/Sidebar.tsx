@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../../features/store';
 import {
@@ -11,12 +11,14 @@ import {
   History,
   Star,
   Settings,
-  Layers,
   X,
-  HardDrive,
   ExternalLink,
   ShieldCheck,
+  Loader2,
 } from 'lucide-react';
+import { cloudApi, CloudStatusResponse, formatStorageBytes } from '../../api/cloudApi';
+import { GoogleDriveIcon } from '../cloud';
+import { BrandLogo } from '../common/BrandLogo';
 
 export interface SidebarProps {
   isMobileOpen: boolean;
@@ -26,6 +28,75 @@ export interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose }) => {
   const location = useLocation();
   const { user } = useAppSelector((state) => state.auth);
+  const { tools } = useAppSelector((state) => state.tools);
+
+  const [cloudStatus, setCloudStatus] = useState<CloudStatusResponse | null>(null);
+  const [loadingCloud, setLoadingCloud] = useState<boolean>(true);
+  const [connectingDrive, setConnectingDrive] = useState<boolean>(false);
+
+  const fetchCloudStatus = useCallback(async () => {
+    if (!user) {
+      setLoadingCloud(false);
+      setCloudStatus(null);
+      return;
+    }
+    try {
+      setLoadingCloud(true);
+      const data = await cloudApi.getStatus();
+      setCloudStatus(data);
+    } catch (err) {
+      console.warn('[Sidebar] Could not load cloud storage status:', err);
+    } finally {
+      setLoadingCloud(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchCloudStatus();
+  }, [fetchCloudStatus]);
+
+  // Listen for OAuth callback event from popup or window focus
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'CLOUD_OAUTH_CALLBACK') {
+        fetchCloudStatus();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    const handleFocus = () => {
+      fetchCloudStatus();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [fetchCloudStatus]);
+
+  const handleConnectGoogleDrive = async () => {
+    try {
+      setConnectingDrive(true);
+      const authUrl = await cloudApi.getGoogleAuthUrl();
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      window.open(
+        authUrl,
+        'Google Drive Authorization',
+        `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes`
+      );
+    } catch (err) {
+      console.error('[Sidebar] Failed to start Google Drive OAuth:', err);
+    } finally {
+      setConnectingDrive(false);
+    }
+  };
+
+  const googleDriveStatus = cloudStatus?.providers?.google_drive;
+  const googleQuota = googleDriveStatus?.storageQuota;
+
+  const totalToolsCount = tools.length > 0 ? tools.length : 16;
 
   const mainNavigation = [
     {
@@ -38,7 +109,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
       name: 'All Tools',
       path: '/tools',
       icon: Wrench,
-      badge: '18',
+      badge: String(totalToolsCount),
+    },
+    {
+      name: 'Security Tools',
+      path: '/tools?category=security',
+      icon: ShieldCheck,
+      category: 'security',
+      badge: undefined,
     },
     {
       name: 'Photo Tools',
@@ -68,7 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
       name: 'My Files',
       path: '/files',
       icon: FolderLock,
-      badge: '5',
+      badge: '6',
     },
     {
       name: 'History',
@@ -90,68 +168,62 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
     },
   ];
 
-  const checkIsActive = (path: string, category?: string) => {
-    if (category) {
-      const searchParams = new URLSearchParams(location.search);
-      return location.pathname === '/tools' && searchParams.get('category') === category;
-    }
-    if (path === '/tools' && !location.search) {
-      return location.pathname === '/tools';
-    }
-    return location.pathname === path;
-  };
-
   const navContent = (
-    <div className="flex flex-col h-full bg-slate-950/95 border-r border-slate-800/80 backdrop-blur-xl">
+    <div className="flex flex-col h-full bg-slate-950/95 border-r border-slate-800 backdrop-blur-xl">
       {/* Brand Header */}
-      <div className="flex items-center justify-between h-16 sm:h-20 px-6 border-b border-slate-800/80">
-        <NavLink to="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            <Layers className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-extrabold text-white tracking-tight">
-                RajSaurabh Tools_Hub
-              </span>
-            </div>
-            <p className="text-[10px] text-slate-400 font-medium">Processing Platform</p>
-          </div>
-        </NavLink>
+      <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
+        <div onClick={onMobileClose}>
+          <BrandLogo size="sm" showSubtitle={false} />
+        </div>
 
         {/* Mobile close button */}
         <button
           onClick={onMobileClose}
-          className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
           aria-label="Close sidebar"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Navigation Sections */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-        {/* Main Tools Menu */}
+      {/* Navigation Groups */}
+      <div className="flex-1 overflow-y-auto px-3.5 py-5 space-y-6">
+        {/* Main Menu */}
         <div>
-          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+          <h2 className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
             Main Menu
-          </p>
+          </h2>
           <nav className="space-y-1">
             {mainNavigation.map((item) => {
-              const active = checkIsActive(item.path, item.category);
               const Icon = item.icon;
+              const isCategoryActive =
+                item.category &&
+                location.pathname === '/tools' &&
+                new URLSearchParams(location.search).get('category') === item.category;
+
+              const isToolsActive =
+                item.path === '/tools' &&
+                !item.category &&
+                location.pathname === '/tools' &&
+                !location.search;
+
+              const isDashboardActive =
+                item.path === '/dashboard' && location.pathname === '/dashboard';
+
+              const active = isCategoryActive || isToolsActive || isDashboardActive;
+
               return (
                 <NavLink
                   key={item.name}
                   to={item.path}
                   onClick={onMobileClose}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 group ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
                     active
-                      ? 'bg-gradient-to-r from-blue-600/90 to-purple-600/90 text-white shadow-md shadow-blue-500/20'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/80'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/20'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-900/80'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <Icon
                       className={`w-4 h-4 transition-transform group-hover:scale-110 ${
                         active ? 'text-white' : 'text-slate-400 group-hover:text-blue-400'
@@ -164,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
                       className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                         active
                           ? 'bg-white/20 text-white'
-                          : 'bg-slate-800 text-slate-400 group-hover:text-slate-200'
+                          : 'bg-slate-800 text-slate-400'
                       }`}
                     >
                       {item.badge}
@@ -176,27 +248,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
           </nav>
         </div>
 
-        {/* Library & Management */}
+        {/* Workspace & Library */}
         <div>
-          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+          <h2 className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
             Workspace & Library
-          </p>
+          </h2>
           <nav className="space-y-1">
             {libraryNavigation.map((item) => {
-              const active = checkIsActive(item.path);
               const Icon = item.icon;
+              const active = location.pathname === item.path;
+
               return (
                 <NavLink
                   key={item.name}
                   to={item.path}
                   onClick={onMobileClose}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 group ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
                     active
-                      ? 'bg-gradient-to-r from-blue-600/90 to-purple-600/90 text-white shadow-md shadow-blue-500/20'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/80'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/20'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-900/80'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <Icon
                       className={`w-4 h-4 transition-transform group-hover:scale-110 ${
                         active ? 'text-white' : 'text-slate-400 group-hover:text-purple-400'
@@ -222,9 +295,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
         </div>
       </div>
 
-      {/* Storage Utilization Card in Sidebar Footer */}
-      <div className="p-4 border-t border-slate-800/80 bg-slate-950/60 space-y-3">
-        {/* Admin Panel Link (admin role only) */}
+      {/* Footer Content */}
+      <div className="p-4 border-t border-slate-800 bg-slate-950/40 space-y-3">
         {user?.role === 'admin' && (
           <NavLink
             to="/admin"
@@ -236,34 +308,101 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose })
             <ExternalLink className="w-3 h-3 ml-auto opacity-60" />
           </NavLink>
         )}
-        <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-              <HardDrive className="w-3.5 h-3.5 text-blue-400" />
-              Storage Used
-            </span>
-            <span className="text-slate-400 font-mono text-[11px]">4.2 / 10 GB</span>
-          </div>
 
-          {/* Progress bar */}
-          <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full"
-              style={{ width: '42%' }}
-            />
+        {/* Google Drive Storage Card */}
+        {loadingCloud ? (
+          <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+                <GoogleDriveIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                Google Drive Storage
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-slate-400 py-1">
+              <Loader2 className="w-3 h-3 animate-spin text-blue-400" />
+              <span>Loading storage...</span>
+            </div>
           </div>
+        ) : googleDriveStatus?.isConnected ? (
+          <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2.5">
+            <div className="flex items-center justify-between text-xs gap-2">
+              <span className="text-slate-300 font-semibold flex items-center gap-1.5 truncate">
+                <GoogleDriveIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                Google Drive Storage
+              </span>
+              <span className="text-slate-300 font-mono text-[11px] font-medium flex-shrink-0">
+                {googleQuota
+                  ? `${formatStorageBytes(googleQuota.usedBytes)} / ${
+                      googleQuota.totalBytes > 0 ? formatStorageBytes(googleQuota.totalBytes) : 'Unlimited'
+                    }`
+                  : 'Connected'}
+              </span>
+            </div>
 
-          <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
-            <span>42% utilized</span>
-            <NavLink
-              to="/files"
-              onClick={onMobileClose}
-              className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-0.5"
+            {/* Dynamic Progress bar */}
+            {googleQuota && (
+              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    googleQuota.usagePercentage > 90
+                      ? 'bg-rose-500'
+                      : googleQuota.usagePercentage > 75
+                      ? 'bg-amber-500'
+                      : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500'
+                  }`}
+                  style={{ width: `${Math.min(100, Math.max(0, googleQuota.usagePercentage))}%` }}
+                />
+              </div>
+            )}
+
+            <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
+              <span>
+                {googleQuota ? (
+                  <>
+                    <span className="text-slate-300 font-medium">{googleQuota.usagePercentage}%</span>
+                    {googleQuota.remainingBytes > 0 && (
+                      <span className="text-slate-400"> ({formatStorageBytes(googleQuota.remainingBytes)} available)</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-emerald-400 truncate">{googleDriveStatus.providerEmail || 'Connected'}</span>
+                )}
+              </span>
+              <NavLink
+                to="/files"
+                onClick={onMobileClose}
+                className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-0.5 flex-shrink-0"
+              >
+                Manage <ExternalLink className="w-2.5 h-2.5" />
+              </NavLink>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+                <GoogleDriveIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                Google Drive
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500">Google Drive is not connected</p>
+            <button
+              type="button"
+              onClick={handleConnectGoogleDrive}
+              disabled={connectingDrive}
+              className="w-full mt-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 hover:text-blue-200 text-xs font-semibold transition-all disabled:opacity-50 active:scale-95"
             >
-              Manage <ExternalLink className="w-2.5 h-2.5" />
-            </NavLink>
+              {connectingDrive ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Connecting...</span>
+                </>
+              ) : (
+                <span>Connect Google Drive</span>
+              )}
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

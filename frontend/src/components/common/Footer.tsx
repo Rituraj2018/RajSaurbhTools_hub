@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Layers,
   ShieldCheck,
   ArrowUp,
   Mail,
@@ -18,31 +17,254 @@ import {
   Instagram,
   Github,
   Facebook,
+  MessageSquareHeart,
 } from 'lucide-react';
 import { useAppSelector } from '../../features/store';
 import { Modal } from './Modal';
+import { historyApi, getLocalToolUsageMap } from '../../api/historyApi';
+import { PopularToolUsage } from '../../types/history.types';
+
+import { BrandLogo } from './BrandLogo';
 
 type SupportModalType = 'help' | 'contact' | 'privacy' | 'terms' | null;
+
+interface DisplayTool {
+  name: string;
+  path: string;
+  badge: string;
+  usageCount?: number;
+}
+
+interface ToolCatalogItem {
+  name: string;
+  path: string;
+  badge: string;
+  slugs: string[];
+}
+
+const ALL_TOOLS_CATALOG: ToolCatalogItem[] = [
+  {
+    name: 'Passport Photo Studio',
+    path: '/tools/passport-photo-studio',
+    badge: 'Popular',
+    slugs: ['passport-photo-studio', 'passport-photo', 'passport photo studio', 'passport photo studio pro'],
+  },
+  {
+    name: 'File Password Protector',
+    path: '/tools/file-password-protector',
+    badge: 'AES-256',
+    slugs: ['file-password-protector', 'file-protector', 'pdf-protect', 'file password protector'],
+  },
+  {
+    name: 'Aadhaar Print Studio Pro',
+    path: '/tools/aadhaar-print-studio',
+    badge: 'Print Ready',
+    slugs: ['aadhaar-print-studio', 'aadhaar-print', 'aadhaar print studio pro', 'aadhaar print studio'],
+  },
+  {
+    name: 'Ayushman Card Print Pro',
+    path: '/tools/ayushman-print-tool',
+    badge: 'PM-JAY',
+    slugs: ['ayushman-print-tool', 'ayushman-card-print', 'ayushman card print tool pro', 'ayushman card print pro'],
+  },
+  {
+    name: 'PAN / CR80 Print Studio',
+    path: '/tools/pan-print-studio',
+    badge: 'CR80 PVC',
+    slugs: ['pan-print-studio', 'pan-card-print', 'pan / cr80 print studio', 'pan / cr80 print studio pro'],
+  },
+  {
+    name: 'Merge PDF Master',
+    path: '/tools/pdf-merge',
+    badge: 'Utility',
+    slugs: ['pdf-merge', 'merge-pdf', 'pdf merge', 'merge pdf master', 'pdf merge master'],
+  },
+  {
+    name: 'Split PDF Pro',
+    path: '/tools/pdf-split',
+    badge: 'Extract',
+    slugs: ['pdf-split', 'split-pdf', 'pdf split', 'split pdf pro'],
+  },
+  {
+    name: 'Image Compressor',
+    path: '/tools/image-compressor',
+    badge: 'Lossless',
+    slugs: ['image-compressor', 'photo-compress', 'image compressor'],
+  },
+  {
+    name: 'QR Code Studio Pro',
+    path: '/tools/qr-generator',
+    badge: 'UPI Ready',
+    slugs: ['qr-generator', 'qr-code-studio', 'qr code studio pro', 'qr code generator'],
+  },
+  {
+    name: 'Signature Cropper',
+    path: '/tools/signature-cropper',
+    badge: 'Exam Preset',
+    slugs: ['signature-cropper', 'signature cropper'],
+  },
+  {
+    name: 'Image to PDF',
+    path: '/tools/image-to-pdf',
+    badge: 'Popular',
+    slugs: ['image-to-pdf', 'jpg-to-pdf', 'image to pdf', 'image to pdf converter'],
+  },
+  {
+    name: 'PDF to Word',
+    path: '/tools/pdf-to-word',
+    badge: 'Document',
+    slugs: ['pdf-to-word', 'pdf to word'],
+  },
+  {
+    name: 'Word to PDF',
+    path: '/tools/word-to-pdf',
+    badge: 'Convert',
+    slugs: ['word-to-pdf', 'word to pdf'],
+  },
+  {
+    name: 'PNG to JPG',
+    path: '/tools/png-to-jpg',
+    badge: 'Fast JPG',
+    slugs: ['png-to-jpg', 'png to jpg'],
+  },
+  {
+    name: 'JPG to PNG',
+    path: '/tools/jpg-to-png',
+    badge: 'Lossless',
+    slugs: ['jpg-to-png', 'jpg to png'],
+  },
+  {
+    name: 'Image Resizer',
+    path: '/tools/image-resizer',
+    badge: 'Resize',
+    slugs: ['image-resizer', 'image resizer'],
+  },
+];
+
+const DEFAULT_POPULAR_TOOLS: DisplayTool[] = [
+  { name: 'Passport Photo Studio', path: '/tools/passport-photo-studio', badge: 'Popular' },
+  { name: 'File Password Protector', path: '/tools/file-password-protector', badge: 'AES-256' },
+  { name: 'Aadhaar Print Studio Pro', path: '/tools/aadhaar-print-studio', badge: 'Print Ready' },
+  { name: 'Ayushman Card Print Pro', path: '/tools/ayushman-print-tool', badge: 'PM-JAY' },
+  { name: 'PAN / CR80 Print Studio', path: '/tools/pan-print-studio', badge: 'CR80 PVC' },
+];
 
 export const Footer: React.FC = () => {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [activeModal, setActiveModal] = useState<SupportModalType>(null);
+  const [topTools, setTopTools] = useState<DisplayTool[]>(DEFAULT_POPULAR_TOOLS);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const popularTools = [
-    { name: 'Passport Photo Studio', path: '/tools/passport-photo-studio', badge: 'Popular' },
-    { name: 'Aadhaar Print Studio Pro', path: '/tools/aadhaar-print-studio', badge: 'Print Ready' },
-    { name: 'Ayushman Card Print Pro', path: '/tools/ayushman-print-tool', badge: 'PM-JAY' },
-    { name: 'PAN / CR80 Print Studio', path: '/tools/pan-print-studio', badge: 'CR80 PVC' },
-    { name: 'Merge PDF Master', path: '/tools/pdf-merge', badge: 'Utility' },
-    { name: 'Split PDF Pro', path: '/tools/pdf-split', badge: 'Extract' },
-    { name: 'Image Compressor', path: '/tools/image-compressor', badge: 'Lossless' },
-    { name: 'QR Code Studio Pro', path: '/tools/qr-generator', badge: 'UPI Ready' },
-    { name: 'Signature Cropper', path: '/tools/signature-cropper', badge: 'Exam Preset' },
-  ];
+  const calculateTopTools = useCallback((apiUsage: PopularToolUsage[] = []) => {
+    try {
+      const localUsage = getLocalToolUsageMap();
+      const usageScoreMap: Record<string, number> = {};
+
+      // Helper to match key with catalog tool
+      const findCatalogItem = (identifier: string): ToolCatalogItem | undefined => {
+        const cleanId = identifier.toLowerCase().trim();
+        return ALL_TOOLS_CATALOG.find((cat) =>
+          cat.slugs.some((s) => s.toLowerCase() === cleanId) ||
+          cat.name.toLowerCase() === cleanId ||
+          cat.path.toLowerCase().endsWith(`/${cleanId}`)
+        );
+      };
+
+      // 1. Process API Usage rankings
+      apiUsage.forEach((item) => {
+        const matched = findCatalogItem(item.slug) || (item.toolName ? findCatalogItem(item.toolName) : undefined);
+        if (matched) {
+          usageScoreMap[matched.path] = (usageScoreMap[matched.path] || 0) + (item.usageCount || 0);
+        }
+      });
+
+      // 2. Combine with Local/Client Usage
+      Object.entries(localUsage).forEach(([key, count]) => {
+        const matched = findCatalogItem(key);
+        if (matched) {
+          usageScoreMap[matched.path] = (usageScoreMap[matched.path] || 0) + (count || 0);
+        }
+      });
+
+      // 3. Build ranked list of catalog tools
+      const scoredTools = ALL_TOOLS_CATALOG.map((tool) => ({
+        name: tool.name,
+        path: tool.path,
+        badge: tool.badge,
+        usageCount: usageScoreMap[tool.path] || 0,
+      }));
+
+      // Sort descending by usage count
+      scoredTools.sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0));
+
+      const toolsWithUsage = scoredTools.filter((t) => (t.usageCount || 0) > 0);
+
+      // If we have tools with usage, pick top 5 (filling with defaults if fewer than 5)
+      if (toolsWithUsage.length > 0) {
+        const selected: DisplayTool[] = [];
+        const seenPaths = new Set<string>();
+
+        // Add tools with usage
+        for (const tool of toolsWithUsage) {
+          if (!seenPaths.has(tool.path)) {
+            selected.push(tool);
+            seenPaths.add(tool.path);
+            if (selected.length === 5) break;
+          }
+        }
+
+        // If fewer than 5, fill from default catalog
+        if (selected.length < 5) {
+          for (const defTool of DEFAULT_POPULAR_TOOLS) {
+            if (!seenPaths.has(defTool.path)) {
+              selected.push(defTool);
+              seenPaths.add(defTool.path);
+              if (selected.length === 5) break;
+            }
+          }
+        }
+
+        setTopTools(selected.slice(0, 5));
+      } else {
+        setTopTools(DEFAULT_POPULAR_TOOLS.slice(0, 5));
+      }
+    } catch {
+      setTopTools(DEFAULT_POPULAR_TOOLS.slice(0, 5));
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPopular = async () => {
+      try {
+        const popularData = await historyApi.getPopularTools();
+        if (isMounted) {
+          calculateTopTools(popularData);
+        }
+      } catch {
+        if (isMounted) {
+          calculateTopTools([]);
+        }
+      }
+    };
+
+    loadPopular();
+
+    // Listen for local tool usage events
+    const handleToolUsed = () => {
+      loadPopular();
+    };
+
+    window.addEventListener('rajsaurabh:tool_used', handleToolUsed);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('rajsaurabh:tool_used', handleToolUsed);
+    };
+  }, [calculateTopTools]);
 
   return (
     <>
@@ -75,19 +297,7 @@ export const Footer: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
             {/* Column 1 — Project Information (lg:col-span-4) */}
             <div className="lg:col-span-4 space-y-4">
-              <Link to="/" className="flex items-center gap-3 group inline-flex">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-                  <Layers className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                    RajSaurabh Tools_Hub
-                  </span>
-                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">
-                    Digital Document & Image Suite
-                  </p>
-                </div>
-              </Link>
+              <BrandLogo size="md" subtitleText="Digital Document & Image Suite" />
 
               <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
                 Fast, secure and easy-to-use digital tools for Photos, Documents, PDFs and ID Card
@@ -227,7 +437,7 @@ export const Footer: React.FC = () => {
               </h3>
 
               <ul className="text-xs space-y-2.5">
-                {popularTools.map((tool) => (
+                {topTools.map((tool) => (
                   <li key={tool.path}>
                     <Link
                       to={tool.path}
@@ -255,6 +465,15 @@ export const Footer: React.FC = () => {
               </h3>
 
               <ul className="text-xs space-y-2.5">
+                <li>
+                  <Link
+                    to="/feedback"
+                    className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 text-left w-full group"
+                  >
+                    <MessageSquareHeart className="w-3.5 h-3.5 text-pink-400 shrink-0 group-hover:scale-110 transition-transform" />
+                    <span>Feedback</span>
+                  </Link>
+                </li>
                 <li>
                   <button
                     onClick={() => setActiveModal('help')}

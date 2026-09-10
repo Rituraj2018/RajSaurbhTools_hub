@@ -21,6 +21,7 @@ export * from './AdminUsersPage';
 export * from './AdminToolsPage';
 export * from './AdminFilesPage';
 export * from './AdminAnalyticsPage';
+export * from './AdminWebsitesPage';
 // Cloud OAuth callback
 export * from './CloudCallbackPage';
 // Missing & New Tools
@@ -33,3 +34,9 @@ export * from './JpgToPngPage';
 export * from './PdfToWordPage';
 export * from './WordToPdfPage';
 export * from './ImageResizerPage';
+// Security Tools
+export * from './FileProtectorPage';
+// User Feedback System
+export * from './FeedbackPage';
+// Error Pages
+export * from './UnauthorizedPage';

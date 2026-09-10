@@ -24,6 +24,7 @@ import {
   AdminToolsPage,
   AdminFilesPage,
   AdminAnalyticsPage,
+  AdminWebsitesPage,
   CloudCallbackPage,
   PdfSplitPage,
   QrGeneratorPage,
@@ -34,6 +35,9 @@ import {
   PdfToWordPage,
   WordToPdfPage,
   ImageResizerPage,
+  FileProtectorPage,
+  FeedbackPage,
+  UnauthorizedPage,
 } from '../pages';
 import { ProtectedRoute } from './ProtectedRoute';
 import { GuestRoute } from './GuestRoute';
@@ -45,6 +49,7 @@ export const AppRoutes: React.FC = () => {
       {/* Public Landing & Tools Routes */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/tools/passport-photo-studio" element={<PassportPhotoStudioPage />} />
         <Route path="/passport-photo-studio" element={<PassportPhotoStudioPage />} />
         <Route path="/tools/image-to-pdf" element={<ImageToPdfPage />} />
@@ -75,6 +80,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="/word-to-pdf" element={<WordToPdfPage />} />
         <Route path="/tools/image-resizer" element={<ImageResizerPage />} />
         <Route path="/image-resizer" element={<ImageResizerPage />} />
+        <Route path="/tools/file-password-protector" element={<FileProtectorPage />} />
+        <Route path="/file-password-protector" element={<FileProtectorPage />} />
         {/* Cloud OAuth callback — public route used inside OAuth popup */}
         <Route path="/cloud/callback" element={<CloudCallbackPage />} />
       </Route>
@@ -141,6 +148,9 @@ export const AppRoutes: React.FC = () => {
           <Route path="/tools/image-resizer" element={<ImageResizerPage />} />
           <Route path="/tools/image/image-resizer" element={<ImageResizerPage />} />
           <Route path="/image-resizer" element={<ImageResizerPage />} />
+          <Route path="/tools/file-password-protector" element={<FileProtectorPage />} />
+          <Route path="/tools/security/file-password-protector" element={<FileProtectorPage />} />
+          <Route path="/file-password-protector" element={<FileProtectorPage />} />
           <Route path="/tools/:category" element={<ToolsPage />} />
           <Route path="/files" element={<MyFilesPage />} />
           <Route path="/history" element={<HistoryPage />} />
@@ -155,13 +165,17 @@ export const AppRoutes: React.FC = () => {
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/tools" element={<AdminToolsPage />} />
+          <Route path="/admin/websites" element={<AdminWebsitesPage />} />
           <Route path="/admin/files" element={<AdminFilesPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         </Route>
       </Route>
 
-      {/* 404 Fallback Route */}
+      {/* Error & Fallback Routes */}
       <Route element={<MainLayout />}>
+        <Route path="/401" element={<UnauthorizedPage />} />
+        <Route path="/403" element={<UnauthorizedPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Route>

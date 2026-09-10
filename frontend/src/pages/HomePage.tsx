@@ -19,26 +19,35 @@ import {
   QrCode,
   Layers,
   Sliders,
+  Globe,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../features/store';
 import { fetchSystemHealth } from '../features/systemSlice';
-import { toolsService, Tool, fetchFavoriteTools, toggleFavoriteTool } from '../features/tools';
+import { toolsService, Tool, fetchTools, fetchFavoriteTools, toggleFavoriteTool } from '../features/tools';
+import { Website } from '../types/website';
+import { websiteApi } from '../api/websiteApi';
 import { Button } from '../components/common';
 import { EmptyState } from '../components/common/EmptyState';
 import { ToolCard } from '../components/tools';
+import { WebsiteCard } from '../components/websites';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { health, loading, error, lastChecked } = useAppSelector((state) => state.system);
   const { user } = useAppSelector((state) => state.auth);
-  const { favoriteToolIds } = useAppSelector((state) => state.tools);
+  const { tools, favoriteToolIds } = useAppSelector((state) => state.tools);
 
   const isAdmin = user?.role === 'admin';
+  const totalToolsCount = tools.length > 0 ? tools.length : 16;
 
   const [featuredTools, setFeaturedTools] = useState<Tool[]>([]);
   const [loadingTools, setLoadingTools] = useState<boolean>(true);
   const [errorTools, setErrorTools] = useState<string | null>(null);
+
+  const [usefulWebsites, setUsefulWebsites] = useState<Website[]>([]);
+  const [loadingWebsites, setLoadingWebsites] = useState<boolean>(true);
+  const [errorWebsites, setErrorWebsites] = useState<string | null>(null);
 
   const loadFeaturedTools = useCallback(async () => {
     setLoadingTools(true);
@@ -54,13 +63,29 @@ export const HomePage: React.FC = () => {
     }
   }, []);
 
+  const loadUsefulWebsites = useCallback(async () => {
+    setLoadingWebsites(true);
+    setErrorWebsites(null);
+    try {
+      const data = await websiteApi.getWebsites({ isActive: true });
+      setUsefulWebsites(data);
+    } catch (err: any) {
+      console.error('Failed to load useful websites:', err);
+      setErrorWebsites(err?.message || 'Unable to load websites right now.');
+    } finally {
+      setLoadingWebsites(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAdmin) {
       dispatch(fetchSystemHealth());
     }
+    dispatch(fetchTools());
     dispatch(fetchFavoriteTools());
     loadFeaturedTools();
-  }, [dispatch, loadFeaturedTools, isAdmin]);
+    loadUsefulWebsites();
+  }, [dispatch, loadFeaturedTools, loadUsefulWebsites, isAdmin]);
 
   const handleToggleFavorite = (toolId: string) => {
     dispatch(toggleFavoriteTool(toolId));
@@ -132,6 +157,10 @@ export const HomePage: React.FC = () => {
       navigate('/tools/image-resizer');
       return;
     }
+    if (id === 'file-password-protector' || tool.title?.toLowerCase().includes('password protect') || tool.title?.toLowerCase().includes('file protect')) {
+      navigate('/tools/file-password-protector');
+      return;
+    }
     navigate('/tools');
   };
 
@@ -185,7 +214,7 @@ export const HomePage: React.FC = () => {
                 leftIcon={<Zap className="w-4 h-4" />}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                Explore All 18+ Tools
+                Explore All {totalToolsCount}+ Tools
               </Button>
             </Link>
 
@@ -511,6 +540,84 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Useful Websites Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-400 mb-1.5">
+              <Globe className="w-3.5 h-3.5" />
+              <span>Recommended Portals</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Useful Websites
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              Helpful websites and resources recommended by RajSaurabh Tools_Hub.
+            </p>
+          </div>
+          {isAdmin && (
+            <Link to="/admin/websites">
+              <Button variant="outline" size="sm" leftIcon={<Globe className="w-3.5 h-3.5" />}>
+                Manage Websites
+              </Button>
+            </Link>
+          )}
+        </div>
+
+        {loadingWebsites ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800/80 animate-pulse space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-xl bg-slate-800" />
+                  <div className="w-24 h-5 rounded-full bg-slate-800" />
+                </div>
+                <div className="space-y-2">
+                  <div className="w-3/4 h-5 rounded bg-slate-800" />
+                  <div className="w-full h-3.5 rounded bg-slate-800/60" />
+                  <div className="w-2/3 h-3.5 rounded bg-slate-800/60" />
+                </div>
+                <div className="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+                  <div className="w-16 h-4 rounded bg-slate-800" />
+                  <div className="w-24 h-7 rounded-xl bg-slate-800" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : errorWebsites ? (
+          <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center rounded-2xl bg-rose-500/5 border border-rose-500/20 space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-white">Unable to load websites right now.</h3>
+            <p className="text-xs text-slate-400 max-w-sm">Please check your internet connection and try again.</p>
+            <Button
+              onClick={loadUsefulWebsites}
+              variant="secondary"
+              size="sm"
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            >
+              Retry
+            </Button>
+          </div>
+        ) : usefulWebsites.length === 0 ? (
+          <EmptyState
+            icon={<Globe className="w-7 h-7 text-indigo-400" />}
+            title="Useful websites will appear here soon."
+            description="Our team is curating helpful government, educational, and utility portals for you."
+          />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {usefulWebsites.map((site) => (
+              <WebsiteCard key={site.id || site._id} website={site} />
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Simple 3-Step Flow */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="p-8 sm:p-10 rounded-3xl bg-slate-900/40 border border-slate-800/90 backdrop-blur-md">
@@ -524,7 +631,7 @@ export const HomePage: React.FC = () => {
                 1
               </div>
               <h4 className="text-sm font-bold text-white">Select Your Tool</h4>
-              <p className="text-xs text-slate-400">Choose from over 18+ purpose-built utilities.</p>
+              <p className="text-xs text-slate-400">Choose from over {totalToolsCount}+ purpose-built utilities.</p>
             </div>
             <div className="space-y-2">
               <div className="w-10 h-10 mx-auto rounded-full bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold text-sm">

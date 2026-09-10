@@ -11,6 +11,7 @@ import {
   Clock,
   ShieldAlert,
   BarChart3,
+  Globe,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../features/store';
 import { fetchAdminStats } from '../features/admin';
@@ -229,10 +230,11 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* Quick Action Links */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {[
           { label: 'Manage Users', path: '/admin/users', icon: <Users className="w-4 h-4" />, color: 'from-blue-600 to-indigo-600' },
           { label: 'Manage Tools', path: '/admin/tools', icon: <Wrench className="w-4 h-4" />, color: 'from-purple-600 to-violet-600' },
+          { label: 'Useful Websites', path: '/admin/websites', icon: <Globe className="w-4 h-4" />, color: 'from-cyan-600 to-blue-600' },
           { label: 'View Files', path: '/admin/files', icon: <FileText className="w-4 h-4" />, color: 'from-emerald-600 to-teal-600' },
           { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="w-4 h-4" />, color: 'from-rose-600 to-orange-600' },
         ].map((action) => (

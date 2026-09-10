@@ -141,7 +141,7 @@ export const AdminUsersPage: React.FC = () => {
         type: 'block',
         user,
         title: 'Block User Account',
-        message: `Are you sure you want to suspend "${user.name}"? They will no longer be able to log in or use tools.`,
+        message: `Are you sure you want to block "${user.name}"? They will no longer be able to access protected tools or API services.`,
         confirmLabel: 'Block User',
         isDanger: true,
       });
@@ -151,7 +151,7 @@ export const AdminUsersPage: React.FC = () => {
         type: 'unblock',
         user,
         title: 'Unblock User Account',
-        message: `Are you sure you want to restore access for "${user.name}"?`,
+        message: `Are you sure you want to restore full access for "${user.name}"?`,
         confirmLabel: 'Unblock User',
         isDanger: false,
       });
@@ -381,26 +381,28 @@ export const AdminUsersPage: React.FC = () => {
                             </button>
                           )}
 
-                          {/* Existing Block / Unblock Button */}
+                          {/* Block / Unblock Button */}
                           {u.isBlocked ? (
                             <button
                               id={`unblock-user-${u._id}`}
                               onClick={() => openConfirm('unblock', u)}
                               disabled={mutationLoading}
-                              title="Unblock user"
-                              className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                              title="Unblock user account"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-colors disabled:opacity-50"
                             >
-                              <ShieldCheck className="w-3.5 h-3.5" />
+                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              <span>{updatingUserId === u._id && confirmModal.type === 'unblock' ? 'Unblocking...' : 'Unblock'}</span>
                             </button>
                           ) : (
                             <button
                               id={`block-user-${u._id}`}
                               onClick={() => openConfirm('block', u)}
                               disabled={mutationLoading || isCurrentUser}
-                              title={isCurrentUser ? 'You cannot block your own account' : 'Block user'}
-                              className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={isCurrentUser ? 'You cannot block your own account' : 'Block user account'}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <ShieldOff className="w-3.5 h-3.5" />
+                              <ShieldOff className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                              <span>{updatingUserId === u._id && confirmModal.type === 'block' ? 'Blocking...' : 'Block'}</span>
                             </button>
                           )}
 

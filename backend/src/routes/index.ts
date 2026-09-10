@@ -9,6 +9,8 @@ import adminRouter from './adminRoutes';
 import notificationRouter from './notificationRoutes';
 import googleDriveRouter from './googleDriveRoutes';
 import cloudRouter from './cloudRoutes';
+import feedbackRouter from './feedbackRoutes';
+import websiteRouter from './websiteRoutes';
 
 const router = Router();
 
@@ -23,8 +25,7 @@ router.use('/admin', adminRouter);
 router.use('/notifications', notificationRouter);
 router.use('/drive', googleDriveRouter);
 router.use('/cloud', cloudRouter);
+router.use('/feedback', feedbackRouter);
+router.use('/websites', websiteRouter);
 
 export default router;
-
-
-

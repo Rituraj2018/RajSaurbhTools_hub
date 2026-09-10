@@ -1,4 +1,5 @@
 import React, { useRef, useState, DragEvent, ChangeEvent } from 'react';
+import { createPortal } from 'react-dom';
 import {
   UploadCloud,
   X,
@@ -74,9 +75,9 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-lg p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-5">
+      <div className="w-full max-w-lg p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-5 my-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-3">
@@ -164,6 +165,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -6,6 +6,7 @@ import {
   FileText,
   Image as ImageIcon,
   Star,
+  ShieldCheck,
 } from 'lucide-react';
 
 export interface CategoryItem {
@@ -41,6 +42,8 @@ export const ToolCategoryFilter: React.FC<ToolCategoryFilterProps> = ({
         return <ImageIcon className="w-3.5 h-3.5" />;
       case 'favorites':
         return <Star className="w-3.5 h-3.5" />;
+      case 'security':
+        return <ShieldCheck className="w-3.5 h-3.5" />;
       default:
         return <Wrench className="w-3.5 h-3.5" />;
     }

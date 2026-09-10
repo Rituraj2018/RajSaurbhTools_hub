@@ -53,7 +53,7 @@ export const authenticate = asyncHandler(
     if (user.isBlocked) {
       throw new ApiError(
         403,
-        'Your account has been suspended. Please contact support.'
+        'Your account has been blocked by the administrator. Please contact support.'
       );
     }
 

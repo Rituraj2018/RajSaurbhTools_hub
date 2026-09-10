@@ -82,6 +82,10 @@ export const ToolsPage: React.FC = () => {
       navigate('/tools/image-resizer');
       return;
     }
+    if (slug === 'file-password-protector' || tool.name.toLowerCase().includes('password protect') || tool.name.toLowerCase().includes('file protect')) {
+      navigate('/tools/file-password-protector');
+      return;
+    }
     setSelectedTool(tool);
   };
 
@@ -171,6 +175,7 @@ export const ToolsPage: React.FC = () => {
       PDF: tools.filter((t) => t.category.toLowerCase() === 'pdf').length,
       Document: tools.filter((t) => t.category.toLowerCase() === 'document').length,
       Image: tools.filter((t) => t.category.toLowerCase() === 'image').length,
+      Security: tools.filter((t) => t.category.toLowerCase() === 'security').length,
     };
 
     return [
@@ -179,6 +184,7 @@ export const ToolsPage: React.FC = () => {
       { id: 'PDF', label: 'PDF Suite', count: counts.PDF },
       { id: 'Document', label: 'Document Lab', count: counts.Document },
       { id: 'Image', label: 'Image Tools', count: counts.Image },
+      ...(counts.Security > 0 ? [{ id: 'Security', label: 'Security Tools', count: counts.Security }] : []),
     ];
   }, [tools]);
 

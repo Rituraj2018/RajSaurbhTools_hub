@@ -18,6 +18,13 @@ const generateSlug = (text: string): string => {
 };
 
 /**
+ * Helper to escape regex special characters in user input
+ */
+const escapeRegex = (text: string): string => {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+};
+
+/**
  * @desc    Get all tools with filtering & search support
  * @route   GET /api/tools
  * @access  Public
@@ -25,7 +32,8 @@ const generateSlug = (text: string): string => {
 export const getTools = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   // Ensure database has tools seeded if empty or missing newly added tools
   const count = await Tool.countDocuments();
-  if (count < INITIAL_STATIC_TOOLS.length) {
+  const staticCount = Array.isArray(INITIAL_STATIC_TOOLS) ? INITIAL_STATIC_TOOLS.length : 0;
+  if (count < staticCount && staticCount > 0 && typeof seedInitialTools === 'function') {
     await seedInitialTools();
   }
 
@@ -33,12 +41,13 @@ export const getTools = asyncHandler(async (req: Request, res: Response): Promis
 
   const filter: Record<string, any> = {};
 
-  // Category filtering (case-insensitive)
-  if (category && category !== 'All' && category !== 'all') {
-    if (category.toString().toLowerCase().includes('id card')) {
+  // Category filtering (case-insensitive & safe against regex syntax errors)
+  if (category && typeof category === 'string' && category.trim() && category.toLowerCase() !== 'all') {
+    const trimmedCat = category.trim();
+    if (trimmedCat.toLowerCase().includes('id card')) {
       filter.category = new RegExp('id card', 'i');
     } else {
-      filter.category = new RegExp(`^${category}$`, 'i');
+      filter.category = new RegExp(`^${escapeRegex(trimmedCat)}$`, 'i');
     }
   }
 
@@ -54,9 +63,9 @@ export const getTools = asyncHandler(async (req: Request, res: Response): Promis
     filter.isFeatured = isFeatured === 'true';
   }
 
-  // Search filter across name and description
+  // Search filter across name and description (safe regex escaping)
   if (search && typeof search === 'string' && search.trim()) {
-    const searchRegex = new RegExp(search.trim(), 'i');
+    const searchRegex = new RegExp(escapeRegex(search.trim()), 'i');
     filter.$or = [{ name: searchRegex }, { description: searchRegex }];
   }
 

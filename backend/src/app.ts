@@ -56,15 +56,27 @@ app.use(
 /* ════════════════════════════════════════════════════════════
    2. CORS — tightly scoped in production
 ════════════════════════════════════════════════════════════ */
+const rawOrigins = (config.clientUrl || '')
+  .split(',')
+  .map((url) => url.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
 const ALLOWED_ORIGINS = config.isProduction
-  ? [config.clientUrl].filter(Boolean)
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+  ? rawOrigins.length > 0
+    ? rawOrigins
+    : ['*'] // Permissive fallback if CLIENT_URL is unset in production
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', ...rawOrigins];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow server-to-server calls (no origin header) and allowed origins
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      // Allow server-to-server calls (no origin header), wildcard, or matched origins
+      if (
+        !origin ||
+        ALLOWED_ORIGINS.includes('*') ||
+        ALLOWED_ORIGINS.includes(origin) ||
+        ALLOWED_ORIGINS.includes(origin.replace(/\/+$/, ''))
+      ) {
         callback(null, true);
       } else {
         callback(new Error(`CORS: Origin "${origin}" is not allowed`));

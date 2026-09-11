@@ -94,8 +94,8 @@ export const validateEnv = (): void => {
     if (!process.env.JWT_SECRET) {
       errors.push('JWT_SECRET must be set in production');
     }
-    if (!process.env.MONGODB_URI) {
-      errors.push('MONGODB_URI must be set in production');
+    if (!process.env.MONGODB_URI && !process.env.MONGODB_URL) {
+      errors.push('MONGODB_URI or MONGODB_URL must be set in production');
     }
     if (!process.env.CLIENT_URL) {
       warnings.push('CLIENT_URL is not set — CORS will be permissive');

@@ -1,9 +1,9 @@
 /**
  * Supported Tool Categories
  */
-export type ToolCategory = 'All' | 'Photo' | 'PDF' | 'Document' | 'Image';
+export type ToolCategory = 'All' | 'Photo' | 'PDF' | 'Document' | 'Image' | 'Security' | 'ID Card' | 'ID Card Tools';
 
-export const TOOL_CATEGORIES: ToolCategory[] = ['All', 'Photo', 'PDF', 'Document', 'Image'];
+export const TOOL_CATEGORIES: ToolCategory[] = ['All', 'Photo', 'PDF', 'Document', 'Image', 'Security', 'ID Card', 'ID Card Tools'];
 
 /**
  * Tool entity interface
@@ -14,7 +14,7 @@ export interface Tool {
   name: string;
   slug: string;
   description: string;
-  category: 'Photo' | 'PDF' | 'Document' | 'Image';
+  category: 'Photo' | 'PDF' | 'Document' | 'Image' | 'Security' | 'ID Card' | 'ID Card Tools';
   icon: string;
   isActive: boolean;
   isFeatured: boolean;

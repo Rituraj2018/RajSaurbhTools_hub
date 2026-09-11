@@ -15,6 +15,7 @@
     "@types/qrcode": "^1.5.6",
     "axios": "^1.7.9",
     "docx": "^9.7.1",
+    "jsbarcode": "^3.12.3",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.475.0",
     "mammoth": "^1.12.2",

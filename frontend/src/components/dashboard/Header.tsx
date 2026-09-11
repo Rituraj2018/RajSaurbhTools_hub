@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Menu,
@@ -14,9 +14,9 @@ import {
   Home,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
-import { mockTools } from '../../utils/mockData';
 import { useAppDispatch, useAppSelector } from '../../features/store';
 import { logoutUser } from '../../features/auth';
+import { fetchTools } from '../../features/tools';
 import { NotificationBell } from '../notifications/NotificationBell';
 
 export interface HeaderProps {
@@ -27,11 +27,29 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { tools } = useAppSelector((state) => state.tools);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!tools || tools.length === 0) {
+      dispatch(fetchTools());
+    }
+  }, [dispatch, tools]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleLogout = async () => {
     setIsUserMenuOpen(false);
@@ -40,10 +58,11 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
   };
 
   const filteredTools = searchQuery.trim()
-    ? mockTools.filter(
+    ? tools.filter(
         (t) =>
-          t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          t.description.toLowerCase().includes(searchQuery.toLowerCase())
+          t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.category.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 
@@ -217,14 +236,14 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
               filteredTools.length > 0 ? (
                 filteredTools.map((tool) => (
                   <Link
-                    key={tool.id}
-                    to="/tools"
+                    key={tool.id || tool._id || tool.slug}
+                    to={`/tools/${tool.slug}`}
                     onClick={() => setIsSearchOpen(false)}
                     className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-800/70 border border-transparent hover:border-slate-700 transition-all group"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
-                        {tool.category === 'photo' ? (
+                        {tool.category?.toLowerCase() === 'photo' || tool.category?.toLowerCase() === 'image' ? (
                           <ImageIcon className="w-4 h-4 text-purple-400" />
                         ) : (
                           <FileText className="w-4 h-4 text-blue-400" />
@@ -232,7 +251,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
                       </div>
                       <div>
                         <h4 className="text-xs font-bold text-white group-hover:text-blue-300">
-                          {tool.title}
+                          {tool.name}
                         </h4>
                         <p className="text-[11px] text-slate-400 line-clamp-1">
                           {tool.description}
@@ -255,14 +274,14 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
                   Popular Quick Actions
                 </p>
                 <div className="grid grid-cols-2 gap-2">
-                  {mockTools.slice(0, 4).map((tool) => (
+                  {(tools.length > 0 ? tools.slice(0, 4) : []).map((tool) => (
                     <Link
-                      key={tool.id}
-                      to="/tools"
+                      key={tool.id || tool._id || tool.slug}
+                      to={`/tools/${tool.slug}`}
                       onClick={() => setIsSearchOpen(false)}
                       className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 hover:bg-slate-800/40 text-left transition-all"
                     >
-                      <div className="text-xs font-semibold text-white">{tool.title}</div>
+                      <div className="text-xs font-semibold text-white">{tool.name}</div>
                       <div className="text-[10px] text-slate-400 capitalize">
                         {tool.category} Processing
                       </div>

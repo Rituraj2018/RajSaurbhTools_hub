@@ -164,6 +164,136 @@ export const INITIAL_STATIC_TOOLS: Omit<ITool, 'createdAt' | 'updatedAt'>[] = [
     isActive: true,
     isFeatured: true,
   },
+  {
+    name: 'ID Card Maker',
+    slug: 'id-card-maker',
+    description:
+      'Full ID card creator with custom text fields, photos, dimensions, front & back templates, and instant download.',
+    category: 'ID Card Tools',
+    icon: 'CreditCard',
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: 'ID Card Print Studio',
+    slug: 'id-card-print-studio',
+    description:
+      'Prepare ready-to-print ID card layouts on A4 paper or PVC CR80 sheets with cut marks and custom margins.',
+    category: 'ID Card Tools',
+    icon: 'Printer',
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: 'ID Card Photo Maker',
+    slug: 'id-card-photo-maker',
+    description:
+      'Crop, resize, adjust brightness, contrast, and prepare photos specifically sized for ID card badges.',
+    category: 'ID Card Tools',
+    icon: 'Camera',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card Resize',
+    slug: 'id-card-resize',
+    description:
+      'Resize existing ID card pictures or scans to exact CR80, standard millimeter, or custom dimensions.',
+    category: 'ID Card Tools',
+    icon: 'Maximize2',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card PDF Generator',
+    slug: 'id-card-pdf-generator',
+    description:
+      'Convert front and back ID card images into standardized, high-resolution print-ready PDF files.',
+    category: 'ID Card Tools',
+    icon: 'FileText',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card Sheet Maker',
+    slug: 'id-card-sheet-maker',
+    description:
+      'Arrange multiple employee or student ID cards on a single A4 or Letter sheet with alignment grid.',
+    category: 'ID Card Tools',
+    icon: 'LayoutGrid',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card QR Generator',
+    slug: 'id-card-qr-generator',
+    description:
+      'Generate compact QR codes encoding vCards, employee IDs, URLs, or access codes for badge printing.',
+    category: 'ID Card Tools',
+    icon: 'QrCode',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card Barcode Generator',
+    slug: 'id-card-barcode-generator',
+    description:
+      'Generate Code128, Code39, and EAN barcodes sized and formatted specifically for ID badges.',
+    category: 'ID Card Tools',
+    icon: 'BarChart3',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card Template Maker',
+    slug: 'id-card-template-maker',
+    description:
+      'Design custom reusable ID card badge layouts with draggable headers, footers, and photo zones.',
+    category: 'ID Card Tools',
+    icon: 'Palette',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card Print Preview',
+    slug: 'id-card-print-preview',
+    description:
+      'Preview ID cards at 1:1 real-world physical size on screen with grid guides before final printing.',
+    category: 'ID Card Tools',
+    icon: 'Eye',
+    isActive: true,
+    isFeatured: false,
+  },
+  {
+    name: 'ID Card Form Generator',
+    slug: 'id-card-form-generator',
+    description:
+      'Fill form details to automatically generate professional two-sided (Front + Back) ID cards with QR/barcodes.',
+    category: 'ID Card Tools',
+    icon: 'CreditCard',
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: 'Image Cropper',
+    slug: 'image-cropper',
+    description:
+      'Crop images with customizable aspect ratios, preset dimensions, rotation, zoom, circle crop, and instant high-quality export.',
+    category: 'Crop',
+    icon: 'Crop',
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: 'Image to SVG Converter',
+    slug: 'image-to-svg',
+    description:
+      'Convert PNG, JPG, and WebP raster images into clean, scalable SVG vector graphics with smart auto vectorization and logo optimization.',
+    category: 'Image',
+    icon: 'Sparkles',
+    isActive: true,
+    isFeatured: true,
+  },
 ];
 
 /**

@@ -3,9 +3,9 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 /**
  * Valid Tool Categories
  */
-export type ToolCategory = 'Photo' | 'PDF' | 'Document' | 'Image' | 'Security';
+export type ToolCategory = 'Photo' | 'PDF' | 'Document' | 'Image' | 'Security' | 'ID Card' | 'ID Card Tools' | 'Crop';
 
-export const TOOL_CATEGORIES: ToolCategory[] = ['Photo', 'PDF', 'Document', 'Image', 'Security'];
+export const TOOL_CATEGORIES: ToolCategory[] = ['Photo', 'PDF', 'Document', 'Image', 'Security', 'ID Card', 'ID Card Tools', 'Crop'];
 
 /**
  * TypeScript interface representing Tool properties

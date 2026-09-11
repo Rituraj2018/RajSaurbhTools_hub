@@ -36,7 +36,24 @@ export * from './WordToPdfPage';
 export * from './ImageResizerPage';
 // Security Tools
 export * from './FileProtectorPage';
+// Crop Tools
+export * from './ImageCropperPage';
 // User Feedback System
 export * from './FeedbackPage';
 // Error Pages
 export * from './UnauthorizedPage';
+// ID Card Tools
+export * from './IdCardMakerPage';
+export * from './IdCardPrintStudioPage';
+export * from './IdCardPhotoMakerPage';
+export * from './IdCardResizePage';
+export * from './IdCardPdfGeneratorPage';
+export * from './IdCardSheetMakerPage';
+export * from './IdCardQrGeneratorPage';
+export * from './IdCardBarcodeGeneratorPage';
+export * from './IdCardTemplateMakerPage';
+export * from './IdCardPrintPreviewPage';
+export * from './IdCardFormGeneratorPage';
+// Image to SVG Converter Tool
+export * from './ImageToSvgPage';
+

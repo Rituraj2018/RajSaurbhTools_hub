@@ -5,6 +5,7 @@ import {
   Layers,
   Scissors,
   Minimize2,
+  Maximize2,
   FileCheck,
   Sparkles,
   Wrench,
@@ -14,6 +15,12 @@ import {
   CreditCard,
   PenTool,
   FileImage,
+  Printer,
+  LayoutGrid,
+  BarChart3,
+  Palette,
+  Eye,
+  ShieldCheck,
 } from 'lucide-react';
 import { Tool } from '../../features/tools';
 import { ToolItem } from '../../types';
@@ -52,12 +59,29 @@ export const ToolCard: React.FC<ToolCardProps> = ({
       case 'minimize2':
       case 'compress':
         return <Minimize2 className="w-5 h-5" />;
+      case 'maximize2':
+      case 'resize':
+        return <Maximize2 className="w-5 h-5" />;
       case 'filecheck':
       case 'document':
         return <FileCheck className="w-5 h-5" />;
       case 'creditcard':
       case 'card':
         return <CreditCard className="w-5 h-5" />;
+      case 'printer':
+        return <Printer className="w-5 h-5" />;
+      case 'layoutgrid':
+      case 'sheet':
+        return <LayoutGrid className="w-5 h-5" />;
+      case 'barchart3':
+      case 'barcode':
+        return <BarChart3 className="w-5 h-5" />;
+      case 'palette':
+      case 'template':
+        return <Palette className="w-5 h-5" />;
+      case 'eye':
+      case 'preview':
+        return <Eye className="w-5 h-5" />;
       case 'qrcode':
       case 'qr':
         return <QrCode className="w-5 h-5" />;
@@ -72,6 +96,10 @@ export const ToolCard: React.FC<ToolCardProps> = ({
       case 'image':
       case 'imageicon':
         return <FileImage className="w-5 h-5" />;
+      case 'shieldcheck':
+      case 'lock':
+      case 'security':
+        return <ShieldCheck className="w-5 h-5" />;
       default:
         return <Wrench className="w-5 h-5" />;
     }
@@ -106,6 +134,21 @@ export const ToolCard: React.FC<ToolCardProps> = ({
           badge: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
           hoverBorder: 'hover:border-amber-500/50 hover:shadow-amber-500/10',
           glow: 'from-amber-500/10 to-transparent',
+        };
+      case 'id card':
+      case 'id card tools':
+        return {
+          iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+          badge: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+          hoverBorder: 'hover:border-teal-500/50 hover:shadow-teal-500/10',
+          glow: 'from-teal-500/10 to-transparent',
+        };
+      case 'security':
+        return {
+          iconBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+          badge: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+          hoverBorder: 'hover:border-rose-500/50 hover:shadow-rose-500/10',
+          glow: 'from-rose-500/10 to-transparent',
         };
       default:
         return {

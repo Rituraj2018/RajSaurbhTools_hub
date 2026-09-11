@@ -38,6 +38,19 @@ import {
   FileProtectorPage,
   FeedbackPage,
   UnauthorizedPage,
+  IdCardMakerPage,
+  IdCardPrintStudioPage,
+  IdCardPhotoMakerPage,
+  IdCardResizePage,
+  IdCardPdfGeneratorPage,
+  IdCardSheetMakerPage,
+  IdCardQrGeneratorPage,
+  IdCardBarcodeGeneratorPage,
+  IdCardTemplateMakerPage,
+  IdCardPrintPreviewPage,
+  IdCardFormGeneratorPage,
+  ImageCropperPage,
+  ImageToSvgPage,
 } from '../pages';
 import { ProtectedRoute } from './ProtectedRoute';
 import { GuestRoute } from './GuestRoute';
@@ -82,6 +95,35 @@ export const AppRoutes: React.FC = () => {
         <Route path="/image-resizer" element={<ImageResizerPage />} />
         <Route path="/tools/file-password-protector" element={<FileProtectorPage />} />
         <Route path="/file-password-protector" element={<FileProtectorPage />} />
+        {/* ID Card Tools Public Routes */}
+        <Route path="/tools/id-card-maker" element={<IdCardMakerPage />} />
+        <Route path="/id-card-maker" element={<IdCardMakerPage />} />
+        <Route path="/tools/id-card-print-studio" element={<IdCardPrintStudioPage />} />
+        <Route path="/id-card-print-studio" element={<IdCardPrintStudioPage />} />
+        <Route path="/tools/id-card-photo-maker" element={<IdCardPhotoMakerPage />} />
+        <Route path="/id-card-photo-maker" element={<IdCardPhotoMakerPage />} />
+        <Route path="/tools/id-card-resize" element={<IdCardResizePage />} />
+        <Route path="/id-card-resize" element={<IdCardResizePage />} />
+        <Route path="/tools/id-card-pdf-generator" element={<IdCardPdfGeneratorPage />} />
+        <Route path="/id-card-pdf-generator" element={<IdCardPdfGeneratorPage />} />
+        <Route path="/tools/id-card-sheet-maker" element={<IdCardSheetMakerPage />} />
+        <Route path="/id-card-sheet-maker" element={<IdCardSheetMakerPage />} />
+        <Route path="/tools/id-card-qr-generator" element={<IdCardQrGeneratorPage />} />
+        <Route path="/id-card-qr-generator" element={<IdCardQrGeneratorPage />} />
+        <Route path="/tools/id-card-barcode-generator" element={<IdCardBarcodeGeneratorPage />} />
+        <Route path="/id-card-barcode-generator" element={<IdCardBarcodeGeneratorPage />} />
+        <Route path="/tools/id-card-template-maker" element={<IdCardTemplateMakerPage />} />
+        <Route path="/id-card-template-maker" element={<IdCardTemplateMakerPage />} />
+        <Route path="/tools/id-card-print-preview" element={<IdCardPrintPreviewPage />} />
+        <Route path="/id-card-print-preview" element={<IdCardPrintPreviewPage />} />
+        <Route path="/tools/id-card-form-generator" element={<IdCardFormGeneratorPage />} />
+        <Route path="/id-card-form-generator" element={<IdCardFormGeneratorPage />} />
+        {/* Crop Tools — public routes */}
+        <Route path="/tools/image-cropper" element={<ImageCropperPage />} />
+        <Route path="/image-cropper" element={<ImageCropperPage />} />
+        {/* Image to SVG Converter — public routes */}
+        <Route path="/tools/image-to-svg" element={<ImageToSvgPage />} />
+        <Route path="/image-to-svg" element={<ImageToSvgPage />} />
         {/* Cloud OAuth callback — public route used inside OAuth popup */}
         <Route path="/cloud/callback" element={<CloudCallbackPage />} />
       </Route>
@@ -151,6 +193,48 @@ export const AppRoutes: React.FC = () => {
           <Route path="/tools/file-password-protector" element={<FileProtectorPage />} />
           <Route path="/tools/security/file-password-protector" element={<FileProtectorPage />} />
           <Route path="/file-password-protector" element={<FileProtectorPage />} />
+          {/* ID Card Tools Protected Routes */}
+          <Route path="/tools/id-card-maker" element={<IdCardMakerPage />} />
+          <Route path="/tools/id-card/id-card-maker" element={<IdCardMakerPage />} />
+          <Route path="/id-card-maker" element={<IdCardMakerPage />} />
+          <Route path="/tools/id-card-print-studio" element={<IdCardPrintStudioPage />} />
+          <Route path="/tools/id-card/id-card-print-studio" element={<IdCardPrintStudioPage />} />
+          <Route path="/id-card-print-studio" element={<IdCardPrintStudioPage />} />
+          <Route path="/tools/id-card-photo-maker" element={<IdCardPhotoMakerPage />} />
+          <Route path="/tools/id-card/id-card-photo-maker" element={<IdCardPhotoMakerPage />} />
+          <Route path="/id-card-photo-maker" element={<IdCardPhotoMakerPage />} />
+          <Route path="/tools/id-card-resize" element={<IdCardResizePage />} />
+          <Route path="/tools/id-card/id-card-resize" element={<IdCardResizePage />} />
+          <Route path="/id-card-resize" element={<IdCardResizePage />} />
+          <Route path="/tools/id-card-pdf-generator" element={<IdCardPdfGeneratorPage />} />
+          <Route path="/tools/id-card/id-card-pdf-generator" element={<IdCardPdfGeneratorPage />} />
+          <Route path="/id-card-pdf-generator" element={<IdCardPdfGeneratorPage />} />
+          <Route path="/tools/id-card-sheet-maker" element={<IdCardSheetMakerPage />} />
+          <Route path="/tools/id-card/id-card-sheet-maker" element={<IdCardSheetMakerPage />} />
+          <Route path="/id-card-sheet-maker" element={<IdCardSheetMakerPage />} />
+          <Route path="/tools/id-card-qr-generator" element={<IdCardQrGeneratorPage />} />
+          <Route path="/tools/id-card/id-card-qr-generator" element={<IdCardQrGeneratorPage />} />
+          <Route path="/id-card-qr-generator" element={<IdCardQrGeneratorPage />} />
+          <Route path="/tools/id-card-barcode-generator" element={<IdCardBarcodeGeneratorPage />} />
+          <Route path="/tools/id-card/id-card-barcode-generator" element={<IdCardBarcodeGeneratorPage />} />
+          <Route path="/id-card-barcode-generator" element={<IdCardBarcodeGeneratorPage />} />
+          <Route path="/tools/id-card-template-maker" element={<IdCardTemplateMakerPage />} />
+          <Route path="/tools/id-card/id-card-template-maker" element={<IdCardTemplateMakerPage />} />
+          <Route path="/id-card-template-maker" element={<IdCardTemplateMakerPage />} />
+          <Route path="/tools/id-card-print-preview" element={<IdCardPrintPreviewPage />} />
+          <Route path="/tools/id-card/id-card-print-preview" element={<IdCardPrintPreviewPage />} />
+          <Route path="/id-card-print-preview" element={<IdCardPrintPreviewPage />} />
+          <Route path="/tools/id-card-form-generator" element={<IdCardFormGeneratorPage />} />
+          <Route path="/tools/id-card/id-card-form-generator" element={<IdCardFormGeneratorPage />} />
+          <Route path="/id-card-form-generator" element={<IdCardFormGeneratorPage />} />
+          {/* Crop Tools — protected routes */}
+          <Route path="/tools/image-cropper" element={<ImageCropperPage />} />
+          <Route path="/tools/crop/image-cropper" element={<ImageCropperPage />} />
+          <Route path="/image-cropper" element={<ImageCropperPage />} />
+          {/* Image to SVG Converter — protected routes */}
+          <Route path="/tools/image-to-svg" element={<ImageToSvgPage />} />
+          <Route path="/tools/image/image-to-svg" element={<ImageToSvgPage />} />
+          <Route path="/image-to-svg" element={<ImageToSvgPage />} />
           <Route path="/tools/:category" element={<ToolsPage />} />
           <Route path="/files" element={<MyFilesPage />} />
           <Route path="/history" element={<HistoryPage />} />

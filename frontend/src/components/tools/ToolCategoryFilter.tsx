@@ -7,6 +7,7 @@ import {
   Image as ImageIcon,
   Star,
   ShieldCheck,
+  CreditCard,
 } from 'lucide-react';
 
 export interface CategoryItem {
@@ -44,6 +45,9 @@ export const ToolCategoryFilter: React.FC<ToolCategoryFilterProps> = ({
         return <Star className="w-3.5 h-3.5" />;
       case 'security':
         return <ShieldCheck className="w-3.5 h-3.5" />;
+      case 'id card':
+      case 'id card tools':
+        return <CreditCard className="w-3.5 h-3.5" />;
       default:
         return <Wrench className="w-3.5 h-3.5" />;
     }

@@ -1,93 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <defs>
-    <!-- Background Gradient -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f172a" />
-      <stop offset="50%" stop-color="#1e1b4b" />
-      <stop offset="100%" stop-color="#0284c7" />
-    </linearGradient>
-
-    <!-- Accent Gradient for R -->
-    <linearGradient id="accentGradR" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#60a5fa" />
-      <stop offset="50%" stop-color="#38bdf8" />
-      <stop offset="100%" stop-color="#818cf8" />
-    </linearGradient>
-
-    <!-- Accent Gradient for S -->
-    <linearGradient id="accentGradS" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#a855f7" />
-      <stop offset="50%" stop-color="#6366f1" />
-      <stop offset="100%" stop-color="#38bdf8" />
-    </linearGradient>
-
-    <!-- Border Glow Gradient -->
-    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
-      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.3" />
-      <stop offset="100%" stop-color="#c084fc" stop-opacity="0.9" />
-    </linearGradient>
-
-    <!-- Drop Shadow Filter -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="12" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
-
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.5" />
-    </filter>
-  </defs>
-
-  <!-- Background Squircle with Border -->
-  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#bgGrad)" filter="url(#shadow)" />
-  <rect x="24" y="24" width="464" height="464" rx="112" fill="none" stroke="url(#borderGrad)" stroke-width="8" />
-
-  <!-- Inner Subtle Accent Glow -->
-  <circle cx="256" cy="256" r="180" fill="#6366f1" opacity="0.12" filter="url(#glow)" />
-
-  <!-- Monogram RS -->
-  <g filter="url(#glow)">
-    <!-- Letter R -->
-    <path d="M 130 140 
-             L 215 140 
-             C 255 140 275 160 275 195 
-             C 275 230 255 248 215 250 
-             L 278 372 
-             L 225 372 
-             L 172 265 
-             L 172 372 
-             L 130 372 
-             Z 
-             M 172 176 
-             L 172 226 
-             L 210 226 
-             C 230 226 238 216 238 201 
-             C 238 186 230 176 210 176 
-             Z" 
-          fill="url(#accentGradR)" />
-
-    <!-- Letter S -->
-    <path d="M 368 182 
-             L 332 195 
-             C 328 178 316 168 296 168 
-             C 276 168 264 178 264 192 
-             C 264 207 276 215 306 225 
-             C 346 238 374 254 374 290 
-             C 374 336 338 360 290 360 
-             C 246 360 220 336 214 300 
-             L 252 288 
-             C 256 310 270 322 292 322 
-             C 314 322 328 310 328 294 
-             C 328 276 312 267 282 257 
-             C 244 244 220 228 220 195 
-             C 220 156 252 132 296 132 
-             C 338 132 362 154 368 182 
-             Z" 
-          fill="url(#accentGradS)" />
-  </g>
-
-  <!-- Modern Sparkle / Tech Accent Dot -->
-  <circle cx="376" cy="144" r="10" fill="#38bdf8" filter="url(#glow)" />
-  <circle cx="136" cy="368" r="6" fill="#a855f7" filter="url(#glow)" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+ <title>RS Monogram — High Quality Vector</title>
+ <defs>
+  <linearGradient id="silver" x1="0" y1="0" x2="0.15" y2="1">
+   <stop offset="0" stop-color="#ffffff"/><stop offset="0.48" stop-color="#d7d9dc"/><stop offset="1" stop-color="#74777c"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0.2" y2="1">
+   <stop offset="0" stop-color="#fff36a"/><stop offset="0.28" stop-color="#ffd21a"/><stop offset="0.7" stop-color="#f5a900"/><stop offset="1" stop-color="#c97900"/>
+  </linearGradient>
+ </defs>
+ <g fill="url(#silver)" fill-rule="evenodd">
+  <path d="M 138,322 L 139,324 L 153,333 L 187,361 L 205,377 L 228,400 L 524,400 L 525,401 L 534,401 L 535,402 L 540,402 L 547,404 L 561,411 L 575,426 L 578,432 L 580,442 L 581,443 L 581,448 L 582,449 L 581,463 L 580,464 L 578,474 L 571,486 L 559,498 L 553,502 L 544,506 L 530,510 L 511,511 L 510,512 L 272,512 L 271,513 L 270,534 L 269,535 L 269,543 L 268,544 L 268,554 L 267,555 L 267,565 L 266,566 L 266,576 L 265,577 L 265,588 L 264,589 L 262,621 L 261,622 L 261,631 L 260,632 L 260,640 L 259,641 L 258,665 L 257,666 L 257,675 L 256,676 L 256,688 L 255,689 L 255,699 L 254,700 L 254,709 L 253,710 L 253,720 L 252,721 L 252,731 L 251,732 L 251,742 L 250,743 L 250,753 L 249,754 L 249,765 L 248,766 L 248,777 L 247,778 L 247,787 L 246,788 L 245,809 L 244,810 L 244,818 L 243,819 L 241,851 L 275,817 L 328,770 L 329,751 L 330,750 L 330,739 L 331,738 L 331,728 L 332,727 L 333,707 L 334,706 L 334,695 L 335,694 L 335,684 L 336,683 L 338,647 L 339,646 L 339,633 L 340,632 L 340,622 L 341,621 L 341,614 L 342,613 L 344,613 L 356,624 L 407,675 L 408,675 L 409,677 L 410,677 L 411,679 L 582,849 L 670,849 L 671,850 L 675,850 L 676,849 L 698,849 L 699,850 L 728,849 L 712,838 L 716,843 L 715,846 L 696,846 L 695,843 L 697,842 L 701,837 L 700,832 L 703,831 L 699,827 L 696,826 L 695,824 L 692,825 L 688,820 L 688,817 L 676,805 L 658,789 L 556,690 L 454,594 L 455,591 L 490,591 L 491,590 L 513,590 L 514,589 L 531,588 L 532,587 L 548,585 L 579,576 L 582,574 L 594,570 L 612,561 L 631,549 L 644,539 L 665,517 L 677,496 L 684,474 L 685,457 L 686,456 L 684,430 L 678,410 L 668,390 L 658,376 L 641,359 L 620,344 L 598,333 L 584,328 L 581,328 L 572,325 L 568,325 L 567,324 L 555,323 L 554,322 Z"/>
+ </g>
+ <g fill="url(#gold)" fill-rule="evenodd">
+  <path d="M 689,818 L 689,820 L 692,824 L 695,825 L 698,828 L 698,830 L 699,830 L 702,834 L 701,839 L 697,843 L 694,844 L 694,845 L 715,845 L 715,842 L 716,841 L 719,842 L 709,835 Z"/><path d="M 463,731 L 438,706 L 432,712 L 412,726 L 403,734 L 370,759 L 311,809 L 283,835 L 244,874 L 204,920 L 170,965 L 173,963 L 187,947 L 225,909 L 269,870 L 300,845 L 380,786 L 448,740 Z"/><path d="M 1115,397 L 856,398 L 818,419 L 784,442 L 751,468 L 689,525 L 655,553 L 635,567 L 590,594 L 554,618 L 527,638 L 545,656 L 549,658 L 604,609 L 656,566 L 658,566 L 660,570 L 660,573 L 665,590 L 671,602 L 683,618 L 694,628 L 707,637 L 723,645 L 728,646 L 737,650 L 740,650 L 748,653 L 763,655 L 764,656 L 771,656 L 772,657 L 921,657 L 922,658 L 931,658 L 932,659 L 942,660 L 948,663 L 950,663 L 960,669 L 968,677 L 972,683 L 976,694 L 977,710 L 976,711 L 976,716 L 973,725 L 970,731 L 964,739 L 952,749 L 936,756 L 932,756 L 926,758 L 918,758 L 917,759 L 669,759 L 668,758 L 654,758 L 654,759 L 696,800 L 714,816 L 731,829 L 763,849 L 927,849 L 928,848 L 936,848 L 937,847 L 948,846 L 949,845 L 964,842 L 987,834 L 1013,821 L 1032,807 L 1045,794 L 1054,783 L 1065,765 L 1071,752 L 1075,740 L 1077,727 L 1078,726 L 1078,721 L 1079,720 L 1079,711 L 1080,710 L 1079,684 L 1078,683 L 1078,677 L 1077,676 L 1076,668 L 1074,664 L 1073,658 L 1067,644 L 1057,628 L 1046,615 L 1026,599 L 1016,593 L 999,585 L 975,578 L 964,577 L 963,576 L 953,576 L 952,575 L 799,575 L 798,574 L 787,573 L 778,570 L 768,564 L 761,557 L 756,548 L 754,541 L 754,536 L 753,535 L 753,529 L 754,528 L 755,519 L 759,509 L 769,497 L 782,489 L 795,485 L 800,485 L 801,484 L 810,484 L 811,483 L 1010,483 L 1018,475 L 1066,434 L 1071,431 L 1103,405 Z"/><path d="M 1071,288 L 1061,290 L 1049,294 L 1046,294 L 1045,295 L 1042,295 L 1041,296 L 1038,296 L 1034,298 L 1023,300 L 1019,302 L 1001,306 L 990,310 L 987,310 L 977,314 L 974,314 L 957,320 L 954,320 L 909,335 L 906,337 L 892,341 L 879,347 L 856,355 L 832,366 L 830,366 L 772,394 L 770,396 L 754,404 L 729,420 L 726,421 L 702,438 L 703,461 L 702,462 L 701,478 L 700,479 L 697,493 L 727,465 L 760,438 L 801,409 L 836,388 L 894,358 L 896,358 L 909,351 L 911,351 L 920,346 L 922,346 L 927,343 L 929,343 L 934,340 L 943,337 L 950,333 L 952,333 L 995,315 L 1000,314 L 1008,310 L 1021,306 L 1024,304 Z"/>
+ </g>
 </svg>

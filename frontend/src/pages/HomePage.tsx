@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Image as ImageIcon,
   FileSpreadsheet,
-  Sparkles,
   Server,
   Database,
   ArrowRight,
@@ -30,6 +29,7 @@ import { Button } from '../components/common';
 import { EmptyState } from '../components/common/EmptyState';
 import { ToolCard } from '../components/tools';
 import { WebsiteCard } from '../components/websites';
+import heroBg from '../assets/hero-bg.svg';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -161,6 +161,54 @@ export const HomePage: React.FC = () => {
       navigate('/tools/file-password-protector');
       return;
     }
+    if (id === 'id-card-maker' || tool.title?.toLowerCase().includes('id card maker') || tool.name?.toLowerCase().includes('id card maker')) {
+      navigate('/tools/id-card-maker');
+      return;
+    }
+    if (id === 'id-card-print-studio' || tool.title?.toLowerCase().includes('id card print studio') || tool.name?.toLowerCase().includes('id card print studio')) {
+      navigate('/tools/id-card-print-studio');
+      return;
+    }
+    if (id === 'id-card-photo-maker' || tool.title?.toLowerCase().includes('id card photo maker') || tool.name?.toLowerCase().includes('id card photo maker')) {
+      navigate('/tools/id-card-photo-maker');
+      return;
+    }
+    if (id === 'id-card-resize' || tool.title?.toLowerCase().includes('id card resize') || tool.name?.toLowerCase().includes('id card resize')) {
+      navigate('/tools/id-card-resize');
+      return;
+    }
+    if (id === 'id-card-pdf-generator' || tool.title?.toLowerCase().includes('id card pdf generator') || tool.name?.toLowerCase().includes('id card pdf generator')) {
+      navigate('/tools/id-card-pdf-generator');
+      return;
+    }
+    if (id === 'id-card-sheet-maker' || tool.title?.toLowerCase().includes('id card sheet maker') || tool.name?.toLowerCase().includes('id card sheet maker')) {
+      navigate('/tools/id-card-sheet-maker');
+      return;
+    }
+    if (id === 'id-card-qr-generator' || tool.title?.toLowerCase().includes('id card qr generator') || tool.name?.toLowerCase().includes('id card qr generator')) {
+      navigate('/tools/id-card-qr-generator');
+      return;
+    }
+    if (id === 'id-card-barcode-generator' || tool.title?.toLowerCase().includes('id card barcode generator') || tool.name?.toLowerCase().includes('id card barcode generator')) {
+      navigate('/tools/id-card-barcode-generator');
+      return;
+    }
+    if (id === 'id-card-template-maker' || tool.title?.toLowerCase().includes('id card template maker') || tool.name?.toLowerCase().includes('id card template maker')) {
+      navigate('/tools/id-card-template-maker');
+      return;
+    }
+    if (id === 'id-card-print-preview' || tool.title?.toLowerCase().includes('id card print preview') || tool.name?.toLowerCase().includes('id card print preview')) {
+      navigate('/tools/id-card-print-preview');
+      return;
+    }
+    if (id === 'id-card-form-generator' || tool.title?.toLowerCase().includes('id card form generator') || tool.name?.toLowerCase().includes('id card form generator')) {
+      navigate('/tools/id-card-form-generator');
+      return;
+    }
+    if (id && id.startsWith('id-card-')) {
+      navigate(`/tools/${id}`);
+      return;
+    }
     navigate('/tools');
   };
 
@@ -176,25 +224,28 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="relative overflow-hidden pb-24">
+      {/* Professional SaaS Document & File Toolkit Background Visual */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[650px] sm:h-[750px] lg:h-[820px] pointer-events-none z-0 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <img
+          src={heroBg}
+          alt=""
+          className="w-full h-full object-cover object-top opacity-70 dark:opacity-85 transition-opacity duration-300"
+        />
+        {/* Soft bottom fade to seamlessly blend into page body */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950/80 dark:to-slate-950" />
+      </div>
+
       {/* Dynamic Background Glow Meshes */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-[150px] pointer-events-none -z-10 rounded-full" />
-      <div className="absolute top-1/3 right-0 w-[550px] h-[350px] bg-purple-600/12 blur-[140px] pointer-events-none -z-10 rounded-full" />
-      <div className="absolute top-2/3 left-0 w-[450px] h-[300px] bg-blue-600/10 blur-[130px] pointer-events-none -z-10 rounded-full" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-[150px] pointer-events-none z-0 rounded-full" />
+      <div className="absolute top-1/3 right-0 w-[550px] h-[350px] bg-purple-600/12 blur-[140px] pointer-events-none z-0 rounded-full" />
+      <div className="absolute top-2/3 left-0 w-[450px] h-[300px] bg-blue-600/10 blur-[130px] pointer-events-none z-0 rounded-full" />
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-20 pb-12">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-20 pb-12">
         <div className="text-center max-w-4xl mx-auto space-y-7">
-          
-          {/* Tagline Badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-900/90 border border-purple-500/30 text-xs font-semibold text-purple-200 shadow-xl shadow-purple-950/40 backdrop-blur-md hover:border-purple-500/50 transition-colors">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-            </span>
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>High-Speed Client-Side Engine • 100% Private & Secure</span>
-          </div>
-
           {/* Main Title */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-white">
             All-in-One <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Document, Photo</span> & PDF Suite

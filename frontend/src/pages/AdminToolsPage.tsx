@@ -24,7 +24,7 @@ import { Button } from '../components/common/Button';
 interface ToolFormData {
   name: string;
   description: string;
-  category: 'Photo' | 'PDF' | 'Document' | 'Image';
+  category: Tool['category'];
   icon: string;
   isActive: boolean;
   isFeatured: boolean;
@@ -39,7 +39,7 @@ const INITIAL_FORM: ToolFormData = {
   isFeatured: false,
 };
 
-const CATEGORIES = ['Photo', 'PDF', 'Document', 'Image'] as const;
+const CATEGORIES: Tool['category'][] = ['Photo', 'PDF', 'Document', 'Image', 'Security', 'ID Card', 'ID Card Tools'];
 const ICONS = ['Camera', 'FileText', 'Layers', 'Scissors', 'Minimize2', 'FileCheck', 'Sparkles', 'Wrench'];
 
 const ToolFormModal: React.FC<{

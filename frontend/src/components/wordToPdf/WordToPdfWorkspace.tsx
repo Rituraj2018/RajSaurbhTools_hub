@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Button } from '../common/Button';
+import { recordToolHistorySafely } from '../../api/historyApi';
 import {
   LoadedWordDocument,
   ConvertedPdfResult,
@@ -66,9 +67,32 @@ export const WordToPdfWorkspace: React.FC<WordToPdfWorkspaceProps> = ({
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (conversionResult) {
       downloadPdfFile(conversionResult);
+
+      await recordToolHistorySafely({
+        tool: 'word-to-pdf',
+        toolName: 'Word to PDF',
+        inputFiles: [
+          {
+            name: document.name,
+            size: document.size,
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          },
+        ],
+        outputFile: {
+          name: conversionResult.filename,
+          size: conversionResult.blob.size,
+          type: 'application/pdf',
+        },
+        status: 'completed',
+        metadata: {
+          wordCount: document.wordCount,
+          pageCount: conversionResult.pageCount,
+          fontSize,
+        },
+      });
     }
   };
 

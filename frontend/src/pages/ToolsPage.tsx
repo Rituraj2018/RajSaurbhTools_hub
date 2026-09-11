@@ -86,6 +86,62 @@ export const ToolsPage: React.FC = () => {
       navigate('/tools/file-password-protector');
       return;
     }
+    if (slug === 'id-card-maker' || tool.name.toLowerCase().includes('id card maker')) {
+      navigate('/tools/id-card-maker');
+      return;
+    }
+    if (slug === 'id-card-print-studio' || tool.name.toLowerCase().includes('id card print studio')) {
+      navigate('/tools/id-card-print-studio');
+      return;
+    }
+    if (slug === 'id-card-photo-maker' || tool.name.toLowerCase().includes('id card photo maker')) {
+      navigate('/tools/id-card-photo-maker');
+      return;
+    }
+    if (slug === 'id-card-resize' || tool.name.toLowerCase().includes('id card resize')) {
+      navigate('/tools/id-card-resize');
+      return;
+    }
+    if (slug === 'id-card-pdf-generator' || tool.name.toLowerCase().includes('id card pdf generator')) {
+      navigate('/tools/id-card-pdf-generator');
+      return;
+    }
+    if (slug === 'id-card-sheet-maker' || tool.name.toLowerCase().includes('id card sheet maker')) {
+      navigate('/tools/id-card-sheet-maker');
+      return;
+    }
+    if (slug === 'id-card-qr-generator' || tool.name.toLowerCase().includes('id card qr generator')) {
+      navigate('/tools/id-card-qr-generator');
+      return;
+    }
+    if (slug === 'id-card-barcode-generator' || tool.name.toLowerCase().includes('id card barcode generator')) {
+      navigate('/tools/id-card-barcode-generator');
+      return;
+    }
+    if (slug === 'id-card-template-maker' || tool.name.toLowerCase().includes('id card template maker')) {
+      navigate('/tools/id-card-template-maker');
+      return;
+    }
+    if (slug === 'id-card-print-preview' || tool.name.toLowerCase().includes('id card print preview')) {
+      navigate('/tools/id-card-print-preview');
+      return;
+    }
+    if (slug === 'id-card-form-generator' || tool.name.toLowerCase().includes('id card form generator')) {
+      navigate('/tools/id-card-form-generator');
+      return;
+    }
+    if (slug === 'image-cropper' || tool.name.toLowerCase().includes('image crop') || tool.name.toLowerCase().includes('crop image')) {
+      navigate('/tools/image-cropper');
+      return;
+    }
+    if (slug === 'image-to-svg' || tool.name.toLowerCase().includes('image to svg') || tool.name.toLowerCase().includes('svg convert') || tool.name.toLowerCase().includes('vector')) {
+      navigate('/tools/image-to-svg');
+      return;
+    }
+    if (slug && slug.startsWith('id-card-')) {
+      navigate(`/tools/${slug}`);
+      return;
+    }
     setSelectedTool(tool);
   };
 
@@ -144,7 +200,13 @@ export const ToolsPage: React.FC = () => {
     return tools.filter((tool) => {
       // Category filter
       if (selectedCategory.toLowerCase() !== 'all') {
-        if (tool.category.toLowerCase() !== selectedCategory.toLowerCase()) {
+        const cat = selectedCategory.toLowerCase();
+        const toolCat = tool.category.toLowerCase();
+        if (cat === 'id card' || cat === 'id card tools') {
+          if (!toolCat.includes('id card')) {
+            return false;
+          }
+        } else if (toolCat !== cat) {
           return false;
         }
       }
@@ -171,20 +233,24 @@ export const ToolsPage: React.FC = () => {
   const categoryFilterItems = useMemo(() => {
     const counts = {
       All: tools.length,
+      IdCard: tools.filter((t) => t.category.toLowerCase().includes('id card')).length,
       Photo: tools.filter((t) => t.category.toLowerCase() === 'photo').length,
       PDF: tools.filter((t) => t.category.toLowerCase() === 'pdf').length,
       Document: tools.filter((t) => t.category.toLowerCase() === 'document').length,
       Image: tools.filter((t) => t.category.toLowerCase() === 'image').length,
       Security: tools.filter((t) => t.category.toLowerCase() === 'security').length,
+      Crop: tools.filter((t) => t.category.toLowerCase() === 'crop').length,
     };
 
     return [
       { id: 'All', label: 'All Tools', count: counts.All },
+      { id: 'ID Card Tools', label: 'ID Card Tools', count: counts.IdCard },
       { id: 'Photo', label: 'Photo Studio', count: counts.Photo },
       { id: 'PDF', label: 'PDF Suite', count: counts.PDF },
       { id: 'Document', label: 'Document Lab', count: counts.Document },
       { id: 'Image', label: 'Image Tools', count: counts.Image },
       ...(counts.Security > 0 ? [{ id: 'Security', label: 'Security Tools', count: counts.Security }] : []),
+      ...(counts.Crop > 0 ? [{ id: 'Crop', label: 'Crop Tools', count: counts.Crop }] : []),
     ];
   }, [tools]);
 

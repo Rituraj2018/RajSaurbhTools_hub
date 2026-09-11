@@ -276,6 +276,23 @@ export const DashboardPage: React.FC = () => {
       navigate('/tools/file-password-protector');
       return;
     }
+    if (
+      slug === 'image-cropper' ||
+      name.includes('image crop') ||
+      name.includes('crop image')
+    ) {
+      navigate('/tools/image-cropper');
+      return;
+    }
+    if (
+      slug === 'image-to-svg' ||
+      name.includes('image to svg') ||
+      name.includes('svg convert') ||
+      name.includes('vector')
+    ) {
+      navigate('/tools/image-to-svg');
+      return;
+    }
     setSelectedTool(tool);
   };
 
@@ -315,11 +332,13 @@ export const DashboardPage: React.FC = () => {
         case 'png':
           return (
             slug === 'image-to-pdf' ||
+            slug === 'image-to-svg' ||
             slug === 'png-to-jpg' ||
             slug === 'image-compressor' ||
             slug === 'photo-compress' ||
             slug === 'image-resizer' ||
             slug === 'photo-crop-resize' ||
+            slug === 'image-cropper' ||
             slug === 'passport-photo-studio' ||
             slug === 'photo-bg-remove' ||
             slug === 'signature-cropper' ||
@@ -331,6 +350,7 @@ export const DashboardPage: React.FC = () => {
             cat === 'photo' ||
             cat === 'image' ||
             name.includes('png') ||
+            name.includes('svg') ||
             name.includes('image') ||
             name.includes('photo') ||
             name.includes('signature')
@@ -338,11 +358,13 @@ export const DashboardPage: React.FC = () => {
         case 'jpg':
           return (
             slug === 'image-to-pdf' ||
+            slug === 'image-to-svg' ||
             slug === 'jpg-to-png' ||
             slug === 'image-compressor' ||
             slug === 'photo-compress' ||
             slug === 'image-resizer' ||
             slug === 'photo-crop-resize' ||
+            slug === 'image-cropper' ||
             slug === 'passport-photo-studio' ||
             slug === 'photo-bg-remove' ||
             slug === 'signature-cropper' ||
@@ -355,6 +377,7 @@ export const DashboardPage: React.FC = () => {
             cat === 'image' ||
             name.includes('jpg') ||
             name.includes('jpeg') ||
+            name.includes('svg') ||
             name.includes('image') ||
             name.includes('photo') ||
             name.includes('signature')
@@ -362,10 +385,12 @@ export const DashboardPage: React.FC = () => {
         case 'webp':
           return (
             slug === 'image-to-pdf' ||
+            slug === 'image-to-svg' ||
             slug === 'image-compressor' ||
             slug === 'photo-compress' ||
             slug === 'image-resizer' ||
             slug === 'photo-crop-resize' ||
+            slug === 'image-cropper' ||
             slug === 'passport-photo-studio' ||
             slug === 'photo-bg-remove' ||
             slug === 'signature-cropper' ||
@@ -373,6 +398,7 @@ export const DashboardPage: React.FC = () => {
             cat === 'photo' ||
             cat === 'image' ||
             name.includes('webp') ||
+            name.includes('svg') ||
             name.includes('image') ||
             name.includes('photo') ||
             name.includes('signature')

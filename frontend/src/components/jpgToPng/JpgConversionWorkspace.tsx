@@ -8,6 +8,7 @@ import {
   Check,
 } from 'lucide-react';
 import { Button } from '../common/Button';
+import { recordToolHistorySafely } from '../../api/historyApi';
 import {
   LoadedJpgImage,
   ConvertedPngResult,
@@ -59,9 +60,32 @@ export const JpgConversionWorkspace: React.FC<JpgConversionWorkspaceProps> = ({
     runConversion();
   }, [runConversion]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (conversionResult) {
       downloadPngFile(conversionResult);
+
+      await recordToolHistorySafely({
+        tool: 'jpg-to-png',
+        toolName: 'JPG to PNG',
+        inputFiles: [
+          {
+            name: image.name,
+            size: image.size,
+            type: 'image/jpeg',
+          },
+        ],
+        outputFile: {
+          name: conversionResult.filename,
+          size: conversionResult.size,
+          type: 'image/png',
+        },
+        status: 'completed',
+        metadata: {
+          removeBackground,
+          hasTransparency: conversionResult.hasTransparency,
+          dimensions: `${image.width}x${image.height}`,
+        },
+      });
     }
   };
 

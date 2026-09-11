@@ -8,6 +8,7 @@ import {
   Unlink,
 } from 'lucide-react';
 import { Button } from '../common/Button';
+import { recordToolHistorySafely } from '../../api/historyApi';
 import {
   LoadedImageForResize,
   ResizedImageResult,
@@ -96,9 +97,32 @@ export const ImageResizerWorkspace: React.FC<ImageResizerWorkspaceProps> = ({
     runResize();
   }, [runResize]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (resizeResult) {
       downloadResizedImage(resizeResult);
+
+      await recordToolHistorySafely({
+        tool: 'image-resizer',
+        toolName: 'Image Resizer',
+        inputFiles: [
+          {
+            name: image.name,
+            size: image.size,
+            type: image.file.type,
+          },
+        ],
+        outputFile: {
+          name: resizeResult.filename,
+          size: resizeResult.size,
+          type: resizeResult.format,
+        },
+        status: 'completed',
+        metadata: {
+          originalDimensions: `${image.width}x${image.height}`,
+          targetDimensions: `${resizeResult.width}x${resizeResult.height}`,
+          exportFormat,
+        },
+      });
     }
   };
 

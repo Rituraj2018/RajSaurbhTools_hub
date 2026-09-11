@@ -3,7 +3,7 @@ import { Tool, ITool } from '../models/Tool';
 import { HistoryRecord } from '../models/History';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/apiError';
-import { seedInitialTools } from '../utils/seedTools';
+import { seedInitialTools, INITIAL_STATIC_TOOLS } from '../utils/seedTools';
 
 /**
  * Helper to generate a URL-friendly slug from a string
@@ -23,9 +23,9 @@ const generateSlug = (text: string): string => {
  * @access  Public
  */
 export const getTools = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  // Ensure database has tools seeded if empty
+  // Ensure database has tools seeded if empty or missing newly added tools
   const count = await Tool.countDocuments();
-  if (count === 0) {
+  if (count < INITIAL_STATIC_TOOLS.length) {
     await seedInitialTools();
   }
 
@@ -35,7 +35,11 @@ export const getTools = asyncHandler(async (req: Request, res: Response): Promis
 
   // Category filtering (case-insensitive)
   if (category && category !== 'All' && category !== 'all') {
-    filter.category = new RegExp(`^${category}$`, 'i');
+    if (category.toString().toLowerCase().includes('id card')) {
+      filter.category = new RegExp('id card', 'i');
+    } else {
+      filter.category = new RegExp(`^${category}$`, 'i');
+    }
   }
 
   // Active status filter (default to active for public queries)

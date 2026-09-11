@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#6366f1" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.35" />
+    </linearGradient>
+
+    <linearGradient id="docGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.65" />
+      <stop offset="100%" stop-color="#312e81" stop-opacity="0.45" />
+    </linearGradient>
+
+    <linearGradient id="docGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4c1d95" stop-opacity="0.65" />
+      <stop offset="100%" stop-color="#831843" stop-opacity="0.45" />
+    </linearGradient>
+
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.75" />
+      <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.75" />
+    </linearGradient>
+
+    <linearGradient id="pulseGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.05" />
+    </linearGradient>
+
+    <!-- Tech Grid Pattern -->
+    <pattern id="techGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#6366f1" stroke-width="0.8" stroke-opacity="0.14" />
+      <circle cx="60" cy="0" r="1.5" fill="#3b82f6" fill-opacity="0.3" />
+      <circle cx="0" cy="60" r="1.5" fill="#3b82f6" fill-opacity="0.3" />
+    </pattern>
+
+    <!-- Dot Matrix Pattern -->
+    <pattern id="dotMatrix" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="1.2" fill="#818cf8" fill-opacity="0.22" />
+    </pattern>
+  </defs>
+
+  <!-- Base Grid Background -->
+  <rect width="100%" height="100%" fill="url(#techGrid)" />
+  <rect width="100%" height="100%" fill="url(#dotMatrix)" />
+
+  <!-- Abstract Processing Workflow Lines & Data Streams -->
+  <g>
+    <!-- Top Left to Center Arc -->
+    <path d="M -50 180 C 200 180, 280 280, 420 290 S 600 240, 750 260" fill="none" stroke="url(#accentGrad)" stroke-width="2" stroke-dasharray="6 6" opacity="0.85" />
+    
+    <!-- Top Right to Center Arc -->
+    <path d="M 1650 160 C 1400 160, 1320 260, 1180 270 S 1000 230, 850 260" fill="none" stroke="url(#accentGrad)" stroke-width="2" stroke-dasharray="6 6" opacity="0.85" />
+    
+    <!-- Bottom Circuit Paths -->
+    <path d="M 120 750 L 320 750 L 400 680 L 580 680" fill="none" stroke="url(#gridGrad)" stroke-width="1.8" stroke-opacity="0.6" />
+    <path d="M 1480 750 L 1280 750 L 1200 680 L 1020 680" fill="none" stroke="url(#gridGrad)" stroke-width="1.8" stroke-opacity="0.6" />
+  </g>
+
+  <!-- ========================================================
+       LEFT FLANK: Document Processing, PDF & Security Hub
+       ======================================================== -->
+  <g transform="translate(60, 100)">
+    <!-- Stacked PDF / Document Concept -->
+    <g transform="translate(40, 60)">
+      <!-- Back Doc -->
+      <rect x="25" y="10" width="130" height="170" rx="8" fill="url(#docGrad1)" stroke="#3b82f6" stroke-width="1.5" stroke-opacity="0.6" />
+      <path d="M 125 10 L 155 40 L 125 40 Z" fill="#3b82f6" fill-opacity="0.4" stroke="#3b82f6" stroke-width="1.2" stroke-opacity="0.7" />
+      
+      <!-- Middle Doc (Offset) -->
+      <rect x="10" y="25" width="130" height="170" rx="8" fill="url(#docGrad2)" stroke="#8b5cf6" stroke-width="1.5" stroke-opacity="0.7" />
+      <path d="M 110 25 L 140 55 L 110 55 Z" fill="#8b5cf6" fill-opacity="0.4" stroke="#8b5cf6" stroke-width="1.2" stroke-opacity="0.8" />
+      
+      <!-- Front Document with content placeholders -->
+      <rect x="-5" y="40" width="130" height="170" rx="8" fill="#0f172a" fill-opacity="0.85" stroke="#6366f1" stroke-width="1.8" stroke-opacity="0.85" />
+      <path d="M 95 40 L 125 70 L 95 70 Z" fill="#6366f1" fill-opacity="0.6" stroke="#6366f1" stroke-width="1.2" stroke-opacity="0.9" />
+      
+      <!-- Document text & structure lines -->
+      <line x1="15" y1="80" x2="65" y2="80" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-opacity="0.9" />
+      <line x1="15" y1="98" x2="105" y2="98" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7" />
+      <line x1="15" y1="112" x2="95" y2="112" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7" />
+      <line x1="15" y1="126" x2="100" y2="126" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7" />
+      <line x1="15" y1="140" x2="70" y2="140" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7" />
+
+      <!-- PDF / File format badge -->
+      <rect x="15" y="160" width="40" height="20" rx="4" fill="#ef4444" fill-opacity="0.4" stroke="#ef4444" stroke-width="1.2" stroke-opacity="0.9" />
+      <text x="23" y="174" fill="#fee2e2" font-family="system-ui, sans-serif" font-size="9.5" font-weight="bold" letter-spacing="0.5">PDF</text>
+      
+      <rect x="60" y="160" width="46" height="20" rx="4" fill="#3b82f6" fill-opacity="0.4" stroke="#3b82f6" stroke-width="1.2" stroke-opacity="0.9" />
+      <text x="66" y="174" fill="#dbeafe" font-family="system-ui, sans-serif" font-size="9.5" font-weight="bold" letter-spacing="0.5">DOCX</text>
+    </g>
+
+    <!-- File Conversion Sync Loop Indicator -->
+    <g transform="translate(190, 180)">
+      <circle cx="25" cy="25" r="32" fill="url(#pulseGlow)" stroke="#6366f1" stroke-width="1.5" stroke-opacity="0.8" stroke-dasharray="4 4" />
+      <!-- Conversion Dual Arrows -->
+      <path d="M 16 20 C 16 14, 30 14, 34 18 M 34 18 L 30 18 M 34 18 L 34 14" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 34 30 C 34 36, 20 36, 16 32 M 16 32 L 20 32 M 16 32 L 16 36" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="25" cy="25" r="4" fill="#6366f1" fill-opacity="0.9" />
+    </g>
+
+    <!-- Security & Privacy Shield Node -->
+    <g transform="translate(20, 310)">
+      <path d="M 30 10 L 55 20 C 55 42, 44 60, 30 68 C 16 60, 5 42, 5 20 Z" fill="#0f172a" fill-opacity="0.9" stroke="#10b981" stroke-width="1.8" stroke-opacity="0.9" />
+      <!-- Checkmark -->
+      <path d="M 20 35 L 27 42 L 40 28" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="65" y="34" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="11" font-weight="700">Client-Side Secure</text>
+      <text x="65" y="48" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9.5" font-weight="500">100% In-Browser Privacy</text>
+    </g>
+
+    <!-- Floating Metric Tag -->
+    <g transform="translate(180, 80)">
+      <rect width="115" height="34" rx="8" fill="#0f172a" fill-opacity="0.9" stroke="#38bdf8" stroke-width="1.2" stroke-opacity="0.8" />
+      <circle cx="16" cy="17" r="4.5" fill="#38bdf8" />
+      <text x="28" y="21" fill="#e0f2fe" font-family="system-ui, sans-serif" font-size="10.5" font-weight="700">Zero Server Lag</text>
+    </g>
+  </g>
+
+  <!-- ========================================================
+       RIGHT FLANK: Photo Studio, ID Card & Print Utilities Hub
+       ======================================================== -->
+  <g transform="translate(1220, 90)">
+    <!-- Photo Processing & Aspect Ratio Frame -->
+    <g transform="translate(40, 50)">
+      <!-- Outer Crop Grid Frame -->
+      <rect x="0" y="0" width="190" height="150" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#8b5cf6" stroke-width="1.8" stroke-opacity="0.85" />
+      
+      <!-- Crop Brackets -->
+      <path d="M -5 15 L -5 -5 L 15 -5" fill="none" stroke="#a855f7" stroke-width="3" />
+      <path d="M 175 -5 L 195 -5 L 195 15" fill="none" stroke="#a855f7" stroke-width="3" />
+      <path d="M -5 135 L -5 155 L 15 155" fill="none" stroke="#a855f7" stroke-width="3" />
+      <path d="M 175 155 L 195 155 L 195 135" fill="none" stroke="#a855f7" stroke-width="3" />
+
+      <!-- Rule of Thirds Grid -->
+      <line x1="63" y1="10" x2="63" y2="140" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.4" stroke-dasharray="3 3" />
+      <line x1="126" y1="10" x2="126" y2="140" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.4" stroke-dasharray="3 3" />
+      <line x1="10" y1="50" x2="180" y2="50" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.4" stroke-dasharray="3 3" />
+      <line x1="10" y1="100" x2="180" y2="100" stroke="#a855f7" stroke-width="0.8" stroke-opacity="0.4" stroke-dasharray="3 3" />
+
+      <!-- Passport Photo Silhouette Representation -->
+      <ellipse cx="95" cy="65" rx="22" ry="26" fill="url(#docGrad1)" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.8" />
+      <path d="M 60 120 C 60 98, 75 90, 95 90 C 115 90, 130 98, 130 120 Z" fill="url(#docGrad1)" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.8" />
+
+      <!-- Dimension Tags -->
+      <rect x="15" y="118" width="60" height="20" rx="4" fill="#0f172a" fill-opacity="0.95" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.8" />
+      <text x="21" y="132" fill="#7dd3fc" font-family="system-ui, sans-serif" font-size="9" font-weight="bold">35 x 45 mm</text>
+
+      <rect x="115" y="118" width="60" height="20" rx="4" fill="#0f172a" fill-opacity="0.95" stroke="#ec4899" stroke-width="1" stroke-opacity="0.8" />
+      <text x="124" y="132" fill="#f472b6" font-family="system-ui, sans-serif" font-size="9" font-weight="bold">300 DPI</text>
+    </g>
+
+    <!-- CR80 Government Smart Card Print Layout -->
+    <g transform="translate(10, 240)">
+      <rect width="180" height="110" rx="10" fill="url(#docGrad1)" stroke="#06b6d4" stroke-width="1.8" stroke-opacity="0.8" />
+      
+      <!-- Smart Card Chip Gold outline -->
+      <rect x="18" y="35" width="28" height="22" rx="3" fill="#0f172a" fill-opacity="0.9" stroke="#f59e0b" stroke-width="1.2" stroke-opacity="0.9" />
+      <line x1="32" y1="35" x2="32" y2="57" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.8" />
+      <line x1="18" y1="46" x2="46" y2="46" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.8" />
+
+      <!-- Card Title & Line items -->
+      <line x1="18" y1="18" x2="90" y2="18" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-opacity="0.9" />
+      <line x1="58" y1="38" x2="155" y2="38" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7" />
+      <line x1="58" y1="48" x2="135" y2="48" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7" />
+
+      <!-- Photo Box on Card -->
+      <rect x="125" y="20" width="40" height="50" rx="4" fill="#0f172a" fill-opacity="0.9" stroke="#06b6d4" stroke-width="1.2" stroke-opacity="0.8" />
+      <circle cx="145" cy="40" r="9" fill="#06b6d4" fill-opacity="0.5" />
+
+      <!-- Card Footer Format Label -->
+      <text x="18" y="95" fill="#a5f3fc" font-family="system-ui, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1">CR80 PVC READY</text>
+      
+      <!-- Mini QR code symbol -->
+      <g transform="translate(142, 78)">
+        <rect width="22" height="22" rx="2" fill="#0f172a" stroke="#cbd5e1" stroke-width="1" stroke-opacity="0.8" />
+        <rect x="3" y="3" width="6" height="6" fill="#cbd5e1" fill-opacity="0.9" />
+        <rect x="13" y="3" width="6" height="6" fill="#cbd5e1" fill-opacity="0.9" />
+        <rect x="3" y="13" width="6" height="6" fill="#cbd5e1" fill-opacity="0.9" />
+        <rect x="13" y="13" width="3" height="3" fill="#cbd5e1" fill-opacity="0.9" />
+      </g>
+    </g>
+
+    <!-- Quick Floating Batch Badge -->
+    <g transform="translate(-10, 10)">
+      <rect width="95" height="30" rx="6" fill="#0f172a" fill-opacity="0.9" stroke="#a855f7" stroke-width="1.2" stroke-opacity="0.8" />
+      <text x="14" y="20" fill="#d8b4fe" font-family="system-ui, sans-serif" font-size="10" font-weight="700">Batch Ready</text>
+    </g>
+  </g>
+
+  <!-- Precision Crosshair Alignment Markers in Corners -->
+  <g stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5">
+    <!-- Top Left -->
+    <path d="M 40 50 L 60 50 M 50 40 L 50 60" />
+    <!-- Top Right -->
+    <path d="M 1540 50 L 1560 50 M 1550 40 L 1550 60" />
+    <!-- Bottom Left -->
+    <path d="M 40 850 L 60 850 M 50 840 L 50 860" />
+    <!-- Bottom Right -->
+    <path d="M 1540 850 L 1560 850 M 1550 840 L 1550 860" />
+  </g>
+</svg>

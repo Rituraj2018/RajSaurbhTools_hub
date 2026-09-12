@@ -79,8 +79,16 @@ export const RegisterPage: React.FC = () => {
 
     if (!password) {
       errors.password = 'Password is required';
-    } else if (password.length < 6) {
-      errors.password = 'Password must be at least 6 characters long';
+    } else if (password.length < 8) {
+      errors.password = 'Password must be at least 8 characters long';
+    } else if (!/[A-Z]/.test(password)) {
+      errors.password = 'Password must contain at least one uppercase letter';
+    } else if (!/[a-z]/.test(password)) {
+      errors.password = 'Password must contain at least one lowercase letter';
+    } else if (!/[0-9]/.test(password)) {
+      errors.password = 'Password must contain at least one number';
+    } else if (!/[^A-Za-z0-9]/.test(password)) {
+      errors.password = 'Password must contain at least one special character (!@#$%^&* etc.)';
     }
 
     if (!confirmPassword) {
@@ -216,9 +224,9 @@ export const RegisterPage: React.FC = () => {
             {/* Password Input */}
             <Input
               id="register-password"
-              label="Password (min 6 characters)"
+              label="Password (min 8 characters, uppercase, number & symbol)"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Create a strong password"
+              placeholder="Create a strong password (e.g. Pass@1234)"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);

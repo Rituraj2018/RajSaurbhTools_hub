@@ -1,13 +1,30 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+/**
+ * Resolves and normalizes the API base URL.
+ * Ensures the base URL always points to /api without duplicate slashes,
+ * missing /api suffix, or accidental localhost in production.
+ */
+const resolveBaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  const isProd = import.meta.env.MODE === 'production' || import.meta.env.PROD;
+  const fallback = isProd
+    ? 'https://rajsaurbhtools-hub-backend.onrender.com/api'
+    : 'http://localhost:5000/api';
+
+  const rawUrl = (typeof envUrl === 'string' && envUrl.trim()) ? envUrl.trim() : fallback;
+  const cleanUrl = rawUrl.replace(/\/+$/, '');
+  return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+};
+
+const baseURL = resolveBaseUrl();
 
 export const axiosClient: AxiosInstance = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000,
+  timeout: 60000, // 60s timeout to accommodate Render cold start spin-ups
 });
 
 // Request Interceptor: Attach JWT Bearer Token if available
@@ -46,8 +63,14 @@ axiosClient.interceptors.response.use(
     if (error.response?.data) {
       return Promise.reject(error.response.data);
     }
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      return Promise.reject({
+        message: 'The server took longer than expected to respond. If the backend is waking up, please retry in a few seconds.',
+      });
+    }
     return Promise.reject({
-      message: error.message || 'Network connection error. Please try again.',
+      message: error.message || 'Network connection error. Please check your internet connection and try again.',
     });
   }
 );
+

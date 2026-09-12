@@ -25,14 +25,20 @@ export interface FeedbackEmailData {
  */
 const createTransporter = () => {
   if (config.email.isConfigured) {
+    const isPort465 = Number(config.email.port) === 465;
+    const cleanPassword = (config.email.pass || '').replace(/\s+/g, '');
+
     return nodemailer.createTransport({
       host: config.email.host,
       port: config.email.port,
-      secure: config.email.port === 465,
+      secure: isPort465,
       auth: {
         user: config.email.user,
-        pass: config.email.pass,
+        pass: cleanPassword,
       },
+      connectionTimeout: 8000, // 8s connection timeout
+      greetingTimeout: 8000,   // 8s greeting timeout
+      socketTimeout: 8000,     // 8s socket timeout
     });
   }
 
@@ -181,8 +187,11 @@ export const emailService = {
       });
 
       return true;
-    } catch (error) {
-      console.error('[EmailService Error] Failed to dispatch password reset email:', error);
+    } catch (error: any) {
+      console.error(
+        '[EmailService Error] Failed to dispatch password reset email:',
+        error instanceof Error ? error.message : 'SMTP dispatch failure'
+      );
       return false;
     }
   },

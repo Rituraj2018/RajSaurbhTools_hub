@@ -285,8 +285,17 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response): 
   // Construct secure frontend reset URL
   const resetUrl = `${config.clientUrl}/reset-password/${rawToken}`;
 
-  // Dispatch email
-  await emailService.sendPasswordResetEmail(user.email, user.name, resetUrl);
+  // Dispatch email safely
+  const isSent = await emailService.sendPasswordResetEmail(user.email, user.name, resetUrl);
+
+  if (!isSent) {
+    // Reset token safety: If delivery fails, remove the unused token to prevent stale active tokens
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    throw new ApiError(500, 'Unable to send password reset email at this time. Please try again later.');
+  }
 
   // Return standard success response without exposing any token
   res.status(200).json({

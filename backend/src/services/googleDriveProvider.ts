@@ -8,7 +8,7 @@ import {
 } from './cloudStorageProvider';
 import { Readable } from 'stream';
 
-const ROOT_FOLDER_NAME = 'RajSaurbh Tools Hub';
+const ROOT_FOLDER_NAME = 'Toolix';
 const SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/userinfo.email'];
 
 /**
@@ -137,7 +137,7 @@ export class GoogleDriveProvider implements ICloudStorageProvider {
 
   /**
    * Ensure the standard folder hierarchy exists:
-   * RajSaurbh Tools Hub / Images|PDFs|Documents
+   * Toolix / Images|PDFs|Documents
    */
   private async ensureFolderHierarchy(
     drive: drive_v3.Drive,
@@ -186,7 +186,7 @@ export class GoogleDriveProvider implements ICloudStorageProvider {
         name: fileName,
         mimeType,
         parents: [targetFolderId],
-        description: 'Uploaded from RajSaurbh Tools Hub',
+        description: 'Uploaded from Toolix',
       },
       media: {
         mimeType,

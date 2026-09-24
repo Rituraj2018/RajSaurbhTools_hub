@@ -153,14 +153,10 @@ export const getFavoriteTools = asyncHandler(async (req: Request, res: Response)
     throw new ApiError(401, 'Authentication required');
   }
 
-  const count = await Tool.countDocuments();
-  if (count === 0) {
-    await seedInitialTools();
-  }
-
   const user = await User.findById(req.user._id)
     .select('favoriteTools')
-    .populate('favoriteTools');
+    .populate('favoriteTools')
+    .lean();
 
   if (!user) {
     throw new ApiError(404, 'User not found');

@@ -112,6 +112,10 @@ const fileSchema = new Schema<IFileDocument>(
   }
 );
 
+// Performance Indexes
+fileSchema.index({ user: 1, createdAt: -1 });
+fileSchema.index({ user: 1, fileType: 1, createdAt: -1 });
+
 /**
  * Mongoose Model for Uploaded File
  */

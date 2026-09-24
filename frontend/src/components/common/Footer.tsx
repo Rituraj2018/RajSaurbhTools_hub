@@ -529,7 +529,7 @@ export const Footer: React.FC = () => {
         <div className="border-t border-slate-800/80 bg-slate-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-              <p>© 2026 RajSaurabh Tools_Hub. All Rights Reserved.</p>
+              <p>© 2026 Toolix. All Rights Reserved.</p>
               <span className="hidden sm:inline text-slate-700">•</span>
               <p className="flex items-center gap-1.5 text-slate-400">
                 <span>Made with</span>
@@ -628,7 +628,7 @@ export const Footer: React.FC = () => {
       >
         <div className="space-y-4 text-xs text-slate-300">
           <p className="leading-relaxed">
-            Welcome to the RajSaurabh Tools_Hub Support center. Here are quick answers to common
+            Welcome to the Toolix Support center. Here are quick answers to common
             questions:
           </p>
 
@@ -689,7 +689,7 @@ export const Footer: React.FC = () => {
       >
         <div className="space-y-4 text-xs text-slate-300">
           <p className="leading-relaxed">
-            Have questions, feedback, or need help with any tool in RajSaurabh Tools_Hub? We are here
+            Have questions, feedback, or need help with any tool in Toolix? We are here
             to help.
           </p>
 
@@ -812,7 +812,7 @@ export const Footer: React.FC = () => {
       >
         <div className="space-y-4 text-xs text-slate-300">
           <p className="leading-relaxed">
-            By utilizing RajSaurabh Tools_Hub, you agree to the following terms and principles:
+            By utilizing Toolix, you agree to the following terms and principles:
           </p>
 
           <div className="space-y-2.5 text-slate-400 leading-relaxed">
@@ -828,7 +828,7 @@ export const Footer: React.FC = () => {
             <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
               <h4 className="font-semibold text-white">2. Platform Availability</h4>
               <p>
-                RajSaurabh Tools_Hub is provided for productivity, utility, and convenience. While we
+                Toolix is provided for productivity, utility, and convenience. While we
                 strive for 100% uptime and high performance, services are provided on an as-available
                 basis.
               </p>
@@ -837,7 +837,7 @@ export const Footer: React.FC = () => {
             <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
               <h4 className="font-semibold text-white">3. Intellectual Property</h4>
               <p>
-                The platform design, interfaces, and utilities are © 2026 RajSaurabh Tools_Hub. All
+                The platform design, interfaces, and utilities are © 2026 Toolix. All
                 rights reserved.
               </p>
             </div>

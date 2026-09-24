@@ -31,7 +31,7 @@ export const getDriveStatus = asyncHandler(async (req: Request, res: Response): 
     data: {
       isConfigured,
       userEmail: req.user?.email,
-      recommendedFolder: 'Vikas Tool Hub',
+      recommendedFolder: 'Toolix',
       storagePolicy: 'direct-client-to-drive',
     },
   });

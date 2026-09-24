@@ -244,7 +244,7 @@ const findOrCreateFolder = async (
 
 /**
  * Ensures the standard folder structure exists in user's Drive:
- * Vikas Tool Hub/
+ * Toolix/
  *    ├── Images/
  *    ├── PDFs/
  *    └── Documents/
@@ -253,7 +253,7 @@ export const ensureDriveFolderHierarchy = async (
   token: string,
   category: 'Images' | 'PDFs' | 'Documents' = 'Images'
 ): Promise<{ rootFolderId: string; targetFolderId: string; folderPath: string }> => {
-  const rootFolderName = 'Vikas Tool Hub';
+  const rootFolderName = 'Toolix';
   const rootFolderId = await findOrCreateFolder(token, rootFolderName);
   const targetFolderId = await findOrCreateFolder(token, category, rootFolderId);
 
@@ -291,7 +291,7 @@ export const uploadBlobToGoogleDrive = async (
     name: fileName,
     mimeType: mimeType || 'application/octet-stream',
     parents: [targetFolderId],
-    description: 'Saved privately from Vikas Tool Hub Pro',
+    description: 'Saved privately from Toolix',
   };
 
   // Convert blob to ArrayBuffer for binary transmission

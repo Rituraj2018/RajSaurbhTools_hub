@@ -95,7 +95,7 @@ export const LoginPage: React.FC = () => {
             <BrandLogo size="lg" showSubtitle={false} />
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Welcome to RajSaurabh Tools_Hub
+            Welcome to Toolix
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
             Sign in to access your high-speed PDF, Photo and Document processing suite.

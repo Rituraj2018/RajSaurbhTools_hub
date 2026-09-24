@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import path from 'path';
@@ -91,7 +92,18 @@ app.use(
 );
 
 /* ════════════════════════════════════════════════════════════
-   3. Global Rate Limiter
+   3. Response Compression (Gzip / Deflate)
+   Dramatically reduces JSON payload transfer sizes over the network
+════════════════════════════════════════════════════════════ */
+app.use(
+  compression({
+    level: 6,
+    threshold: 1024,
+  })
+);
+
+/* ════════════════════════════════════════════════════════════
+   4. Global Rate Limiter
    Applied before body parsing to reject overload early
 ════════════════════════════════════════════════════════════ */
 app.use('/api', globalRateLimiter);

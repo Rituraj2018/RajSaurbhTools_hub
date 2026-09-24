@@ -1,6 +1,6 @@
 # System Architecture & Technical Design 🏛️
 
-**RajSaurbh Tool Hub Pro** is built on a modern full-stack decoupled architecture designed for high throughput, sub-second client-side document manipulation, and scalable cloud processing.
+**Toolix** is built on a modern full-stack decoupled architecture designed for high throughput, sub-second client-side document manipulation, and scalable cloud processing.
 
 ---
 

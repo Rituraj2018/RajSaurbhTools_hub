@@ -52,7 +52,7 @@ export const AdminLayout: React.FC = () => {
                 SECURED
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium">RajSaurabh Tools_Hub Admin</p>
+            <p className="text-[10px] text-slate-400 font-medium">Toolix Admin</p>
           </div>
         </div>
         <button

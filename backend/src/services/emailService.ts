@@ -154,11 +154,11 @@ export const emailService = {
 <body>
   <div class="wrapper">
     <div class="header">
-      <h1>RajSaurabh Tools_Hub</h1>
+      <h1>Toolix</h1>
     </div>
     <div class="content">
       <div class="greeting">Hello ${userName || 'there'},</div>
-      <p>We received a request to reset the password for your RajSaurabh Tools_Hub account. Click the button below to set a new password:</p>
+      <p>We received a request to reset the password for your Toolix account. Click the button below to set a new password:</p>
       
       <div class="btn-container">
         <a href="${resetUrl}" class="btn" target="_blank">Reset My Password</a>
@@ -171,7 +171,7 @@ export const emailService = {
       <p>If you did not request a password reset, you can safely ignore this email. Your existing password will remain unchanged and your account is secure.</p>
     </div>
     <div class="footer">
-      &copy; ${new Date().getFullYear()} RajSaurabh Tools_Hub. All rights reserved.
+      &copy; ${new Date().getFullYear()} Toolix. All rights reserved.
     </div>
   </div>
 </body>
@@ -181,7 +181,7 @@ export const emailService = {
       await transporter.sendMail({
         from: config.email.from,
         to: toEmail,
-        subject: 'Password Reset Request — RajSaurabh Tools_Hub',
+        subject: 'Password Reset Request — Toolix',
         text: `Hello ${userName || 'there'},\n\nWe received a request to reset your password. Use the following link to reset your password:\n\n${resetUrl}\n\nThis link will expire in 15 minutes.\n\nIf you did not request this, please ignore this email.\n`,
         html: htmlContent,
       });
@@ -354,7 +354,7 @@ export const emailService = {
 <body>
   <div class="wrapper">
     <div class="header">
-      <div class="header-title">RajSaurabh Tools_Hub — User Feedback</div>
+      <div class="header-title">Toolix — User Feedback</div>
       <div class="header-sub">New feedback submission received on ${formattedDate}</div>
     </div>
     
@@ -435,7 +435,7 @@ export const emailService = {
     </div>
 
     <div class="footer">
-      This notification was automatically sent from RajSaurabh Tools_Hub Feedback Engine.
+      This notification was automatically sent from Toolix Feedback Engine.
     </div>
   </div>
 </body>
@@ -443,7 +443,7 @@ export const emailService = {
       `;
 
       const plainTextMessage = `
-New User Feedback — RajSaurabh Tools_Hub
+New User Feedback — Toolix
 ────────────────────────────────────────
 Type: ${typeLabel}
 Rating: ${data.ratingEmoji} (${data.rating}/5)
@@ -466,7 +466,7 @@ ${data.actualResult ? `Actual Result: ${data.actualResult}\n` : ''}
         from: config.email.from,
         to: adminEmail,
         replyTo: data.email || undefined,
-        subject: `[Feedback] ${typeLabel} — RajSaurabh Tools_Hub`,
+        subject: `[Feedback] ${typeLabel} — Toolix`,
         text: plainTextMessage,
         html: htmlContent,
       });

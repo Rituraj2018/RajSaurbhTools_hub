@@ -14,7 +14,7 @@ const startServer = async (): Promise<void> => {
 
   const server = app.listen(config.port, () => {
     console.log('====================================================');
-    console.log(`🚀 RajSaurabh Tools_Hub - Backend Server Running`);
+    console.log(`🚀 Toolix - Backend Server Running`);
     console.log(`📡 URL: http://localhost:${config.port}`);
     console.log(`🔍 Health Check: http://localhost:${config.port}/api/health`);
     console.log(`⚙️  Environment: ${config.nodeEnv}`);

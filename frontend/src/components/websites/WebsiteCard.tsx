@@ -62,7 +62,7 @@ export const WebsiteCard: React.FC<WebsiteCardProps> = ({ website }) => {
             {website.name}
           </h3>
           <p className="text-xs text-slate-400 mt-1.5 leading-relaxed line-clamp-2 min-h-[32px]">
-            {website.description || 'Useful resource recommended by RajSaurabh Tools_Hub.'}
+            {website.description || 'Useful resource recommended by Toolix.'}
           </p>
         </div>
       </div>

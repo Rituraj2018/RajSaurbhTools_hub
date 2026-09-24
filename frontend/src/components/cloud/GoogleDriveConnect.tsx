@@ -69,7 +69,7 @@ export const GoogleDriveConnect: React.FC<GoogleDriveConnectProps> = ({
           </div>
           <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
             <Folder className="w-3 h-3 text-slate-500" />
-            <span>Saves directly to your Drive: <strong className="text-slate-300">Vikas Tool Hub/</strong></span>
+            <span>Saves directly to your Drive: <strong className="text-slate-300">Toolix/</strong></span>
           </p>
         </div>
       </div>

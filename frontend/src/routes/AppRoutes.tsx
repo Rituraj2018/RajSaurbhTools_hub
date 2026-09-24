@@ -1,64 +1,66 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout, DashboardLayout, AdminLayout } from '../layouts';
-import {
-  HomePage,
-  DashboardPage,
-  ToolsPage,
-  PassportPhotoStudioPage,
-  ImageToPdfPage,
-  PdfMergePage,
-  AadhaarPrintStudioPage,
-  AyushmanPrintStudioPage,
-  ImageCompressorPage,
-  MyFilesPage,
-  HistoryPage,
-  FavoritesPage,
-  NotFoundPage,
-  LoginPage,
-  RegisterPage,
-  ForgotPasswordPage,
-  ResetPasswordPage,
-  AdminDashboardPage,
-  AdminUsersPage,
-  AdminToolsPage,
-  AdminFilesPage,
-  AdminAnalyticsPage,
-  AdminWebsitesPage,
-  CloudCallbackPage,
-  PdfSplitPage,
-  QrGeneratorPage,
-  PanPrintStudioPage,
-  SignatureCropperPage,
-  PngToJpgPage,
-  JpgToPngPage,
-  PdfToWordPage,
-  WordToPdfPage,
-  ImageResizerPage,
-  FileProtectorPage,
-  FeedbackPage,
-  UnauthorizedPage,
-  IdCardMakerPage,
-  IdCardPrintStudioPage,
-  IdCardPhotoMakerPage,
-  IdCardResizePage,
-  IdCardPdfGeneratorPage,
-  IdCardSheetMakerPage,
-  IdCardQrGeneratorPage,
-  IdCardBarcodeGeneratorPage,
-  IdCardTemplateMakerPage,
-  IdCardPrintPreviewPage,
-  IdCardFormGeneratorPage,
-  ImageCropperPage,
-  ImageToSvgPage,
-} from '../pages';
+import { Loader } from '../components/common/Loader';
 import { ProtectedRoute } from './ProtectedRoute';
 import { GuestRoute } from './GuestRoute';
 import { AdminRoute } from './AdminRoute';
 
+// Route-level code-splitting with React.lazy
+const HomePage = React.lazy(() => import('../pages/HomePage').then((m) => ({ default: m.HomePage })));
+const DashboardPage = React.lazy(() => import('../pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const ToolsPage = React.lazy(() => import('../pages/ToolsPage').then((m) => ({ default: m.ToolsPage })));
+const PassportPhotoStudioPage = React.lazy(() => import('../pages/PassportPhotoStudioPage').then((m) => ({ default: m.PassportPhotoStudioPage })));
+const ImageToPdfPage = React.lazy(() => import('../pages/ImageToPdfPage').then((m) => ({ default: m.ImageToPdfPage })));
+const PdfMergePage = React.lazy(() => import('../pages/PdfMergePage').then((m) => ({ default: m.PdfMergePage })));
+const AadhaarPrintStudioPage = React.lazy(() => import('../pages/AadhaarPrintStudioPage').then((m) => ({ default: m.AadhaarPrintStudioPage })));
+const AyushmanPrintStudioPage = React.lazy(() => import('../pages/AyushmanPrintStudioPage').then((m) => ({ default: m.AyushmanPrintStudioPage })));
+const ImageCompressorPage = React.lazy(() => import('../pages/ImageCompressorPage').then((m) => ({ default: m.ImageCompressorPage })));
+const MyFilesPage = React.lazy(() => import('../pages/MyFilesPage').then((m) => ({ default: m.MyFilesPage })));
+const HistoryPage = React.lazy(() => import('../pages/HistoryPage').then((m) => ({ default: m.HistoryPage })));
+const FavoritesPage = React.lazy(() => import('../pages/FavoritesPage').then((m) => ({ default: m.FavoritesPage })));
+const NotFoundPage = React.lazy(() => import('../pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
+const LoginPage = React.lazy(() => import('../pages/LoginPage').then((m) => ({ default: m.LoginPage })));
+const RegisterPage = React.lazy(() => import('../pages/RegisterPage').then((m) => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = React.lazy(() => import('../pages/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = React.lazy(() => import('../pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
+const AdminDashboardPage = React.lazy(() => import('../pages/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })));
+const AdminUsersPage = React.lazy(() => import('../pages/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })));
+const AdminToolsPage = React.lazy(() => import('../pages/AdminToolsPage').then((m) => ({ default: m.AdminToolsPage })));
+const AdminFilesPage = React.lazy(() => import('../pages/AdminFilesPage').then((m) => ({ default: m.AdminFilesPage })));
+const AdminAnalyticsPage = React.lazy(() => import('../pages/AdminAnalyticsPage').then((m) => ({ default: m.AdminAnalyticsPage })));
+const AdminWebsitesPage = React.lazy(() => import('../pages/AdminWebsitesPage').then((m) => ({ default: m.AdminWebsitesPage })));
+const CloudCallbackPage = React.lazy(() => import('../pages/CloudCallbackPage').then((m) => ({ default: m.CloudCallbackPage })));
+const PdfSplitPage = React.lazy(() => import('../pages/PdfSplitPage').then((m) => ({ default: m.PdfSplitPage })));
+const QrGeneratorPage = React.lazy(() => import('../pages/QrGeneratorPage').then((m) => ({ default: m.QrGeneratorPage })));
+const PanPrintStudioPage = React.lazy(() => import('../pages/PanPrintStudioPage').then((m) => ({ default: m.PanPrintStudioPage })));
+const SignatureCropperPage = React.lazy(() => import('../pages/SignatureCropperPage').then((m) => ({ default: m.SignatureCropperPage })));
+const PngToJpgPage = React.lazy(() => import('../pages/PngToJpgPage').then((m) => ({ default: m.PngToJpgPage })));
+const JpgToPngPage = React.lazy(() => import('../pages/JpgToPngPage').then((m) => ({ default: m.JpgToPngPage })));
+const PdfToWordPage = React.lazy(() => import('../pages/PdfToWordPage').then((m) => ({ default: m.PdfToWordPage })));
+const WordToPdfPage = React.lazy(() => import('../pages/WordToPdfPage').then((m) => ({ default: m.WordToPdfPage })));
+const ImageResizerPage = React.lazy(() => import('../pages/ImageResizerPage').then((m) => ({ default: m.ImageResizerPage })));
+const FileProtectorPage = React.lazy(() => import('../pages/FileProtectorPage').then((m) => ({ default: m.FileProtectorPage })));
+const FeedbackPage = React.lazy(() => import('../pages/FeedbackPage').then((m) => ({ default: m.FeedbackPage })));
+const UnauthorizedPage = React.lazy(() => import('../pages/UnauthorizedPage').then((m) => ({ default: m.UnauthorizedPage })));
+const IdCardMakerPage = React.lazy(() => import('../pages/IdCardMakerPage').then((m) => ({ default: m.IdCardMakerPage })));
+const IdCardPrintStudioPage = React.lazy(() => import('../pages/IdCardPrintStudioPage').then((m) => ({ default: m.IdCardPrintStudioPage })));
+const IdCardPhotoMakerPage = React.lazy(() => import('../pages/IdCardPhotoMakerPage').then((m) => ({ default: m.IdCardPhotoMakerPage })));
+const IdCardResizePage = React.lazy(() => import('../pages/IdCardResizePage').then((m) => ({ default: m.IdCardResizePage })));
+const IdCardPdfGeneratorPage = React.lazy(() => import('../pages/IdCardPdfGeneratorPage').then((m) => ({ default: m.IdCardPdfGeneratorPage })));
+const IdCardSheetMakerPage = React.lazy(() => import('../pages/IdCardSheetMakerPage').then((m) => ({ default: m.IdCardSheetMakerPage })));
+const IdCardQrGeneratorPage = React.lazy(() => import('../pages/IdCardQrGeneratorPage').then((m) => ({ default: m.IdCardQrGeneratorPage })));
+const IdCardBarcodeGeneratorPage = React.lazy(() => import('../pages/IdCardBarcodeGeneratorPage').then((m) => ({ default: m.IdCardBarcodeGeneratorPage })));
+const IdCardTemplateMakerPage = React.lazy(() => import('../pages/IdCardTemplateMakerPage').then((m) => ({ default: m.IdCardTemplateMakerPage })));
+const IdCardPrintPreviewPage = React.lazy(() => import('../pages/IdCardPrintPreviewPage').then((m) => ({ default: m.IdCardPrintPreviewPage })));
+const IdCardFormGeneratorPage = React.lazy(() => import('../pages/IdCardFormGeneratorPage').then((m) => ({ default: m.IdCardFormGeneratorPage })));
+const ImageCropperPage = React.lazy(() => import('../pages/ImageCropperPage').then((m) => ({ default: m.ImageCropperPage })));
+const ImageToSvgPage = React.lazy(() => import('../pages/ImageToSvgPage').then((m) => ({ default: m.ImageToSvgPage })));
+
 export const AppRoutes: React.FC = () => {
   return (
-    <Routes>
+    <Suspense fallback={<Loader fullScreen size="lg" text="Loading..." />}>
+      <Routes>
       {/* Public Landing & Tools Routes */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
@@ -264,5 +266,6 @@ export const AppRoutes: React.FC = () => {
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 };

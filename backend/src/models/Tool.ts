@@ -100,6 +100,10 @@ const toolSchema = new Schema<IToolDocument>(
   }
 );
 
+// Performance Indexes
+toolSchema.index({ isActive: 1, isFeatured: -1, createdAt: 1 });
+toolSchema.index({ category: 1, isActive: 1 });
+
 /**
  * Mongoose Model for Tool
  */

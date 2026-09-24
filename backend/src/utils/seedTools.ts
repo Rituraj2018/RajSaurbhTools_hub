@@ -1,7 +1,7 @@
 import { Tool, ITool } from '../models/Tool';
 
 /**
- * Initial 7 static tool definitions for RajSaurabh Tools_Hub
+ * Initial 7 static tool definitions for Toolix
  */
 export const INITIAL_STATIC_TOOLS: Omit<ITool, 'createdAt' | 'updatedAt'>[] = [
   {

@@ -7,7 +7,7 @@ import {
   CloudFileMetadata,
 } from './cloudStorageProvider';
 
-const ROOT_FOLDER_NAME = 'RajSaurbh Tools Hub';
+const ROOT_FOLDER_NAME = 'Toolix';
 const SCOPES = ['Files.ReadWrite', 'User.Read', 'offline_access'];
 const GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 
@@ -204,7 +204,7 @@ export class OneDriveProvider implements ICloudStorageProvider {
 
   /**
    * Ensure the standard folder hierarchy:
-   * RajSaurbh Tools Hub / Images|PDFs|Documents
+   * Toolix / Images|PDFs|Documents
    */
   private async ensureFolderHierarchy(
     accessToken: string,

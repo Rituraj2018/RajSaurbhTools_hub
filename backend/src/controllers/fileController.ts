@@ -229,10 +229,10 @@ export const getUserFiles = asyncHandler(async (req: Request, res: Response): Pr
   }
 
   const [files, totalFiles, allUserFiles] = await Promise.all([
-    FileRecord.find(query).sort(sortOption).skip(skip).limit(limit),
+    FileRecord.find(query).sort(sortOption).skip(skip).limit(limit).lean(),
     FileRecord.countDocuments(query),
     // Aggregate storage metrics for the user
-    FileRecord.find({ user: req.user._id }).select('fileSize fileType'),
+    FileRecord.find({ user: req.user._id }).select('fileSize fileType').lean(),
   ]);
 
   const totalPages = Math.ceil(totalFiles / limit) || 1;

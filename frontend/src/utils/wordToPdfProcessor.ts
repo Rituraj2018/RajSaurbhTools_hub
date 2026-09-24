@@ -353,7 +353,7 @@ export const convertWordToPdf = async (
 
       const pageText = `Page ${p} of ${totalPages}`;
       pdf.text(pageText, pageWidth - marginRight, pageHeight - 10, { align: 'right' });
-      pdf.text('Generated with RajSaurabh Tools_Hub', marginLeft, pageHeight - 10);
+      pdf.text('Generated with Toolix', marginLeft, pageHeight - 10);
     }
   }
 

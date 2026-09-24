@@ -26,7 +26,8 @@ export const getAdminStats = asyncHandler(async (_req: Request, res: Response): 
       User.find({})
         .sort({ createdAt: -1 })
         .limit(5)
-        .select('name email role isBlocked createdAt'),
+        .select('name email role isBlocked createdAt')
+        .lean(),
     ]);
 
   // Processing breakdown by tool (last 30 days)
@@ -97,7 +98,8 @@ export const getAdminUsers = asyncHandler(async (req: Request, res: Response): P
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
-      .select('-password -__v'),
+      .select('-password -__v')
+      .lean(),
     User.countDocuments(filter),
   ]);
 
@@ -323,7 +325,8 @@ export const getAdminFiles = asyncHandler(async (req: Request, res: Response): P
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
-      .populate('user', 'name email role'),
+      .populate('user', 'name email role')
+      .lean(),
     FileRecord.countDocuments(filter),
   ]);
 

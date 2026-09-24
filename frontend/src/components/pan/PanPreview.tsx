@@ -136,7 +136,7 @@ export const PanPreview: React.FC<PanPreviewProps> = ({
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Print PAN Cards - RajSaurabh Tools_Hub</title>
+          <title>Print PAN Cards - Toolix</title>
           <style>
             @page {
               size: A4 portrait;

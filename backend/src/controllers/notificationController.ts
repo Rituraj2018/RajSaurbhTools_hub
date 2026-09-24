@@ -21,7 +21,8 @@ export const getNotifications = asyncHandler(
       Notification.find({ user: req.user._id })
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Notification.countDocuments({ user: req.user._id }),
       Notification.countDocuments({ user: req.user._id, isRead: false }),
     ]);

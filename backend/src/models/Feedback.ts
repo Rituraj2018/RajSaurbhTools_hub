@@ -151,6 +151,10 @@ const feedbackSchema = new Schema<IFeedbackDocument>(
   }
 );
 
+// Performance Indexes
+feedbackSchema.index({ status: 1, createdAt: -1 });
+feedbackSchema.index({ createdAt: -1 });
+
 export const Feedback: Model<IFeedbackDocument> =
   mongoose.models.Feedback || mongoose.model<IFeedbackDocument>('Feedback', feedbackSchema);
 

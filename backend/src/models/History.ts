@@ -99,6 +99,11 @@ const historySchema = new Schema<IHistoryDocument>(
   }
 );
 
+// Performance Indexes
+historySchema.index({ user: 1, createdAt: -1 });
+historySchema.index({ status: 1, createdAt: -1 });
+historySchema.index({ user: 1, status: 1 });
+
 /**
  * Mongoose Model for Processing History
  */

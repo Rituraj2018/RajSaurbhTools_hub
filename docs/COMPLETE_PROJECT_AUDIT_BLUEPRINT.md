@@ -1,5 +1,5 @@
 # COMPLETE ARCHITECTURE AUDIT, BLUEPRINT & SYSTEM ANALYSIS
-**Project Name:** Vikas Tool Hub Pro *(internal code namespace: `vikas-tool-hub-pro` / `RajSaurbh Tool Hub Pro`)*  
+**Project Name:** Toolix *(internal code namespace: `vikas-tool-hub-pro` / `Toolix`)*  
 **Audit Date:** September 2, 2026  
 **Auditor:** Senior MERN Stack Software Architect & Code Reviewer  
 **Audit Scope:** Full Project Discovery, Static Code Analysis, Configuration Review, API & Database Blueprint, Security & Quality Assessment.
@@ -9,12 +9,12 @@
 ## 1. EXECUTIVE SUMMARY
 
 ### 1.1 What is this project?
-**Vikas Tool Hub Pro** is a full-stack, enterprise-grade web application designed for high-speed document manipulation, biometric passport photo generation, ID card print formatting (Aadhaar & PM-JAY Ayushman), PDF compilation, and cloud file management.
+**Toolix** is a full-stack, enterprise-grade web application designed for high-speed document manipulation, biometric passport photo generation, ID card print formatting (Aadhaar & PM-JAY Ayushman), PDF compilation, and cloud file management.
 
 ### 1.2 What problem does it solve?
 Citizens, cyber café operators, business centers, and digital service kiosks (*CSC / Jan Seva Kendra*) frequently struggle with formatting government ID cards, generating standardized 35×45mm passport photos with compliant margins and backdrops, merging multi-page application PDFs, and converting mobile scans into compliant print sheets. Existing tools often demand expensive desktop software (like Photoshop) or upload sensitive identity documents to untrusted third-party servers.
 
-Vikas Tool Hub Pro solves this by providing:
+Toolix solves this by providing:
 1. **Zero-Latency Client-Side Processing:** Biometric cropping, canvas filtering, PDF generation, and PDF merging execute inside the client's browser (via Canvas API, `pdf-lib`, and `jspdf`), keeping sensitive biometric data private and fast.
 2. **Centralized Cloud Vault & Synchronization:** An authenticated Express & MongoDB backend allows users to store files (via local storage or Cloudinary), track processing audit trails, receive system notifications, and bookmark favorite tools.
 3. **Administrative Governance:** A dedicated role-protected Admin Dashboard for monitoring user registrations, storage metrics, tool status toggles, and user account management.

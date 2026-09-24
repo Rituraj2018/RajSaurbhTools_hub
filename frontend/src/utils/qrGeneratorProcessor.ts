@@ -303,7 +303,7 @@ export function downloadQrPdf(
   // Footer branding
   doc.setFontSize(10);
   doc.setTextColor(148, 163, 184);
-  doc.text('Powered by RajSaurabh Tools_Hub • Verified QR Studio', pageWidth / 2, 225, {
+  doc.text('Powered by Toolix • Verified QR Studio', pageWidth / 2, 225, {
     align: 'center',
   });
 

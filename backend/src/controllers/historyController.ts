@@ -65,10 +65,10 @@ export const getUserHistory = asyncHandler(async (req: Request, res: Response): 
     sortBy === 'oldest' ? { createdAt: 1 } : { createdAt: -1 };
 
   const [history, totalItems, allUserHistory] = await Promise.all([
-    HistoryRecord.find(query).sort(sortOption).skip(skip).limit(limit),
+    HistoryRecord.find(query).sort(sortOption).skip(skip).limit(limit).lean(),
     HistoryRecord.countDocuments(query),
     // Aggregate user operations metrics
-    HistoryRecord.find({ user: req.user._id }).select('status'),
+    HistoryRecord.find({ user: req.user._id }).select('status').lean(),
   ]);
 
   const totalPages = Math.ceil(totalItems / limit) || 1;

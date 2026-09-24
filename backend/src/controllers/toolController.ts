@@ -30,13 +30,6 @@ const escapeRegex = (text: string): string => {
  * @access  Public
  */
 export const getTools = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  // Ensure database has tools seeded if empty or missing newly added tools
-  const count = await Tool.countDocuments();
-  const staticCount = Array.isArray(INITIAL_STATIC_TOOLS) ? INITIAL_STATIC_TOOLS.length : 0;
-  if (count < staticCount && staticCount > 0 && typeof seedInitialTools === 'function') {
-    await seedInitialTools();
-  }
-
   const { category, search, isFeatured, isActive } = req.query;
 
   const filter: Record<string, any> = {};
@@ -69,7 +62,7 @@ export const getTools = asyncHandler(async (req: Request, res: Response): Promis
     filter.$or = [{ name: searchRegex }, { description: searchRegex }];
   }
 
-  const tools = await Tool.find(filter).sort({ isFeatured: -1, createdAt: 1 });
+  const tools = await Tool.find(filter).sort({ isFeatured: -1, createdAt: 1 }).lean();
 
   res.status(200).json({
     success: true,
@@ -126,7 +119,7 @@ export const getPopularTools = asyncHandler(async (_req: Request, res: Response)
 export const getToolBySlug = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { slug } = req.params;
 
-  const tool = await Tool.findOne({ slug: slug.toLowerCase().trim() });
+  const tool = await Tool.findOne({ slug: slug.toLowerCase().trim() }).lean();
 
   if (!tool) {
     throw new ApiError(404, `Tool with slug '${slug}' not found`);

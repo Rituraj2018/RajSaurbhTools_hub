@@ -46,7 +46,8 @@ export const getWebsites = asyncHandler(
     // Newest first
     const websites = await Website.find(filter)
       .populate('createdBy', 'name email role')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json({
       success: true,

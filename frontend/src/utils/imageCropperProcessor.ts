@@ -1,7 +1,7 @@
 /**
  * imageCropperProcessor.ts
  * ────────────────────────
- * Client-side image cropping engine for the RajSaurabh Tools Hub.
+ * Client-side image cropping engine for the Toolix.
  * 100% browser-side — no server uploads.
  */
 

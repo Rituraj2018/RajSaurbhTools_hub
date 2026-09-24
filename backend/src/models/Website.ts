@@ -87,6 +87,9 @@ const websiteSchema = new Schema<IWebsiteDocument>(
   }
 );
 
+// Performance Indexes
+websiteSchema.index({ isActive: 1, createdAt: -1 });
+
 export const Website: Model<IWebsiteDocument> =
   mongoose.models.Website || mongoose.model<IWebsiteDocument>('Website', websiteSchema);
 

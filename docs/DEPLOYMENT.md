@@ -1,6 +1,6 @@
-# Deployment Guide — RajSaurbh Tool Hub Pro 🚀
+# Deployment Guide — Toolix 🚀
 
-This guide provides end-to-end instructions for deploying the **RajSaurbh Tool Hub Pro** application into a production environment.
+This guide provides end-to-end instructions for deploying the **Toolix** application into a production environment.
 
 ---
 

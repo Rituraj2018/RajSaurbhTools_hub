@@ -49,19 +49,29 @@ export const HomePage: React.FC = () => {
   const [loadingWebsites, setLoadingWebsites] = useState<boolean>(true);
   const [errorWebsites, setErrorWebsites] = useState<string | null>(null);
 
+  // Sync featured tools from Redux store if available, or fetch standalone
+  useEffect(() => {
+    if (tools.length > 0) {
+      const feat = tools.filter((t) => t.isFeatured).slice(0, 6);
+      setFeaturedTools(feat.length > 0 ? feat : tools.slice(0, 6));
+      setLoadingTools(false);
+    }
+  }, [tools]);
+
   const loadFeaturedTools = useCallback(async () => {
+    if (tools.length > 0) return;
     setLoadingTools(true);
     setErrorTools(null);
     try {
-      const tools = await toolsService.getTools({ isFeatured: true });
-      setFeaturedTools(tools.slice(0, 6));
+      const result = await toolsService.getTools({ isFeatured: true });
+      setFeaturedTools(result.slice(0, 6));
     } catch (err: any) {
       console.error('Failed to load featured tools:', err);
       setErrorTools(err?.message || 'Failed to load featured tools. Please check your connection and try again.');
     } finally {
       setLoadingTools(false);
     }
-  }, []);
+  }, [tools.length]);
 
   const loadUsefulWebsites = useCallback(async () => {
     setLoadingWebsites(true);
@@ -82,10 +92,12 @@ export const HomePage: React.FC = () => {
       dispatch(fetchSystemHealth());
     }
     dispatch(fetchTools());
-    dispatch(fetchFavoriteTools());
+    if (user) {
+      dispatch(fetchFavoriteTools());
+    }
     loadFeaturedTools();
     loadUsefulWebsites();
-  }, [dispatch, loadFeaturedTools, loadUsefulWebsites, isAdmin]);
+  }, [dispatch, loadFeaturedTools, loadUsefulWebsites, isAdmin, user]);
 
   const handleToggleFavorite = (toolId: string) => {
     dispatch(toggleFavoriteTool(toolId));
@@ -253,7 +265,7 @@ export const HomePage: React.FC = () => {
 
           {/* Subtitle */}
           <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-            Welcome to <span className="text-white font-semibold">RajSaurabh Tools_Hub</span>. Fast, private, in-browser utilities for passport photos, government ID printing, PDF merging, compression, and smart format conversions.
+            Welcome to <span className="text-white font-semibold">Toolix</span>. Fast, private, in-browser utilities for passport photos, government ID printing, PDF merging, compression, and smart format conversions.
           </p>
 
           {/* Action Buttons */}
@@ -603,7 +615,7 @@ export const HomePage: React.FC = () => {
               Useful Websites
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Helpful websites and resources recommended by RajSaurabh Tools_Hub.
+              Helpful websites and resources recommended by Toolix.
             </p>
           </div>
           {isAdmin && (

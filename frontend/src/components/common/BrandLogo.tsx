@@ -54,7 +54,7 @@ const sizeMap = {
 };
 
 /**
- * High-precision custom vector SVG emblem for RajSaurabh Tools_Hub
+ * High-precision custom vector SVG emblem for Toolix
  */
 export const BrandIcon: React.FC<{ size?: number; className?: string }> = ({
   size = 40,
@@ -221,7 +221,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             <span
               className={`${currentSize.title} tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent group-hover:from-blue-400 group-hover:to-purple-300 transition-colors truncate`}
             >
-              RajSaurabh Tools_Hub
+              Toolix
             </span>
           </div>
           {showSubtitle && (

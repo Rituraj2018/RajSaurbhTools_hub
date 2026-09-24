@@ -273,7 +273,7 @@ export const CloudSaveModal: React.FC<CloudSaveModalProps> = ({
             <div className="min-w-0">
               <p className="text-xs font-semibold text-white truncate">{fileMeta.name}</p>
               <p className="text-[11px] text-slate-400 truncate">
-                Target Folder: <span className="text-slate-300 font-medium">Vikas Tool Hub / {fileMeta.category}</span>
+                Target Folder: <span className="text-slate-300 font-medium">Toolix / {fileMeta.category}</span>
               </p>
             </div>
           </div>

@@ -138,6 +138,10 @@ const userSchema = new Schema<IUserDocument>(
   }
 );
 
+// Performance Indexes
+userSchema.index({ role: 1, createdAt: -1 });
+userSchema.index({ createdAt: -1 });
+
 /**
  * Mongoose Model for User
  */

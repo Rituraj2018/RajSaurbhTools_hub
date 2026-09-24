@@ -341,7 +341,7 @@ export const convertPdfToWord = async (
 
   const doc = new Document({
     title: loaded.name,
-    creator: 'RajSaurabh Tools_Hub',
+    creator: 'Toolix',
     description: `Converted from ${loaded.name}`,
     sections: [
       {

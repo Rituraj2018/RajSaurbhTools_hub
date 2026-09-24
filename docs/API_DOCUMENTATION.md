@@ -1,4 +1,4 @@
-# API Reference Documentation — RajSaurbh Tool Hub Pro 📡
+# API Reference Documentation — Toolix 📡
 
 All endpoints are served under the base prefix `/api`.
 

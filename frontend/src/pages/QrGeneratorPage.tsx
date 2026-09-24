@@ -42,7 +42,7 @@ export const QrGeneratorPage: React.FC = () => {
     lastName: 'Singh',
     phone: '+91 ',
     email: '',
-    organization: 'RajSaurabh Tools_Hub',
+    organization: 'Toolix',
     website: '',
   });
   const [whatsappData, setWhatsappData] = useState<WhatsAppPayload>({

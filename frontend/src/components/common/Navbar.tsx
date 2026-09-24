@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, LayoutDashboard, Github, LogIn, UserPlus, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { Activity, LayoutDashboard, LogIn, UserPlus, User, Menu, X, Sun, Moon } from 'lucide-react';
 import { useAppSelector } from '../../features/store';
 import { Button } from './Button';
 import { useTheme } from './ThemeProvider';
@@ -175,15 +175,6 @@ export const Navbar: React.FC = () => {
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noreferrer"
-              className="p-2 rounded-lg text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors hidden sm:flex"
-              title="Repository"
-            >
-              <Github className="w-4 h-4" />
-            </a>
 
             {/* Mobile Hamburger Button — visible only below md */}
             <button

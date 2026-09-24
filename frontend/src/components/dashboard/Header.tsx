@@ -85,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
               <Layers className="w-4 h-4 text-white" />
             </div>
             <span className="text-sm font-extrabold text-white tracking-tight">
-              RajSaurabh Tools_Hub
+              Toolix
             </span>
           </Link>
 
@@ -93,14 +93,14 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
           <div className="hidden lg:block">
             <Link to="/" className="group inline-flex items-center gap-2" title="Return to Home Page">
               <h1 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors flex items-center gap-2">
-                <span>RajSaurabh Tools_Hub</span>
+                <span>Toolix</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   Live & Operational
                 </span>
               </h1>
             </Link>
             <p className="text-[11px] text-slate-400">
-              Welcome to RajSaurabh Tools_Hub workspace.
+              Welcome to Toolix workspace.
             </p>
           </div>
         </div>
@@ -294,7 +294,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
 
           <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
             <span>Tip: Press ESC to close</span>
-            <span className="text-blue-400 font-medium">RajSaurabh Tools_Hub</span>
+            <span className="text-blue-400 font-medium">Toolix</span>
           </div>
         </div>
       </Modal>

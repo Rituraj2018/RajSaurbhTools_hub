@@ -79,6 +79,10 @@ const notificationSchema = new Schema<INotificationDocument>(
   }
 );
 
+// Performance Indexes
+notificationSchema.index({ user: 1, createdAt: -1 });
+notificationSchema.index({ user: 1, isRead: 1, createdAt: -1 });
+
 export const Notification: Model<INotificationDocument> =
   mongoose.models.Notification ||
   mongoose.model<INotificationDocument>('Notification', notificationSchema);

@@ -56,6 +56,8 @@ const IdCardPrintPreviewPage = React.lazy(() => import('../pages/IdCardPrintPrev
 const IdCardFormGeneratorPage = React.lazy(() => import('../pages/IdCardFormGeneratorPage').then((m) => ({ default: m.IdCardFormGeneratorPage })));
 const ImageCropperPage = React.lazy(() => import('../pages/ImageCropperPage').then((m) => ({ default: m.ImageCropperPage })));
 const ImageToSvgPage = React.lazy(() => import('../pages/ImageToSvgPage').then((m) => ({ default: m.ImageToSvgPage })));
+const PrivacyPolicyPage = React.lazy(() => import('../pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
+const TermsOfServicePage = React.lazy(() => import('../pages/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })));
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -128,6 +130,9 @@ export const AppRoutes: React.FC = () => {
         <Route path="/image-to-svg" element={<ImageToSvgPage />} />
         {/* Cloud OAuth callback — public route used inside OAuth popup */}
         <Route path="/cloud/callback" element={<CloudCallbackPage />} />
+        {/* Legal / Policy Pages — public routes required for Google OAuth Consent Screen */}
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
       </Route>
 
       {/* Guest / Auth Routes (Redirects authenticated users to /dashboard) */}

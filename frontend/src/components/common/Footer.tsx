@@ -502,6 +502,15 @@ export const Footer: React.FC = () => {
                   </button>
                 </li>
                 <li>
+                  <Link
+                    to="/privacy-policy"
+                    className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500/70 shrink-0" />
+                    <span>Privacy Policy</span>
+                  </Link>
+                </li>
+                <li>
                   <button
                     onClick={() => setActiveModal('terms')}
                     className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left w-full"
@@ -509,6 +518,15 @@ export const Footer: React.FC = () => {
                     <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                     <span>Terms of Use</span>
                   </button>
+                </li>
+                <li>
+                  <Link
+                    to="/terms-of-service"
+                    className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-amber-500/70 shrink-0" />
+                    <span>Terms of Service</span>
+                  </Link>
                 </li>
               </ul>
 

@@ -56,4 +56,7 @@ export * from './IdCardPrintPreviewPage';
 export * from './IdCardFormGeneratorPage';
 // Image to SVG Converter Tool
 export * from './ImageToSvgPage';
+// Legal / Policy Pages
+export * from './PrivacyPolicyPage';
+export * from './TermsOfServicePage';
 
